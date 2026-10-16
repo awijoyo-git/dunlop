@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Laporan Piutang Toko - PT. Indo Bali Satya Graha</title>
+  <meta name="description" content="Dashboard Piutang Ramah Lansia - Huruf Besar, Jelas & Mudah Dibaca">
+  
+  <!-- Google Fonts for ultimate readability -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-size-normal theme-soft-light">
+
+  <!-- TOP ACCESSIBILITY & NAVIGATION BAR -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <span class="brand-badge">DUNLOP</span>
+        <h1 class="brand-title" id="headerCompanyTitle">INDO BALI SATYA GRAHA</h1>
+        <p class="brand-subtitle" id="headerPeriodTitle">Laporan Piutang • Per 30 Sept 2026</p>
+      </div>
+
+      <!-- Quick Accessibility Toolbar (Teks Zoom & Tema) -->
+      <div class="toolbar-block">
+        <div class="zoom-controls" title="Ubah Ukuran Tulisan">
+          <span class="zoom-label">Ukuran Huruf:</span>
+          <button type="button" class="btn-zoom" id="btnZoomNormal" onclick="setFontSize('normal')">A</button>
+          <button type="button" class="btn-zoom active" id="btnZoomLarge" onclick="setFontSize('large')">A+</button>
+          <button type="button" class="btn-zoom" id="btnZoomXLarge" onclick="setFontSize('xlarge')">A++</button>
+        </div>
+        <div class="theme-controls">
+          <button type="button" class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Ganti Mode Terang / Gelap">
+            <span id="themeIcon">🌙</span> <span id="themeText">Malam</span>
+          </button>
+          <button type="button" class="btn-admin" onclick="openUpdateModal()" title="Update Data Bulanan">
+            ⚙️ Update
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY BACK BAR (Shown on sub-pages) -->
+    <nav class="sticky-nav-bar" id="stickyNavBar" style="display: none;">
+      <button type="button" class="btn-back" id="btnBackAction" onclick="navigateBack()">
+        <span class="back-arrow">←</span>
+        <span class="back-text" id="backButtonLabel">KEMBALI KE DASHBOARD</span>
+      </button>
+      <div class="breadcrumbs" id="breadcrumbText">Dashboard</div>
+    </nav>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-main">
+
+    <!-- VIEW 1: DASHBOARD -->
+    <section id="viewDashboard" class="view-panel active">
+      <!-- Total Piutang Card -->
+      <div class="grand-total-card">
+        <div class="card-badge">TOTAL PIUTANG BULAN INI</div>
+        <div class="grand-total-amount" id="dashboardGrandTotal">Rp 17.382.231.343</div>
+        <div class="grand-total-meta">
+          <span>🏢 <strong id="dashboardTotalStores">82</strong> Toko Terdaftar</span>
+          <span>•</span>
+          <span>📄 <strong id="dashboardTotalInvoices">1.674</strong> Nota Tagihan</span>
+        </div>
+      </div>
+
+      <!-- Instruction / Hint for Father -->
+      <div class="senior-guide-box">
+        <span class="guide-icon">👇</span>
+        <span class="guide-text"><strong>Ketuk salah satu kotak usia piutang</strong> di bawah ini untuk melihat daftar nama toko & rinciannya:</span>
+      </div>
+
+      <!-- Categories Grid -->
+      <div class="categories-grid">
+
+        <!-- Kategori < 30 Hari -->
+        <article class="cat-card card-lt30" onclick="openCategory('lt30')">
+          <div class="cat-header">
+            <span class="cat-tag tag-green">&lt; 30 HARI</span>
+            <span class="cat-status status-good">Lancar</span>
+          </div>
+          <div class="cat-title">Tagihan Kurang Dari 30 Hari</div>
+          <div class="cat-amount" id="catTotal_lt30">Rp 5.553.323.252</div>
+          <div class="cat-info">
+            <span id="catMeta_lt30">40 Toko • 612 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+        <!-- Kategori 31 - 60 Hari -->
+        <article class="cat-card card-3160" onclick="openCategory('31_60')">
+          <div class="cat-header">
+            <span class="cat-tag tag-blue">31 - 60 HARI</span>
+            <span class="cat-status status-info">Perhatian</span>
+          </div>
+          <div class="cat-title">Tagihan Usia 1 - 2 Bulan</div>
+          <div class="cat-amount" id="catTotal_31_60">Rp 4.768.110.414</div>
+          <div class="cat-info">
+            <span id="catMeta_31_60">38 Toko • 530 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+        <!-- Kategori 61 - 90 Hari -->
+        <article class="cat-card card-6190" onclick="openCategory('61_90')">
+          <div class="cat-header">
+            <span class="cat-tag tag-orange">61 - 90 HARI</span>
+            <span class="cat-status status-warning">Peringatan</span>
+          </div>
+          <div class="cat-title">Tagihan Usia 2 - 3 Bulan</div>
+          <div class="cat-amount" id="catTotal_61_90">Rp 3.248.508.499</div>
+          <div class="cat-info">
+            <span id="catMeta_61_90">26 Toko • 312 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+        <!-- Kategori > 90 Hari -->
+        <article class="cat-card card-gt90" onclick="openCategory('gt90')">
+          <div class="cat-header">
+            <span class="cat-tag tag-red">&gt; 90 HARI</span>
+            <span class="cat-status status-danger">Jatuh Tempo</span>
+          </div>
+          <div class="cat-title">Tagihan Kritis Lebih Dari 3 Bulan</div>
+          <div class="cat-amount text-danger" id="catTotal_gt90">Rp 3.812.289.178</div>
+          <div class="cat-breakdown" id="catBreakdown_gt90">
+            <span>91-120 hr: Rp 1.654.010.739</span>
+            <span>&gt; 120 hr: Rp 2.158.278.439</span>
+          </div>
+          <div class="cat-info">
+            <span id="catMeta_gt90">18 Toko • 220 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Quick Search All Stores Section -->
+      <div class="search-section">
+        <h2 class="section-title">🔍 Cari Nama Toko Langsung</h2>
+        <div class="search-input-wrap">
+          <input type="text" id="globalStoreSearch" class="input-search" placeholder="Ketik nama toko (contoh: OSCAR, TIMBUL, DUTA)..." oninput="handleGlobalSearch(this.value)">
+          <button type="button" class="btn-clear-search" onclick="clearGlobalSearch()" id="btnClearSearch">✕</button>
+        </div>
+        <div id="globalSearchResults" class="search-results-list"></div>
+      </div>
+
+      <!-- All Stores Quick Jump Button -->
+      <div class="all-stores-launcher">
+        <button type="button" class="btn-all-stores" onclick="openCategory('all')">
+          <span class="all-stores-icon">📋</span>
+          <span class="all-stores-label">Lihat Semua Daftar Toko (82 Toko Lengkap)</span>
+          <span class="all-stores-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- VIEW 2: SUMMARY TOKO PER KATEGORI -->
+    <section id="viewCategory" class="view-panel" style="display: none;">
+      <!-- Category Header Summary -->
+      <div class="category-banner" id="categoryBannerBox">
+        <div class="banner-top">
+          <span class="banner-tag" id="categoryBannerTag">&lt; 30 HARI</span>
+          <span class="banner-count" id="categoryStoreCount">40 Toko</span>
+        </div>
+        <h2 class="banner-title" id="categoryBannerTitle">Daftar Toko & Usia Piutang</h2>
+        <div class="banner-total-wrap">
+          <span class="banner-total-label">Total Piutang Kategori Ini:</span>
+          <div class="banner-total-value" id="categoryBannerTotal">Rp 5.553.323.252</div>
+        </div>
+        <div class="banner-subinfo" id="categoryBannerSubinfo">Usia tagihan antara 0 sampai 30 hari</div>
+      </div>
+
+      <!-- Filter & Search Inside Category -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <input type="text" id="catSearchInput" class="input-search" placeholder="Cari nama toko di daftar ini..." oninput="filterCategoryStores(this.value)">
+        </div>
+        <div class="sort-box">
+          <label for="catSortSelect" class="sort-label">Urutkan:</label>
+          <select id="catSortSelect" class="select-sort" onchange="sortCategoryStores(this.value)">
+            <option value="total-desc">Piutang Terbesar (Rupiah)</option>
+            <option value="name-asc">Nama Toko (A - Z)</option>
+            <option value="age-desc">Usia Piutang Terlama</option>
+            <option value="count-desc">Nota Terbanyak</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Store List in Category -->
+      <div class="store-cards-list" id="categoryStoreList">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+
+    <!-- VIEW 3: DETAIL TOKO -->
+    <section id="viewStore" class="view-panel" style="display: none;">
+      <!-- Store Header Card -->
+      <div class="store-banner">
+        <div class="store-code-pill" id="storeDetailCode">KODE: 113001</div>
+        <h2 class="store-name-title" id="storeDetailName">OSCAR VRS</h2>
+        <div class="store-total-box">
+          <span class="store-total-label">TOTAL PIUTANG TOKO:</span>
+          <div class="store-total-amount" id="storeDetailTotal">Rp 550.619.889</div>
+          <div class="store-meta-summary" id="storeDetailMeta">Total 78 Nota Tagihan</div>
+        </div>
+      </div>
+
+      <!-- Senior Instruction -->
+      <div class="senior-guide-box">
+        <span class="guide-icon">📑</span>
+        <span class="guide-text">Berikut rincian nota piutang toko ini yang dikelompokkan berdasarkan <strong>kategori usia piutang</strong>:</span>
+      </div>
+
+      <!-- Store Category Groups Container -->
+      <div class="store-buckets-container" id="storeBucketsList">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- UPDATE DATA MODAL (FOR MONTHLY UPDATES) -->
+  <div class="modal-backdrop" id="updateModal" style="display: none;" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">📥 Update Data Piutang Bulanan</h3>
+        <button type="button" class="btn-close-modal" onclick="closeUpdateModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Kamu dapat memperbarui data piutang setiap bulan secara langsung dengan salah satu cara berikut:
+        </p>
+
+        <div class="upload-options">
+          <div class="upload-opt-card">
+            <h4>Cara 1: Upload File data.json</h4>
+            <p>Jika kamu sudah generate file <code>data.json</code> baru dengan script OCR lokal:</p>
+            <input type="file" id="jsonFileInput" accept=".json" onchange="handleJsonFileUpload(event)" class="file-input">
+          </div>
+
+          <div class="upload-opt-card">
+            <h4>Cara 2: Tempel (Paste) Teks OCR dari PDF</h4>
+            <p>Tempel langsung hasil teks OCR laporan piutang bulanan ke kotak di bawah ini:</p>
+            <textarea id="rawOcrTextarea" class="ocr-textarea" rows="8" placeholder="Tempel teks OCR laporan di sini..."></textarea>
+            <button type="button" class="btn-primary" onclick="parseRawOcrTextarea()">⚡ Proses & Update Teks Ini</button>
+          </div>
+        </div>
+
+        <div id="updateStatusMsg" class="update-status-msg" style="display: none;"></div>
+
+        <div class="export-actions">
+          <button type="button" class="btn-secondary" onclick="downloadCurrentJson()">💾 Download data.json Saat Ini</button>
+          <button type="button" class="btn-secondary" onclick="restoreOriginalData()">🔄 Pulihkan ke Data Awal (30 Sept 2026)</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeUpdateModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD DATA (Embedded Fallback + External) -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
