@@ -357,44 +357,57 @@ function renderDashboard() {
 
   const meta = piutangData.meta || {};
   const cats = piutangData.categories || {};
+  const grandTotal = meta.grandTotal || 0;
 
   // Headers
   if (meta.company) document.getElementById('headerCompanyTitle').textContent = meta.company;
   if (meta.period) document.getElementById('headerPeriodTitle').textContent = `Laporan Piutang • Per ${meta.period}`;
 
   // Grand Total Card
-  document.getElementById('dashboardGrandTotal').textContent = formatRupiah(meta.grandTotal || 0);
+  document.getElementById('dashboardGrandTotal').textContent = formatRupiah(grandTotal);
   document.getElementById('dashboardTotalStores').textContent = meta.totalStores || (piutangData.stores?.length || 0);
   document.getElementById('dashboardTotalInvoices').textContent = (meta.totalInvoices || 0).toLocaleString('id-ID');
 
-  // 1. < 30 Hari
-  const c30 = cats['lt30'] || {};
-  document.getElementById('catTotal_lt30').textContent = formatRupiah(c30.total || 0);
-  document.getElementById('catMeta_lt30').textContent = `${c30.stores?.length || 0} Toko • ${(c30.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+  const catKeys = [
+    { key: 'lt30', label: '< 30 Hari' },
+    { key: '31_60', label: '31 - 60 Hari' },
+    { key: '61_90', label: '61 - 90 Hari' },
+    { key: '91_120', label: '91 - 120 Hari' },
+    { key: 'gt120', label: '> 120 Hari' }
+  ];
 
-  // 2. 31 - 60 Hari
-  const c60 = cats['31_60'] || {};
-  document.getElementById('catTotal_31_60').textContent = formatRupiah(c60.total || 0);
-  document.getElementById('catMeta_31_60').textContent = `${c60.stores?.length || 0} Toko • ${(c60.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+  catKeys.forEach(({ key, label }) => {
+    const cat = cats[key] || {};
+    const catTotal = cat.total || 0;
+    const pct = grandTotal > 0 ? (catTotal / grandTotal) * 100 : 0;
+    const pctFormatted = pct.toFixed(2).replace('.', ',') + '%';
 
-  // 3. 61 - 90 Hari
-  const c90 = cats['61_90'] || {};
-  document.getElementById('catTotal_61_90').textContent = formatRupiah(c90.total || 0);
-  document.getElementById('catMeta_61_90').textContent = `${c90.stores?.length || 0} Toko • ${(c90.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+    // 1. Text Total & Store/Invoice Meta
+    const totalEl = document.getElementById(`catTotal_${key}`);
+    const metaEl = document.getElementById(`catMeta_${key}`);
+    if (totalEl) totalEl.textContent = formatRupiah(catTotal);
+    if (metaEl) metaEl.textContent = `${cat.stores?.length || 0} Toko • ${(cat.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 
-  // 4. 91 - 120 Hari
-  const c120 = cats['91_120'] || {};
-  const catTotal91120 = document.getElementById('catTotal_91_120');
-  const catMeta91120 = document.getElementById('catMeta_91_120');
-  if (catTotal91120) catTotal91120.textContent = formatRupiah(c120.total || 0);
-  if (catMeta91120) catMeta91120.textContent = `${c120.stores?.length || 0} Toko • ${(c120.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+    // 2. Percentage Badges on Category Cards
+    const catPctEl = document.getElementById(`catPct_${key}`);
+    if (catPctEl) catPctEl.textContent = pctFormatted;
 
-  // 5. > 120 Hari
-  const cGt120 = cats['gt120'] || {};
-  const catTotalGt120 = document.getElementById('catTotal_gt120');
-  const catMetaGt120 = document.getElementById('catMeta_gt120');
-  if (catTotalGt120) catTotalGt120.textContent = formatRupiah(cGt120.total || 0);
-  if (catMetaGt120) catMetaGt120.textContent = `${cGt120.stores?.length || 0} Toko • ${(cGt120.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+    // 3. Progress Bar inside Category Cards
+    const catProgEl = document.getElementById(`catProgressBar_${key}`);
+    if (catProgEl) catProgEl.style.width = `${pct.toFixed(2)}%`;
+
+    // 4. Distribution Stacked Bar
+    const segBarEl = document.getElementById(`segBar_${key}`);
+    if (segBarEl) {
+      segBarEl.style.width = `${pct.toFixed(2)}%`;
+      segBarEl.textContent = pctFormatted;
+      segBarEl.title = `${label}: ${pctFormatted} (${formatRupiah(catTotal)})`;
+    }
+
+    // 5. Distribution Legend Badge
+    const distPctEl = document.getElementById(`distPct_${key}`);
+    if (distPctEl) distPctEl.textContent = pctFormatted;
+  });
 }
 
 // Global Search
@@ -466,12 +479,15 @@ function showCategoryView(catId, updateUrl = true) {
   let catTagClass = 'tag-green';
   let catTotal = 0;
   let catSubinfo = '';
+  let catPctStr = '';
   let storesList = [];
+  const grandTotal = piutangData.meta?.grandTotal || 0;
 
   if (catId === 'all') {
     catTitle = 'Semua Toko Terdaftar';
     catTagClass = 'tag-blue';
-    catTotal = piutangData.meta?.grandTotal || 0;
+    catTotal = grandTotal;
+    catPctStr = '100%';
     catSubinfo = 'Daftar seluruh 82 toko piutang';
     storesList = (piutangData.stores || []).map(s => ({
       kode: s.kode,
@@ -485,7 +501,9 @@ function showCategoryView(catId, updateUrl = true) {
     const catData = piutangData.categories[catId] || {};
     catTitle = catData.label || 'Kategori Piutang';
     catTotal = catData.total || 0;
-    catSubinfo = catData.sublabel || '';
+    const pct = grandTotal > 0 ? (catTotal / grandTotal) * 100 : 0;
+    catPctStr = pct.toFixed(2).replace('.', ',') + '%';
+    catSubinfo = `${catData.sublabel || ''} • Porsi: ${catPctStr} dari Total Piutang`;
     storesList = catData.stores || [];
 
     if (catId === 'lt30') catTagClass = 'tag-green';
@@ -499,6 +517,11 @@ function showCategoryView(catId, updateUrl = true) {
   const tagEl = document.getElementById('categoryBannerTag');
   tagEl.textContent = catId === 'all' ? 'SEMUA TOKO' : catTitle.toUpperCase();
   tagEl.className = `banner-tag ${catTagClass}`;
+
+  const pctBadgeEl = document.getElementById('categoryBannerPct');
+  if (pctBadgeEl) {
+    pctBadgeEl.textContent = catPctStr;
+  }
 
   document.getElementById('categoryStoreCount').textContent = `${storesList.length} Toko`;
   document.getElementById('categoryBannerTitle').textContent = `Daftar Toko (${catTitle})`;
