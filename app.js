@@ -3,11 +3,13 @@
  * PT. Indo Bali Satya Graha
  */
 
+// Application Constants
+const APP_PASSWORD = "mihardjo";
+
 // Global State
 let piutangData = null;
 let currentCategoryId = null;
 let currentStoreKode = null;
-let navigationHistory = [];
 let categorySortOrder = 'total-desc';
 let activeCategoryFilterText = '';
 
@@ -31,15 +33,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initPreferences();
   loadData();
   setupHashRouting();
+
+  // Check Authentication
+  if (!isAuthenticated()) {
+    showLoginView();
+  } else {
+    onLoginSuccess(false);
+  }
 });
 
+// ==========================================================================
+// PREFERENCES (DEFAULT: MODE MALAM & UKURAN NORMAL)
+// ==========================================================================
+
 function initPreferences() {
-  // Font Size
-  const savedFont = localStorage.getItem('dunlop_font_size') || 'large'; // Default 'large' for elderly
+  // Default font size: normal (paling kecil)
+  const savedFont = localStorage.getItem('dunlop_font_size') || 'normal';
   setFontSize(savedFont);
 
-  // Theme
-  const savedTheme = localStorage.getItem('dunlop_theme') || 'soft-light';
+  // Default theme: soft-dark (mode malam)
+  const savedTheme = localStorage.getItem('dunlop_theme') || 'soft-dark';
   applyTheme(savedTheme);
 }
 
@@ -63,15 +76,120 @@ function applyTheme(theme) {
   if (theme === 'soft-dark') {
     document.body.classList.remove('theme-soft-light');
     document.body.classList.add('theme-soft-dark');
-    document.getElementById('themeIcon').textContent = '☀️';
-    document.getElementById('themeText').textContent = 'Siang';
+    const icon = document.getElementById('themeIcon');
+    const text = document.getElementById('themeText');
+    if (icon) icon.textContent = '☀️';
+    if (text) text.textContent = 'Siang';
   } else {
     document.body.classList.remove('theme-soft-dark');
     document.body.classList.add('theme-soft-light');
-    document.getElementById('themeIcon').textContent = '🌙';
-    document.getElementById('themeText').textContent = 'Malam';
+    const icon = document.getElementById('themeIcon');
+    const text = document.getElementById('themeText');
+    if (icon) icon.textContent = '🌙';
+    if (text) text.textContent = 'Malam';
   }
   localStorage.setItem('dunlop_theme', theme);
+}
+
+// ==========================================================================
+// AUTHENTICATION (PASSWORD: "mihardjo")
+// ==========================================================================
+
+function isAuthenticated() {
+  return localStorage.getItem('dunlop_auth') === 'true' || sessionStorage.getItem('dunlop_auth') === 'true';
+}
+
+function handleLoginSubmit(event) {
+  event.preventDefault();
+  const inputEl = document.getElementById('inputPassword');
+  const errorEl = document.getElementById('loginErrorMsg');
+  const rememberCheckbox = document.getElementById('rememberMeCheckbox');
+  const enteredPass = (inputEl.value || '').trim();
+
+  // Case-insensitive comparison for elderly convenience
+  if (enteredPass.toLowerCase() === APP_PASSWORD.toLowerCase()) {
+    // Success
+    errorEl.style.display = 'none';
+    inputEl.classList.remove('has-error');
+
+    if (rememberCheckbox && rememberCheckbox.checked) {
+      localStorage.setItem('dunlop_auth', 'true');
+    } else {
+      sessionStorage.setItem('dunlop_auth', 'true');
+    }
+
+    onLoginSuccess(true);
+  } else {
+    // Fail
+    errorEl.style.display = 'block';
+    inputEl.classList.add('has-error');
+    inputEl.focus();
+    inputEl.select();
+  }
+}
+
+function onLoginSuccess(animate = true) {
+  // Show admin & logout buttons in header
+  const btnLogout = document.getElementById('btnLogout');
+  const btnAdmin = document.getElementById('btnAdmin');
+  if (btnLogout) btnLogout.style.display = 'inline-flex';
+  if (btnAdmin) btnAdmin.style.display = 'inline-flex';
+
+  // Hide login view
+  const viewLogin = document.getElementById('viewLogin');
+  if (viewLogin) viewLogin.style.display = 'none';
+
+  // Process route
+  handleInitialRoute();
+}
+
+function showLoginView() {
+  // Hide all panels
+  document.getElementById('viewLogin').style.display = 'flex';
+  document.getElementById('viewDashboard').style.display = 'none';
+  document.getElementById('viewCategory').style.display = 'none';
+  document.getElementById('viewStore').style.display = 'none';
+
+  // Hide sticky bar, admin & logout
+  updateStickyBar(false);
+  const btnLogout = document.getElementById('btnLogout');
+  const btnAdmin = document.getElementById('btnAdmin');
+  if (btnLogout) btnLogout.style.display = 'none';
+  if (btnAdmin) btnAdmin.style.display = 'none';
+
+  const inputEl = document.getElementById('inputPassword');
+  if (inputEl) {
+    inputEl.value = '';
+    inputEl.classList.remove('has-error');
+    inputEl.focus();
+  }
+  const errorEl = document.getElementById('loginErrorMsg');
+  if (errorEl) errorEl.style.display = 'none';
+}
+
+function handleLogout() {
+  if (confirm('Apakah Anda ingin keluar dan mengunci layar?')) {
+    localStorage.removeItem('dunlop_auth');
+    sessionStorage.removeItem('dunlop_auth');
+    window.location.hash = '';
+    showLoginView();
+  }
+}
+
+function togglePasswordVisibility() {
+  const inputEl = document.getElementById('inputPassword');
+  const btnEl = document.getElementById('btnTogglePassword');
+  if (!inputEl) return;
+
+  if (inputEl.type === 'password') {
+    inputEl.type = 'text';
+    btnEl.textContent = '🙈';
+    btnEl.title = 'Sembunyikan Kata Sandi';
+  } else {
+    inputEl.type = 'password';
+    btnEl.textContent = '👁️';
+    btnEl.title = 'Lihat Kata Sandi';
+  }
 }
 
 // ==========================================================================
@@ -86,7 +204,7 @@ function loadData() {
       piutangData = JSON.parse(localDb);
       console.log('Loaded custom data from localStorage');
       renderDashboard();
-      handleInitialRoute();
+      if (isAuthenticated()) handleInitialRoute();
       return;
     } catch (e) {
       console.error('Error parsing local storage data', e);
@@ -98,7 +216,7 @@ function loadData() {
     piutangData = window.PIUTANG_DATA;
     console.log('Loaded data from window.PIUTANG_DATA');
     renderDashboard();
-    handleInitialRoute();
+    if (isAuthenticated()) handleInitialRoute();
     return;
   }
 
@@ -108,25 +226,32 @@ function loadData() {
     .then(data => {
       piutangData = data;
       renderDashboard();
-      handleInitialRoute();
+      if (isAuthenticated()) handleInitialRoute();
     })
     .catch(err => {
       console.error('Could not load data.json', err);
-      alert('Gagal memuat data piutang. Silakan refresh atau upload data.');
     });
 }
 
 // ==========================================================================
-// ROUTING & NAVIGATION (EXACT BACK BUTTON)
+// ROUTING & NAVIGATION (EXACT BACK BUTTON & ROUTE GUARD)
 // ==========================================================================
 
 function setupHashRouting() {
   window.addEventListener('hashchange', () => {
+    if (!isAuthenticated()) {
+      showLoginView();
+      return;
+    }
     processHashRoute(window.location.hash);
   });
 }
 
 function handleInitialRoute() {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
   if (window.location.hash) {
     processHashRoute(window.location.hash);
   } else {
@@ -135,6 +260,11 @@ function handleInitialRoute() {
 }
 
 function processHashRoute(hash) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
   if (!hash || hash === '#' || hash === '#/' || hash === '#dashboard') {
     showDashboardView(false);
     return;
@@ -164,15 +294,18 @@ function navigateTo(hash, pushState = true) {
 }
 
 function navigateBack() {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
   if (currentStoreKode) {
-    // If in Store detail, go back to previous category or all-stores or dashboard
     if (currentCategoryId) {
       navigateTo(`#/category/${currentCategoryId}`);
     } else {
       navigateTo('#/');
     }
   } else if (currentCategoryId) {
-    // If in Category view, go back to dashboard
     navigateTo('#/');
   } else {
     navigateTo('#/');
@@ -198,9 +331,15 @@ function updateStickyBar(visible, backLabel, breadcrumb) {
 // ==========================================================================
 
 function showDashboardView(updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
   currentCategoryId = null;
   currentStoreKode = null;
 
+  document.getElementById('viewLogin').style.display = 'none';
   document.getElementById('viewDashboard').style.display = 'flex';
   document.getElementById('viewCategory').style.display = 'none';
   document.getElementById('viewStore').style.display = 'none';
@@ -228,33 +367,34 @@ function renderDashboard() {
   document.getElementById('dashboardTotalStores').textContent = meta.totalStores || (piutangData.stores?.length || 0);
   document.getElementById('dashboardTotalInvoices').textContent = (meta.totalInvoices || 0).toLocaleString('id-ID');
 
-  // Category Totals & Metas
-  // < 30 Hari
+  // 1. < 30 Hari
   const c30 = cats['lt30'] || {};
   document.getElementById('catTotal_lt30').textContent = formatRupiah(c30.total || 0);
   document.getElementById('catMeta_lt30').textContent = `${c30.stores?.length || 0} Toko • ${(c30.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 
-  // 31 - 60 Hari
+  // 2. 31 - 60 Hari
   const c60 = cats['31_60'] || {};
   document.getElementById('catTotal_31_60').textContent = formatRupiah(c60.total || 0);
   document.getElementById('catMeta_31_60').textContent = `${c60.stores?.length || 0} Toko • ${(c60.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 
-  // 61 - 90 Hari
+  // 3. 61 - 90 Hari
   const c90 = cats['61_90'] || {};
   document.getElementById('catTotal_61_90').textContent = formatRupiah(c90.total || 0);
   document.getElementById('catMeta_61_90').textContent = `${c90.stores?.length || 0} Toko • ${(c90.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 
-  // > 90 Hari
-  const cGt90 = cats['gt90'] || {};
-  document.getElementById('catTotal_gt90').textContent = formatRupiah(cGt90.total || 0);
-  document.getElementById('catMeta_gt90').textContent = `${cGt90.stores?.length || 0} Toko • ${(cGt90.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
+  // 4. 91 - 120 Hari
+  const c120 = cats['91_120'] || {};
+  const catTotal91120 = document.getElementById('catTotal_91_120');
+  const catMeta91120 = document.getElementById('catMeta_91_120');
+  if (catTotal91120) catTotal91120.textContent = formatRupiah(c120.total || 0);
+  if (catMeta91120) catMeta91120.textContent = `${c120.stores?.length || 0} Toko • ${(c120.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 
-  if (cGt90.breakdown) {
-    document.getElementById('catBreakdown_gt90').innerHTML = `
-      <span>91 - 120 hr: ${formatRupiah(cGt90.breakdown.b91_120 || 0)}</span>
-      <span>&gt; 120 hr: ${formatRupiah(cGt90.breakdown.bOver120 || 0)}</span>
-    `;
-  }
+  // 5. > 120 Hari
+  const cGt120 = cats['gt120'] || {};
+  const catTotalGt120 = document.getElementById('catTotal_gt120');
+  const catMetaGt120 = document.getElementById('catMeta_gt120');
+  if (catTotalGt120) catTotalGt120.textContent = formatRupiah(cGt120.total || 0);
+  if (catMetaGt120) catMetaGt120.textContent = `${cGt120.stores?.length || 0} Toko • ${(cGt120.invoiceCount || 0).toLocaleString('id-ID')} Nota`;
 }
 
 // Global Search
@@ -300,7 +440,7 @@ function clearGlobalSearch() {
 }
 
 // ==========================================================================
-// VIEW 2: CATEGORY STORE LIST
+// VIEW 2: CATEGORY STORE LIST (5 CATEGORIES)
 // ==========================================================================
 
 function openCategory(catId) {
@@ -308,15 +448,20 @@ function openCategory(catId) {
 }
 
 function showCategoryView(catId, updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
   currentCategoryId = catId;
   currentStoreKode = null;
   activeCategoryFilterText = '';
 
+  document.getElementById('viewLogin').style.display = 'none';
   document.getElementById('viewDashboard').style.display = 'none';
   document.getElementById('viewCategory').style.display = 'flex';
   document.getElementById('viewStore').style.display = 'none';
 
-  // Setup Sticky Header
   let catTitle = '';
   let catTagClass = 'tag-green';
   let catTotal = 0;
@@ -346,7 +491,8 @@ function showCategoryView(catId, updateUrl = true) {
     if (catId === 'lt30') catTagClass = 'tag-green';
     else if (catId === '31_60') catTagClass = 'tag-blue';
     else if (catId === '61_90') catTagClass = 'tag-orange';
-    else if (catId === 'gt90') catTagClass = 'tag-red';
+    else if (catId === '91_120') catTagClass = 'tag-rose';
+    else if (catId === 'gt120') catTagClass = 'tag-darkred';
   }
 
   // Render Banner
@@ -359,7 +505,6 @@ function showCategoryView(catId, updateUrl = true) {
   document.getElementById('categoryBannerTotal').textContent = formatRupiah(catTotal);
   document.getElementById('categoryBannerSubinfo').textContent = catSubinfo;
 
-  // Clear search input
   const searchInput = document.getElementById('catSearchInput');
   if (searchInput) searchInput.value = '';
 
@@ -462,7 +607,7 @@ function applyCategoryFilterAndSort() {
 }
 
 // ==========================================================================
-// VIEW 3: STORE DETAIL
+// VIEW 3: STORE DETAIL (5 CATEGORY GROUPS)
 // ==========================================================================
 
 function openStoreDetail(kode, fromCat) {
@@ -474,9 +619,15 @@ function openStoreDetail(kode, fromCat) {
 }
 
 function showStoreDetailView(kode, fromCat, updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
   currentStoreKode = kode;
   if (fromCat) currentCategoryId = fromCat;
 
+  document.getElementById('viewLogin').style.display = 'none';
   document.getElementById('viewDashboard').style.display = 'none';
   document.getElementById('viewCategory').style.display = 'none';
   document.getElementById('viewStore').style.display = 'flex';
@@ -494,7 +645,7 @@ function showStoreDetailView(kode, fromCat, updateUrl = true) {
   document.getElementById('storeDetailTotal').textContent = formatRupiah(store.totalPiutang);
   document.getElementById('storeDetailMeta').textContent = `Total ${store.invoiceCount} Nota Tagihan`;
 
-  // Render Category Groups for this Store
+  // Render 5 Category Groups for this Store
   renderStoreBucketGroups(store);
 
   // Sticky Back Bar
@@ -517,12 +668,13 @@ function renderStoreBucketGroups(store) {
   const container = document.getElementById('storeBucketsList');
   if (!container) return;
 
-  const order = ['lt30', '31_60', '61_90', 'gt90'];
+  const order = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
   const catStyles = {
-    'lt30': { tag: '< 30 HARI', class: 'tag-green' },
-    '31_60': { tag: '31 - 60 HARI', class: 'tag-blue' },
-    '61_90': { tag: '61 - 90 HARI', class: 'tag-orange' },
-    'gt90':  { tag: '> 90 HARI', class: 'tag-red' }
+    'lt30':   { tag: '< 30 HARI',   class: 'tag-green' },
+    '31_60':  { tag: '31 - 60 HARI', class: 'tag-blue' },
+    '61_90':  { tag: '61 - 90 HARI', class: 'tag-orange' },
+    '91_120': { tag: '91 - 120 HARI', class: 'tag-rose' },
+    'gt120':  { tag: '> 120 HARI',  class: 'tag-darkred' }
   };
 
   let html = '';
@@ -545,7 +697,7 @@ function renderStoreBucketGroups(store) {
         </div>
 
         <div class="bucket-invoices-list">
-          ${invoices.map((inv, idx) => `
+          ${invoices.map((inv) => `
             <div class="invoice-item">
               <div class="invoice-row-main">
                 <span class="invoice-amount">${formatRupiah(inv.jumlah)}</span>
@@ -585,7 +737,6 @@ function closeModalOnBackdrop(e) {
   }
 }
 
-// Option 1: Upload JSON file
 function handleJsonFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -605,7 +756,6 @@ function handleJsonFileUpload(event) {
   reader.readAsText(file);
 }
 
-// Option 2: Parse Raw OCR Text
 function parseRawOcrTextarea() {
   const text = document.getElementById('rawOcrTextarea').value;
   if (!text || text.trim().length === 0) {
@@ -616,7 +766,7 @@ function parseRawOcrTextarea() {
   try {
     const parsedDb = parseOcrString(text);
     if (!parsedDb || parsedDb.stores.length === 0) {
-      throw new Error('Tidak ada data nota atau toko yang berhasil diparsing. Pastikan teks berisi format kolom laporan piutang.');
+      throw new Error('Tidak ada data nota atau toko yang berhasil diparsing. Pastikan format teks laporan sesuai.');
     }
     applyNewData(parsedDb, `Berhasil memproses ${parsedDb.meta.totalStores} Toko & ${parsedDb.meta.totalInvoices} Nota!`);
   } catch (err) {
@@ -671,11 +821,10 @@ function restoreOriginalData() {
   }
 }
 
-// Client-Side OCR Parser
+// Client-Side OCR Parser for 5 exact categories
 function parseOcrString(text) {
   const lines = text.split(/\r?\n/);
   
-  // Try to detect report date
   let reportDate = new Date();
   let periodText = 'September 2026';
   for (const l of lines) {
@@ -725,7 +874,6 @@ function parseOcrString(text) {
 
         let ket = rem.slice(6).join(' ');
 
-        // calculate age days
         let ageDays = 0;
         const dParts = dateStr.split('/');
         if (dParts.length === 3) {
@@ -742,11 +890,12 @@ function parseOcrString(text) {
         }
 
         let catId = 'lt30';
-        let catLabel = '< 30 hari';
-        if (b30 > 0) { catId = 'lt30'; catLabel = '< 30 hari'; }
-        else if (b60 > 0) { catId = '31_60'; catLabel = '31 - 60 hari'; }
-        else if (b90 > 0) { catId = '61_90'; catLabel = '61 - 90 hari'; }
-        else if (b120 > 0 || bOver > 0) { catId = 'gt90'; catLabel = '> 90 hari'; }
+        let catLabel = '< 30 Hari';
+        if (b30 > 0) { catId = 'lt30'; catLabel = '< 30 Hari'; }
+        else if (b60 > 0) { catId = '31_60'; catLabel = '31 - 60 Hari'; }
+        else if (b90 > 0) { catId = '61_90'; catLabel = '61 - 90 Hari'; }
+        else if (b120 > 0) { catId = '91_120'; catLabel = '91 - 120 Hari'; }
+        else if (bOver > 0) { catId = 'gt120'; catLabel = '> 120 Hari'; }
 
         invoices.push({
           kode,
@@ -764,7 +913,6 @@ function parseOcrString(text) {
     }
   });
 
-  // Group stores
   const storeMap = {};
   invoices.forEach(inv => {
     if (!storeMap[inv.kode]) {
@@ -775,10 +923,11 @@ function parseOcrString(text) {
         invoiceCount: 0,
         invoices: [],
         categories: {
-          'lt30': { id: 'lt30', label: '< 30 hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          '31_60': { id: '31_60', label: '31 - 60 hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          '61_90': { id: '61_90', label: '61 - 90 hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          'gt90':  { id: 'gt90',  label: '> 90 hari',  total: 0, minAge: 99999, maxAge: 0, invoices: [], breakdown: { b91_120: 0, bOver120: 0 } }
+          'lt30':   { id: 'lt30',   label: '< 30 Hari',   total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '31_60':  { id: '31_60',  label: '31 - 60 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '61_90':  { id: '61_90',  label: '61 - 90 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '91_120': { id: '91_120', label: '91 - 120 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          'gt120':  { id: 'gt120',  label: '> 120 Hari',  total: 0, minAge: 99999, maxAge: 0, invoices: [] }
         }
       };
     }
@@ -797,30 +946,24 @@ function parseOcrString(text) {
     if (inv.umurHari < c.minAge) c.minAge = inv.umurHari;
     if (inv.umurHari > c.maxAge) c.maxAge = inv.umurHari;
     c.invoices.push(inv);
-
-    if (inv.catId === 'gt90') {
-      if (inv.b120 > 0) c.breakdown.b91_120 += inv.b120;
-      if (inv.bOver120 > 0) c.breakdown.bOver120 += inv.bOver120;
-    }
   });
 
-  // Fix minAge for empty categories
   Object.values(storeMap).forEach(s => {
     Object.values(s.categories).forEach(c => {
       if (c.invoices.length === 0) c.minAge = 0;
     });
   });
 
-  // Categories summary
   const catSummary = {
-    'lt30': { id: 'lt30', label: '< 30 hari', sublabel: 'Usia 0 - 30 hari', total: 0, invoiceCount: 0, stores: [] },
-    '31_60': { id: '31_60', label: '31 - 60 hari', sublabel: 'Usia 31 - 60 hari', total: 0, invoiceCount: 0, stores: [] },
-    '61_90': { id: '61_90', label: '61 - 90 hari', sublabel: 'Usia 61 - 90 hari', total: 0, invoiceCount: 0, stores: [] },
-    'gt90':  { id: 'gt90',  label: '> 90 hari',  sublabel: 'Usia lebih dari 90 hari', total: 0, invoiceCount: 0, breakdown: { b91_120: 0, bOver120: 0 }, stores: [] }
+    'lt30':   { id: 'lt30',   label: '< 30 Hari',   sublabel: 'Usia 0 - 30 hari',   total: 0, invoiceCount: 0, stores: [] },
+    '31_60':  { id: '31_60',  label: '31 - 60 Hari', sublabel: 'Usia 31 - 60 hari',  total: 0, invoiceCount: 0, stores: [] },
+    '61_90':  { id: '61_90',  label: '61 - 90 Hari', sublabel: 'Usia 61 - 90 hari',  total: 0, invoiceCount: 0, stores: [] },
+    '91_120': { id: '91_120', label: '91 - 120 Hari', sublabel: 'Usia 91 - 120 hari', total: 0, invoiceCount: 0, stores: [] },
+    'gt120':  { id: 'gt120',  label: '> 120 Hari',  sublabel: 'Usia lebih dari 120 hari', total: 0, invoiceCount: 0, stores: [] }
   };
 
   Object.values(storeMap).forEach(s => {
-    ['lt30', '31_60', '61_90', 'gt90'].forEach(catId => {
+    ['lt30', '31_60', '61_90', '91_120', 'gt120'].forEach(catId => {
       const sc = s.categories[catId];
       if (sc.total > 0) {
         const cSum = catSummary[catId];
@@ -834,15 +977,10 @@ function parseOcrString(text) {
           minAge: sc.minAge,
           maxAge: sc.maxAge
         });
-        if (catId === 'gt90') {
-          cSum.breakdown.b91_120 += sc.breakdown.b91_120;
-          cSum.breakdown.bOver120 += sc.breakdown.bOver120;
-        }
       }
     });
   });
 
-  // Sort
   Object.values(catSummary).forEach(c => {
     c.stores.sort((a, b) => b.total - a.total);
   });

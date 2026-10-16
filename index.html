@@ -13,7 +13,7 @@
   
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="font-size-normal theme-soft-light">
+<body class="font-size-normal theme-soft-dark">
 
   <!-- TOP ACCESSIBILITY & NAVIGATION BAR -->
   <header class="app-header">
@@ -28,16 +28,19 @@
       <div class="toolbar-block">
         <div class="zoom-controls" title="Ubah Ukuran Tulisan">
           <span class="zoom-label">Ukuran Huruf:</span>
-          <button type="button" class="btn-zoom" id="btnZoomNormal" onclick="setFontSize('normal')">A</button>
-          <button type="button" class="btn-zoom active" id="btnZoomLarge" onclick="setFontSize('large')">A+</button>
+          <button type="button" class="btn-zoom active" id="btnZoomNormal" onclick="setFontSize('normal')">A</button>
+          <button type="button" class="btn-zoom" id="btnZoomLarge" onclick="setFontSize('large')">A+</button>
           <button type="button" class="btn-zoom" id="btnZoomXLarge" onclick="setFontSize('xlarge')">A++</button>
         </div>
         <div class="theme-controls">
           <button type="button" class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Ganti Mode Terang / Gelap">
-            <span id="themeIcon">🌙</span> <span id="themeText">Malam</span>
+            <span id="themeIcon">☀️</span> <span id="themeText">Siang</span>
           </button>
-          <button type="button" class="btn-admin" onclick="openUpdateModal()" title="Update Data Bulanan">
+          <button type="button" class="btn-admin" id="btnAdmin" onclick="openUpdateModal()" title="Update Data Bulanan" style="display: none;">
             ⚙️ Update
+          </button>
+          <button type="button" class="btn-logout" id="btnLogout" onclick="handleLogout()" title="Keluar / Kunci Layar" style="display: none;">
+            🚪 Keluar
           </button>
         </div>
       </div>
@@ -56,8 +59,50 @@
   <!-- MAIN APP CONTAINER -->
   <main class="app-main">
 
+    <!-- VIEW 0: LOGIN SCREEN (DI AWAL MASUK) -->
+    <section id="viewLogin" class="view-panel login-panel">
+      <div class="login-card">
+        <div class="login-icon-box">🔐</div>
+        <div class="login-badge">AKSES TERBATAS</div>
+        <h2 class="login-title">Laporan Piutang Toko</h2>
+        <p class="login-subtitle">Silakan masukkan kata sandi untuk membuka laporan piutang.</p>
+
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="login-form">
+          <div class="form-group">
+            <label for="inputPassword" class="form-label">Kata Sandi:</label>
+            <div class="password-input-wrap">
+              <input type="password" id="inputPassword" class="input-password" placeholder="Ketik kata sandi..." autocomplete="current-password" autofocus required>
+              <button type="button" class="btn-toggle-eye" id="btnTogglePassword" onclick="togglePasswordVisibility()" title="Lihat Kata Sandi">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-checkbox-label">
+              <input type="checkbox" id="rememberMeCheckbox" checked>
+              <span>Ingat saya di perangkat ini</span>
+            </label>
+          </div>
+
+          <div id="loginErrorMsg" class="login-error-box" style="display: none;">
+            ⚠️ Kata sandi salah! Silakan coba ketik ulang dengan benar.
+          </div>
+
+          <button type="submit" class="btn-login-submit">
+            <span>MASUK KE LAPORAN</span>
+            <span class="submit-arrow">→</span>
+          </button>
+        </form>
+
+        <div class="login-footer-hint">
+          PT. Indo Bali Satya Graha • Laporan Bulanan
+        </div>
+      </div>
+    </section>
+
     <!-- VIEW 1: DASHBOARD -->
-    <section id="viewDashboard" class="view-panel active">
+    <section id="viewDashboard" class="view-panel" style="display: none;">
       <!-- Total Piutang Card -->
       <div class="grand-total-card">
         <div class="card-badge">TOTAL PIUTANG BULAN INI</div>
@@ -120,20 +165,30 @@
           </div>
         </article>
 
-        <!-- Kategori > 90 Hari -->
-        <article class="cat-card card-gt90" onclick="openCategory('gt90')">
+        <!-- Kategori 91 - 120 Hari -->
+        <article class="cat-card card-91120" onclick="openCategory('91_120')">
           <div class="cat-header">
-            <span class="cat-tag tag-red">&gt; 90 HARI</span>
+            <span class="cat-tag tag-rose">91 - 120 HARI</span>
             <span class="cat-status status-danger">Jatuh Tempo</span>
           </div>
-          <div class="cat-title">Tagihan Kritis Lebih Dari 3 Bulan</div>
-          <div class="cat-amount text-danger" id="catTotal_gt90">Rp 3.812.289.178</div>
-          <div class="cat-breakdown" id="catBreakdown_gt90">
-            <span>91-120 hr: Rp 1.654.010.739</span>
-            <span>&gt; 120 hr: Rp 2.158.278.439</span>
-          </div>
+          <div class="cat-title">Tagihan Usia 3 - 4 Bulan</div>
+          <div class="cat-amount text-danger" id="catTotal_91_120">Rp 1.654.010.739</div>
           <div class="cat-info">
-            <span id="catMeta_gt90">18 Toko • 220 Nota</span>
+            <span id="catMeta_91_120">22 Toko • 83 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+        <!-- Kategori > 120 Hari -->
+        <article class="cat-card card-gt120" onclick="openCategory('gt120')">
+          <div class="cat-header">
+            <span class="cat-tag tag-darkred">&gt; 120 HARI</span>
+            <span class="cat-status status-danger">Macet / Kritis</span>
+          </div>
+          <div class="cat-title">Tagihan Usia Lebih Dari 4 Bulan</div>
+          <div class="cat-amount text-danger" id="catTotal_gt120">Rp 2.158.278.439</div>
+          <div class="cat-info">
+            <span id="catMeta_gt120">16 Toko • 137 Nota</span>
             <span class="cat-chevron">Buka Toko →</span>
           </div>
         </article>

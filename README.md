@@ -6,35 +6,44 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
 
 ---
 
+## 🔐 Keamanan & Login
+- Saat pertama kali membuka website, akan muncul **halaman login** pengaman.
+- **Kata Sandi (Password)**: `mihardjo` (tidak peka huruf besar/kecil).
+- Dilengkapi tombol 👁️ untuk melihat sandi yang diketik agar tidak salah ketik di layar HP.
+- Pengunjung tidak dapat mengakses dashboard atau halaman apapun sebelum login berhasil.
+- Tersedia tombol **"🚪 Keluar"** di pojok kanan atas untuk mengunci kembali layar.
+
+---
+
 ## ✨ Fitur Utama Ramah Lansia (Age 74+ Friendly)
 
-1. **Ukuran Font Sangat Besar & Skalabel**:
-   - Dilengkapi tombol cepat ukuran huruf di header: **`[ A ]`**, **`[ A+ ]` (default)**, dan **`[ A++ ] (Super Besar)`**.
-   - Mendukung *pinch-to-zoom* alami di layar HP.
-2. **Kontras Warna Tinggi & Tidak Menyilaukan**:
-   - Menggunakan palet warna dengan kontras tinggi (WCAG AAA) yang nyaman untuk mata lansia.
-   - Tersedia tombol mode **🌙 Malam / ☀️ Siang** untuk kenyamanan membaca di berbagai kondisi cahaya.
-3. **Navigasi Sederhana & Tombol BACK Pasti**:
+1. **Tampilan Nyaman & Bawaan (Default)**:
+   - **Default: Mode Malam (`🌙 Malam`)** dengan latar belakang biru-gelap yang lembut dan kontras tinggi tanpa menyilaukan mata.
+   - **Default: Ukuran Font Standar/Kecil (`[ A ]`)** dengan tombol cepat perbesar **`[ A+ ]`** dan **`[ A++ ] (Super Besar)`** yang bisa diganti kapan saja dengan 1 ketukan.
+   - Mendukung *pinch-to-zoom* bebas di layar sentuh HP.
+2. **Navigasi Sederhana & Tombol BACK Pasti**:
    - Setiap halaman sub-menu memiliki tombol **`← KEMBALI`** besar yang mencolok di bagian atas.
    - Tombol BACK dijamin kembali ke posisi/halaman persis sebelumnya (tidak akan tersesat).
-4. **Alur Informasi yang Jelas (Sesuai Permintaan)**:
+3. **5 Kategori Usia Piutang Persis Sesuai Kolom PDF**:
    - **Halaman 1: Dashboard Utama**
      - Total Piutang Bulan Ini: `Rp 17.382.231.343`
-     - 4 Kotak Kategori Usia Piutang yang besar dan bisa diklik:
-       - `< 30 Hari`
-       - `31 - 60 Hari`
-       - `61 - 90 Hari`
-       - `> 90 Hari` (dengan rincian 91-120 hr & >120 hr)
+     - 5 Kotak Kategori Usia Piutang yang besar dan bisa diklik:
+       1. `< 30 Hari` : `Rp 5.553.323.252` (60 Toko)
+       2. `31 - 60 Hari` : `Rp 4.768.110.414` (58 Toko)
+       3. `61 - 90 Hari` : `Rp 3.248.508.499` (41 Toko)
+       4. `91 - 120 Hari` : `Rp 1.654.010.739` (22 Toko)
+       5. `> 120 Hari` : `Rp 2.158.278.439` (16 Toko)
    - **Halaman 2: Summary Toko per Kategori**
      - Menampilkan judul kategori & total nominal kategori.
-     - Daftar toko dengan nama toko, total piutang toko pada kategori tersebut, dan rentang usia piutang (contoh: `OSCAR VRS : Rp 166.928.300 : 2 - 30 hari`).
+     - Daftar toko dengan nama toko, total piutang toko pada kategori tersebut, dan rentang usia piutang (contoh: `OSCAR VRS : Rp 166.928.300 : 2 - 28 hari`).
      - Fitur pencarian nama toko & pengurutan (Piutang Terbesar, Nama A-Z, Usia Terlama).
    - **Halaman 3: Detail Nota per Toko**
-     - Rincian per nota untuk toko yang dipilih:
-       - Kelompok `< 30 hari`: daftar nota (nominal, tanggal, usia dalam hari).
-       - Kelompok `31 - 60 hari`: daftar nota (nominal, tanggal, usia dalam hari).
-       - Kelompok `61 - 90 hari`: daftar nota.
-       - Kelompok `> 90 hari`: daftar nota.
+     - Rincian per nota untuk toko yang dipilih, dikelompokkan rapi ke dalam 5 kategori usia piutang:
+       - `< 30 Hari`: daftar nota (nominal, no nota, tanggal, usia dalam hari).
+       - `31 - 60 Hari`: daftar nota.
+       - `61 - 90 Hari`: daftar nota.
+       - `91 - 120 Hari`: daftar nota.
+       - `> 120 Hari`: daftar nota.
 
 ---
 

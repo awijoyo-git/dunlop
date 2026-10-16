@@ -131,15 +131,17 @@ foreach ($rawLine in $lines) {
 
                 $catId = ""
                 $catLabel = ""
-                if ($b30 -gt 0) { $catId = "lt30"; $catLabel = "< 30 hari" }
-                elseif ($b60 -gt 0) { $catId = "31_60"; $catLabel = "31 - 60 hari" }
-                elseif ($b90 -gt 0) { $catId = "61_90"; $catLabel = "61 - 90 hari" }
-                elseif ($b120 -gt 0 -or $bOver -gt 0) { $catId = "gt90"; $catLabel = "> 90 hari" }
+                if ($b30 -gt 0) { $catId = "lt30"; $catLabel = "< 30 Hari" }
+                elseif ($b60 -gt 0) { $catId = "31_60"; $catLabel = "31 - 60 Hari" }
+                elseif ($b90 -gt 0) { $catId = "61_90"; $catLabel = "61 - 90 Hari" }
+                elseif ($b120 -gt 0) { $catId = "91_120"; $catLabel = "91 - 120 Hari" }
+                elseif ($bOver -gt 0) { $catId = "gt120"; $catLabel = "> 120 Hari" }
                 else {
-                    if ($ageDays -le 30) { $catId = "lt30"; $catLabel = "< 30 hari" }
-                    elseif ($ageDays -le 60) { $catId = "31_60"; $catLabel = "31 - 60 hari" }
-                    elseif ($ageDays -le 90) { $catId = "61_90"; $catLabel = "61 - 90 hari" }
-                    else { $catId = "gt90"; $catLabel = "> 90 hari" }
+                    if ($ageDays -le 30) { $catId = "lt30"; $catLabel = "< 30 Hari" }
+                    elseif ($ageDays -le 60) { $catId = "31_60"; $catLabel = "31 - 60 Hari" }
+                    elseif ($ageDays -le 90) { $catId = "61_90"; $catLabel = "61 - 90 Hari" }
+                    elseif ($ageDays -le 120) { $catId = "91_120"; $catLabel = "91 - 120 Hari" }
+                    else { $catId = "gt120"; $catLabel = "> 120 Hari" }
                 }
 
                 $invoices += [PSCustomObject]@{
@@ -165,7 +167,7 @@ foreach ($rawLine in $lines) {
 
 Write-Host "Total Nota Berhasil Diparsing: $($invoices.Count)" -ForegroundColor Green
 
-# Group stores
+# Group stores with 5 exact categories matching PDF columns
 $storeMap = @{}
 foreach ($inv in $invoices) {
     if (-not $storeMap.ContainsKey($inv.kode)) {
@@ -176,10 +178,11 @@ foreach ($inv in $invoices) {
             invoiceCount = 0
             invoices = @()
             categories = @{
-                "lt30" = @{ id = "lt30"; label = "< 30 hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
-                "31_60" = @{ id = "31_60"; label = "31 - 60 hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
-                "61_90" = @{ id = "61_90"; label = "61 - 90 hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
-                "gt90"  = @{ id = "gt90";  label = "> 90 hari";  total = 0; minAge = 99999; maxAge = 0; invoices = @(); breakdown = @{ "b91_120" = 0; "bOver120" = 0 } }
+                "lt30"   = @{ id = "lt30";   label = "< 30 Hari";   total = 0; minAge = 99999; maxAge = 0; invoices = @() }
+                "31_60"  = @{ id = "31_60";  label = "31 - 60 Hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
+                "61_90"  = @{ id = "61_90";  label = "61 - 90 Hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
+                "91_120" = @{ id = "91_120"; label = "91 - 120 Hari"; total = 0; minAge = 99999; maxAge = 0; invoices = @() }
+                "gt120"  = @{ id = "gt120";  label = "> 120 Hari";  total = 0; minAge = 99999; maxAge = 0; invoices = @() }
             }
         }
     }
@@ -198,11 +201,6 @@ foreach ($inv in $invoices) {
     if ($inv.umurHari -lt $c.minAge) { $c.minAge = $inv.umurHari }
     if ($inv.umurHari -gt $c.maxAge) { $c.maxAge = $inv.umurHari }
     $c.invoices += $inv
-
-    if ($inv.catId -eq "gt90") {
-        if ($inv.b120 -gt 0) { $c.breakdown["b91_120"] += $inv.b120 }
-        if ($inv.bOver120 -gt 0) { $c.breakdown["bOver120"] += $inv.bOver120 }
-    }
 }
 
 foreach ($k in $storeMap.Keys) {
@@ -214,15 +212,16 @@ foreach ($k in $storeMap.Keys) {
 }
 
 $catSummary = @{
-    "lt30" = @{ id = "lt30"; label = "< 30 hari"; sublabel = "Usia 0 - 30 hari"; total = 0; invoiceCount = 0; stores = @() }
-    "31_60" = @{ id = "31_60"; label = "31 - 60 hari"; sublabel = "Usia 31 - 60 hari"; total = 0; invoiceCount = 0; stores = @() }
-    "61_90" = @{ id = "61_90"; label = "61 - 90 hari"; sublabel = "Usia 61 - 90 hari"; total = 0; invoiceCount = 0; stores = @() }
-    "gt90"  = @{ id = "gt90";  label = "> 90 hari";  sublabel = "Usia lebih dari 90 hari"; total = 0; invoiceCount = 0; breakdown = @{ "b91_120" = 0; "bOver120" = 0 }; stores = @() }
+    "lt30"   = @{ id = "lt30";   label = "< 30 Hari";   sublabel = "Usia 0 - 30 hari";   total = 0; invoiceCount = 0; stores = @() }
+    "31_60"  = @{ id = "31_60";  label = "31 - 60 Hari"; sublabel = "Usia 31 - 60 hari";  total = 0; invoiceCount = 0; stores = @() }
+    "61_90"  = @{ id = "61_90";  label = "61 - 90 Hari"; sublabel = "Usia 61 - 90 hari";  total = 0; invoiceCount = 0; stores = @() }
+    "91_120" = @{ id = "91_120"; label = "91 - 120 Hari"; sublabel = "Usia 91 - 120 hari"; total = 0; invoiceCount = 0; stores = @() }
+    "gt120"  = @{ id = "gt120";  label = "> 120 Hari";  sublabel = "Usia lebih dari 120 hari"; total = 0; invoiceCount = 0; stores = @() }
 }
 
 foreach ($k in $storeMap.Keys) {
     $s = $storeMap[$k]
-    foreach ($catId in @("lt30", "31_60", "61_90", "gt90")) {
+    foreach ($catId in @("lt30", "31_60", "61_90", "91_120", "gt120")) {
         $sc = $s.categories[$catId]
         if ($sc.total -gt 0) {
             $cSum = $catSummary[$catId]
@@ -235,10 +234,6 @@ foreach ($k in $storeMap.Keys) {
                 invoiceCount = $sc.invoices.Count
                 minAge = $sc.minAge
                 maxAge = $sc.maxAge
-            }
-            if ($catId -eq "gt90") {
-                $cSum.breakdown["b91_120"] += $sc.breakdown["b91_120"]
-                $cSum.breakdown["bOver120"] += $sc.breakdown["bOver120"]
             }
         }
     }
