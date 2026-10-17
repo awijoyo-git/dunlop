@@ -336,7 +336,7 @@ body {
 .grand-total-card {
   background: linear-gradient(135deg, #1e3a8a, #0f172a);
   color: #ffffff;
-  padding: 24px 20px;
+  padding: 22px 14px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   border: 2px solid rgba(255, 255, 255, 0.1);
@@ -357,13 +357,15 @@ body {
 
 .grand-total-amount {
   font-family: var(--font-mono);
-  font-size: calc(2.1rem * var(--font-scale-factor));
+  font-size: clamp(1.35rem, calc(6.6vw * var(--font-scale-factor)), calc(2.1rem * var(--font-scale-factor)));
   font-weight: 800;
   letter-spacing: -0.5px;
   line-height: 1.2;
   margin-bottom: 12px;
   color: #ffffff;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .grand-total-meta {
@@ -392,19 +394,22 @@ body {
 .dist-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .dist-title {
-  font-size: calc(1rem * var(--font-scale-factor));
+  font-size: calc(0.95rem * var(--font-scale-factor));
   font-weight: 800;
   color: var(--text-main);
+  white-space: nowrap;
 }
 
 .dist-total {
-  font-size: calc(0.85rem * var(--font-scale-factor));
+  font-size: calc(0.8rem * var(--font-scale-factor));
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .dist-stacked-bar {
@@ -415,7 +420,7 @@ body {
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: calc(0.8rem * var(--font-scale-factor));
+  font-size: calc(0.72rem * var(--font-scale-factor));
 }
 
 .dist-seg {
@@ -427,7 +432,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   transition: width 0.3s ease;
-  min-width: 32px;
+  min-width: 26px;
+  padding: 0 1px;
 }
 
 .seg-lt30   { background: #10b981; }
@@ -605,11 +611,13 @@ body.theme-soft-dark .tag-darkred { background: #3f0713; color: #fda4af; }
 
 .cat-amount {
   font-family: var(--font-mono);
-  font-size: calc(1.7rem * var(--font-scale-factor));
+  font-size: clamp(1.25rem, calc(5.5vw * var(--font-scale-factor)), calc(1.7rem * var(--font-scale-factor)));
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.2;
   margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .cat-progress-wrap {
@@ -858,10 +866,12 @@ body.theme-soft-dark .tag-darkred { background: #3f0713; color: #fda4af; }
 
 .banner-total-value {
   font-family: var(--font-mono);
-  font-size: calc(1.9rem * var(--font-scale-factor));
+  font-size: clamp(1.35rem, calc(6vw * var(--font-scale-factor)), calc(1.9rem * var(--font-scale-factor)));
   font-weight: 800;
   color: var(--color-brand-primary);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .banner-subinfo {
@@ -965,9 +975,10 @@ body.theme-soft-dark .tag-darkred { background: #3f0713; color: #fda4af; }
 
 .store-card-amount {
   font-family: var(--font-mono);
-  font-size: calc(1.5rem * var(--font-scale-factor));
+  font-size: clamp(1.2rem, calc(4.8vw * var(--font-scale-factor)), calc(1.5rem * var(--font-scale-factor)));
   font-weight: 800;
   color: var(--color-brand-primary);
+  white-space: nowrap;
 }
 
 .store-card-age {
@@ -1052,10 +1063,12 @@ body.theme-soft-dark .tag-darkred { background: #3f0713; color: #fda4af; }
 
 .store-total-amount {
   font-family: var(--font-mono);
-  font-size: calc(1.9rem * var(--font-scale-factor));
+  font-size: clamp(1.4rem, calc(6vw * var(--font-scale-factor)), calc(1.9rem * var(--font-scale-factor)));
   font-weight: 800;
   color: var(--color-brand-primary);
   margin: 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .store-meta-summary {

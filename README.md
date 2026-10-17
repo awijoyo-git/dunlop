@@ -26,18 +26,18 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
    - Tombol BACK dijamin kembali ke posisi/halaman persis sebelumnya (tidak akan tersesat).
 3. **5 Kategori Usia Piutang & Persentase Sesuai Kolom PDF**:
    - **Halaman 1: Dashboard Utama**
-     - Total Piutang Bulan Ini: `Rp 17.382.231.343`
-     - **Grafik Komposisi & Persentase Visual (Stacked Bar)**:
-       - `< 30 Hari` : **31,95%** (`Rp 5.553.323.252` • 60 Toko)
-       - `31 - 60 Hari` : **27,43%** (`Rp 4.768.110.414` • 58 Toko)
-       - `61 - 90 Hari` : **18,68%** (`Rp 3.248.508.499` • 41 Toko)
-       - `91 - 120 Hari` : **9,52%** (`Rp 1.654.010.739` • 22 Toko)
-       - `> 120 Hari` : **12,42%** (`Rp 2.158.278.439` • 16 Toko)
-       - Total Persentase: **100,00%**
-     - Setiap kotak kategori dilengkapi lencana persentase (*badge*), batang rasio, dan status kelancaran piutang (Lancar, Perhatian, Peringatan, Jatuh Tempo, Macet/Kritis).
-   - **Halaman 2: Summary Toko per Kategori**
-     - Menampilkan judul kategori, lencana persentase porsi piutang, & total nominal.
-     - Daftar toko dengan nama toko, total piutang toko pada kategori tersebut, dan rentang usia piutang (contoh: `OSCAR VRS : Rp 166.928.300 : 2 - 28 hari`).
+     - Total Piutang Bulan Ini: **`17.382.231.343`** (ditampilkan dalam 1 baris tanpa terpotong/overflow)
+     - Seluruh angka piutang ditampilkan langsung dalam format angka rapi tanpa awalan `Rp` untuk keterbacaan optimal di layar HP.
+     - **Grafik Komposisi & Persentase Visual (1 Desimal)**:
+       - `< 30 Hari` : **31,9%** (`5.553.323.252` • 60 Toko)
+       - `31 - 60 Hari` : **27,4%** (`4.768.110.414` • 58 Toko)
+       - `61 - 90 Hari` : **18,7%** (`3.248.508.499` • 41 Toko)
+       - `91 - 120 Hari` : **9,5%** (`1.654.010.739` • 22 Toko)
+       - `> 120 Hari` : **12,4%** (`2.158.278.439` • 16 Toko)
+     - Setiap kotak kategori dilengkapi lencana persentase (*badge* 1 desimal), batang rasio, dan status kelancaran piutang (Lancar, Perhatian, Peringatan, Jatuh Tempo, Macet/Kritis).
+   - **Halaman 2: Summary Toko per Kategori & Halaman Semua Toko**
+     - Menampilkan judul kategori, lencana persentase porsi piutang, & total nominal tanpa `Rp`.
+     - Daftar toko dengan nama toko, total piutang toko, dan rentang usia piutang (contoh: `OSCAR VRS : 166.928.300 : 2 - 28 hari`).
      - Fitur pencarian nama toko & pengurutan (Piutang Terbesar, Nama A-Z, Usia Terlama).
    - **Halaman 3: Detail Nota per Toko**
      - Rincian per nota untuk toko yang dipilih, dikelompokkan rapi ke dalam 5 kategori usia piutang:

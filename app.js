@@ -13,16 +13,10 @@ let currentStoreKode = null;
 let categorySortOrder = 'total-desc';
 let activeCategoryFilterText = '';
 
-// Number Formatter for Indonesian Rupiah
-const rupiahFormatter = new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  maximumFractionDigits: 0
-});
-
+// Number Formatter (Thousand separator, 0 decimals, without 'Rp' prefix)
 function formatRupiah(num) {
-  if (isNaN(num) || num === null || num === undefined) return 'Rp 0';
-  return rupiahFormatter.format(num);
+  if (isNaN(num) || num === null || num === undefined) return '0';
+  return Math.round(num).toLocaleString('id-ID');
 }
 
 // ==========================================================================
@@ -380,7 +374,7 @@ function renderDashboard() {
     const cat = cats[key] || {};
     const catTotal = cat.total || 0;
     const pct = grandTotal > 0 ? (catTotal / grandTotal) * 100 : 0;
-    const pctFormatted = pct.toFixed(2).replace('.', ',') + '%';
+    const pctFormatted = pct.toFixed(1).replace('.', ',') + '%';
 
     // 1. Text Total & Store/Invoice Meta
     const totalEl = document.getElementById(`catTotal_${key}`);
@@ -502,7 +496,7 @@ function showCategoryView(catId, updateUrl = true) {
     catTitle = catData.label || 'Kategori Piutang';
     catTotal = catData.total || 0;
     const pct = grandTotal > 0 ? (catTotal / grandTotal) * 100 : 0;
-    catPctStr = pct.toFixed(2).replace('.', ',') + '%';
+    catPctStr = pct.toFixed(1).replace('.', ',') + '%';
     catSubinfo = `${catData.sublabel || ''} • Porsi: ${catPctStr} dari Total Piutang`;
     storesList = catData.stores || [];
 
