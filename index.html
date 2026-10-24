@@ -48,6 +48,9 @@
           <button type="button" class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Ganti Mode Terang / Gelap">
             <span id="themeIcon">☀️</span> <span id="themeText">Siang</span>
           </button>
+          <button type="button" class="btn-tb-nav btn-tb-owner" id="btnNavOwner" onclick="openOwnerDashboard()" title="Buka Dashboard Khusus Owner">
+            👑 Owner
+          </button>
           <button type="button" class="btn-tb-nav btn-tb-bl" id="btnNavBL" onclick="openBlacklistView()" title="Buka Data BL (Blacklist Violation)">
             ⛔ Data BL (9)
           </button>
@@ -270,6 +273,32 @@
 
       <!-- SECTION AUDIT & REKONSILIASI KHUSUS -->
       <div class="audit-launcher-grid">
+
+        <!-- Card Launcher 0: Dashboard Owner (Tren Piutang, Omzet & Toko) -->
+        <article class="audit-card card-owner-alert" onclick="openOwnerDashboard()">
+          <div class="audit-card-header">
+            <span class="audit-tag tag-owner">👑 DASHBOARD OWNER</span>
+            <span class="audit-count-badge badge-purple" id="dashOwnerPeriodBadge">Tren 6 Bulan</span>
+          </div>
+          <div class="audit-title">Analisa Tren Piutang, Omzet &amp; Toko</div>
+          <div class="audit-desc">
+            Grafik visual analisa pergerakan aging piutang (value &amp; toko), tren omzet penjualan, dan keaktifan toko dari bulan ke bulan.
+          </div>
+          <div class="audit-meta-row">
+            <div>
+              <span class="audit-sublabel">Omzet Bulan Ini:</span>
+              <div class="audit-subamount text-success" id="dashOwnerOmzetAmount">5.372.405.872</div>
+            </div>
+            <div>
+              <span class="audit-sublabel">Toko Bertransaksi:</span>
+              <div class="audit-subamount text-purple" id="dashOwnerActiveStores">60 Toko</div>
+            </div>
+          </div>
+          <div class="audit-footer">
+            <span class="audit-status-pill pill-purple">Grafik &amp; Analisa Periode</span>
+            <span class="audit-chevron">Buka Dashboard Owner →</span>
+          </div>
+        </article>
 
         <!-- Card Launcher 1: Data BL (Blacklist Violation) -->
         <article class="audit-card card-bl-alert" onclick="openBlacklistView()">
@@ -529,7 +558,260 @@
       </div>
     </section>
 
+
+    <!-- VIEW 6: DASHBOARD OWNER (TREN PIUTANG, OMZET & TOKO) -->
+    <section id="viewOwner" class="view-panel" style="display: none;">
+      <!-- Banner Eksekutif Owner -->
+      <div class="owner-banner">
+        <div class="banner-top">
+          <span class="banner-tag tag-owner">👑 DASHBOARD OWNER &amp; DIREKSI</span>
+          <span class="banner-count" id="ownerBannerPeriodTag">Periode: Apr 2026 - Sep 2026</span>
+        </div>
+        <h2 class="banner-title">Analisa Tren Piutang, Omzet &amp; Keaktifan Toko</h2>
+        <p class="owner-banner-desc">
+          Pantau pergerakan aging piutang berdasarkan nilai nominal &amp; jumlah toko, tren pertumbuhan omzet penjualan, dan keaktifan toko bertransaksi.
+        </p>
+
+        <!-- Filter & Pemilihan Periode -->
+        <div class="owner-period-panel">
+          <div class="period-control-row">
+            <span class="period-control-label">📅 Pilih Periode Analisa:</span>
+            <div class="period-presets-group">
+              <button type="button" class="btn-period-preset" id="presetOwner3M" onclick="setOwnerPeriodPreset('3m')">3 Bulan Terakhir</button>
+              <button type="button" class="btn-period-preset active" id="presetOwner6M" onclick="setOwnerPeriodPreset('6m')">6 Bulan Terakhir</button>
+              <button type="button" class="btn-period-preset" id="presetOwner2026" onclick="setOwnerPeriodPreset('2026')">Tahun 2026</button>
+              <button type="button" class="btn-period-preset" id="presetOwnerAll" onclick="setOwnerPeriodPreset('all')">Semua Periode</button>
+            </div>
+          </div>
+
+          <div class="period-custom-range-row">
+            <div class="custom-range-inputs">
+              <div class="range-field">
+                <label for="ownerSelectStartMonth" class="field-label">Dari Bulan:</label>
+                <select id="ownerSelectStartMonth" class="select-period" onchange="handleOwnerCustomRangeChange()"></select>
+              </div>
+              <div class="range-sep">➔</div>
+              <div class="range-field">
+                <label for="ownerSelectEndMonth" class="field-label">Sampai Bulan:</label>
+                <select id="ownerSelectEndMonth" class="select-period" onchange="handleOwnerCustomRangeChange()"></select>
+              </div>
+            </div>
+            <div class="custom-range-actions">
+              <button type="button" class="btn-add-period" onclick="openOwnerPeriodModal()" title="Tambah Data Periode Manual">
+                ➕ Tambah Data Periode
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executive KPI Cards -->
+      <div class="owner-kpi-grid">
+        <div class="owner-kpi-card kpi-omzet">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-body">
+            <div class="kpi-label">TOTAL OMZET PERIODE INI</div>
+            <div class="kpi-value text-success" id="ownerKpiTotalOmzet">0</div>
+            <div class="kpi-sub" id="ownerKpiAvgOmzet">Rata-rata: 0 / bulan</div>
+          </div>
+        </div>
+
+        <div class="owner-kpi-card kpi-stores">
+          <div class="kpi-icon">🛍️</div>
+          <div class="kpi-body">
+            <div class="kpi-label">RATA-RATA TOKO BERTRANSAKSI</div>
+            <div class="kpi-value text-purple" id="ownerKpiAvgActiveStores">0 Toko</div>
+            <div class="kpi-sub" id="ownerKpiLatestActiveStores">Bulan terakhir: 0 toko</div>
+          </div>
+        </div>
+
+        <div class="owner-kpi-card kpi-piutang">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-body">
+            <div class="kpi-label">TOTAL PIUTANG AKHIR PERIODE</div>
+            <div class="kpi-value text-blue" id="ownerKpiEndPiutang">0</div>
+            <div class="kpi-sub" id="ownerKpiPiutangGrowth">Perubahan: 0%</div>
+          </div>
+        </div>
+
+        <div class="owner-kpi-card kpi-kritis">
+          <div class="kpi-icon">⚠️</div>
+          <div class="kpi-body">
+            <div class="kpi-label">PIUTANG MACET (&gt; 120 HARI)</div>
+            <div class="kpi-value text-danger" id="ownerKpiMacetAmount">0</div>
+            <div class="kpi-sub" id="ownerKpiMacetStores">0 Toko macet di akhir periode</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHART 1: TREN AGING VALUE -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">📈 1. Tren Analisa Piutang Berdasarkan Aging Value</h3>
+            <p class="chart-subtitle">Perkembangan saldo piutang berdasarkan kelompok umur tagihan dari bulan ke bulan</p>
+          </div>
+          <div class="chart-mode-toggle">
+            <button type="button" class="btn-chart-mode active" id="btnModeStackedValue" onclick="setAgingValueChartMode('stacked')">📊 Tumpukan</button>
+            <button type="button" class="btn-chart-mode" id="btnModeGroupedValue" onclick="setAgingValueChartMode('grouped')">📶 Per Kategori</button>
+          </div>
+        </div>
+
+        <div class="chart-legend-row" id="legendAgingValue">
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#10b981;"></span>&lt; 30 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#3b82f6;"></span>31 - 60 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#f97316;"></span>61 - 90 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#f43f5e;"></span>91 - 120 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>&gt; 120 Hari</div>
+        </div>
+
+        <div class="chart-svg-container" id="svgAgingValueContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Table Summary Aging Value -->
+        <div class="chart-table-wrap">
+          <h4 class="table-title">📋 Rincian Nilai Piutang per Kelompok Umur:</h4>
+          <div class="table-responsive" id="tableAgingValue"></div>
+        </div>
+      </div>
+
+      <!-- CHART 2: TREN AGING JUMLAH TOKO -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">🏢 2. Tren Sebaran Jumlah Toko Berdasarkan Aging</h3>
+            <p class="chart-subtitle">Banyaknya toko yang memiliki saldo tagihan di masing-masing kelompok umur piutang</p>
+          </div>
+        </div>
+
+        <div class="chart-legend-row" id="legendAgingStores">
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#10b981;"></span>&lt; 30 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#3b82f6;"></span>31 - 60 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#f97316;"></span>61 - 90 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#f43f5e;"></span>91 - 120 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>&gt; 120 Hari</div>
+        </div>
+
+        <div class="chart-svg-container" id="svgAgingStoresContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Table Summary Aging Stores -->
+        <div class="chart-table-wrap">
+          <h4 class="table-title">📋 Rincian Jumlah Toko per Kelompok Umur (Toko):</h4>
+          <div class="table-responsive" id="tableAgingStores"></div>
+        </div>
+      </div>
+
+      <!-- CHART 3: TREN OMZET BULAN KE BULAN -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">💰 3. Tren Omzet Penjualan dari Bulan ke Bulan</h3>
+            <p class="chart-subtitle">Total penjualan / penerbitan nota tagihan bulanan berdasarkan tanggal faktur</p>
+          </div>
+        </div>
+
+        <div class="chart-svg-container" id="svgMonthlyOmzetContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Table Summary Omzet -->
+        <div class="chart-table-wrap">
+          <h4 class="table-title">📋 Rincian Omzet Penjualan Bulanan &amp; Pertumbuhan MoM:</h4>
+          <div class="table-responsive" id="tableMonthlyOmzet"></div>
+        </div>
+      </div>
+
+      <!-- CHART 4: TREN JUMLAH TOKO BERTRANSAKSI -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">🛍️ 4. Tren Jumlah Toko yang Bertransaksi dari Bulan ke Bulan</h3>
+            <p class="chart-subtitle">Jumlah toko aktif yang diterbitkan nota tagihan baru berdasarkan tanggal faktur</p>
+          </div>
+        </div>
+
+        <div class="chart-svg-container" id="svgActiveStoresContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Table Summary Active Stores -->
+        <div class="chart-table-wrap">
+          <h4 class="table-title">📋 Rincian Keaktifan Toko &amp; Rata-rata Pembelian per Toko:</h4>
+          <div class="table-responsive" id="tableActiveStores"></div>
+        </div>
+      </div>
+
+    </section>
+
   </main>
+
+  <!-- MODAL: INPUT DATA PERIODE MANUAL UNTUK OWNER -->
+  <div class="modal-backdrop" id="ownerPeriodModal" style="display: none;" onclick="closeOwnerPeriodModalOnBackdrop(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">➕ Tambah / Sesuaikan Data Periode</h3>
+        <button type="button" class="btn-close-modal" onclick="closeOwnerPeriodModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Masukkan proyeksi atau realisasi data bulanan baru untuk ditambahkan ke grafik tren Owner Dashboard:
+        </p>
+
+        <form id="formOwnerPeriod" onsubmit="handleSaveOwnerCustomPeriod(event)" class="owner-period-form">
+          <div class="form-group">
+            <label class="form-label" for="inputPeriodKey">Bulan &amp; Tahun (YYYY-MM):</label>
+            <input type="month" id="inputPeriodKey" class="input-password" required value="2026-10">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputPeriodOmzet">Omzet Penjualan Bulan Tersebut:</label>
+            <input type="number" id="inputPeriodOmzet" class="input-password" placeholder="Contoh: 5600000000" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputPeriodActiveStores">Jumlah Toko Bertransaksi:</label>
+            <input type="number" id="inputPeriodActiveStores" class="input-password" placeholder="Contoh: 62" required>
+          </div>
+
+          <div style="font-weight: 800; margin-top: 14px; margin-bottom: 6px; color: var(--text-main);">
+            Posisi Saldo Piutang Akhir Bulan:
+          </div>
+
+          <div class="form-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="inputPeriodLt30">&lt; 30 Hari:</label>
+              <input type="number" id="inputPeriodLt30" class="input-password" placeholder="Nominal" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputPeriod3160">31 - 60 Hari:</label>
+              <input type="number" id="inputPeriod3160" class="input-password" placeholder="Nominal" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputPeriod6190">61 - 90 Hari:</label>
+              <input type="number" id="inputPeriod6190" class="input-password" placeholder="Nominal" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputPeriod91120">91 - 120 Hari:</label>
+              <input type="number" id="inputPeriod91120" class="input-password" placeholder="Nominal" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputPeriodGt120">&gt; 120 Hari (Macet):</label>
+            <input type="number" id="inputPeriodGt120" class="input-password" placeholder="Nominal" required>
+          </div>
+
+          <div class="form-actions" style="margin-top: 16px; display: flex; gap: 10px;">
+            <button type="submit" class="btn-primary" style="flex: 1;">💾 Simpan Data Periode</button>
+            <button type="button" class="btn-secondary" onclick="closeOwnerPeriodModal()">Batal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- UPDATE DATA MODAL (FOR MONTHLY UPDATES) -->
   <div class="modal-backdrop" id="updateModal" style="display: none;" onclick="closeModalOnBackdrop(event)">

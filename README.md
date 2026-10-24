@@ -69,6 +69,17 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
    - Tim Finance dapat langsung menggunakan menu ini untuk mencocokkan (*cross-check*) nilai pelunasan nota dengan mutasi rekening koran bank:
      - **Lunas Penuh**: Nota periode lalu yang sudah hilang dari laporan (saldo menjadi 0).
      - **Cicil Sebagian**: Nota yang saldo piutangnya berkurang dari bulan lalu.
+8. **Dashboard Khusus Owner (Analisa Tren & Pertumbuhan Bisnis)**:
+   - Dashboard eksekutif khusus pemilik perusahaan untuk melihat dinamika dan tren bisnis dari bulan ke bulan:
+     1. **Tren Aging Value**: Grafik interaktif perkembangan nominal piutang per kelompok umur (`< 30H`, `31-60H`, `61-90H`, `91-120H`, `> 120H`) dengan mode *Stacked (Komposisi)* & *Grouped (Per Kategori)*.
+     2. **Tren Aging Jumlah Toko**: Sebaran banyaknya toko yang berutang di tiap kelompok umur per bulan (khususnya memantau tren pertambahan/pengurangan toko macet `> 120H`).
+     3. **Tren Omzet Bulanan**: Grafik pertumbuhan penjualan kotor (faktur terbit berdasarkan tanggal nota) dilengkapi lencana pertumbuhan MoM (*Month-over-Month Growth*).
+     4. **Tren Toko Bertransaksi**: Keaktifan toko yang melakukan pembelian per bulan serta rata-rata nominal pembelian per toko.
+   - **Pemilihan Periode Fleksibel**:
+     - Tombol preset cepat: `[ 3 Bulan Terakhir ]`, `[ 6 Bulan Terakhir (Bawaan) ]`, `[ Tahun 2026 ]`, `[ Semua Periode ]`.
+     - Dropdown kustom `Dari Bulan` s/d `Sampai Bulan` untuk menganalisa rentang bulan tertentu.
+     - Form `➕ Tambah Data Periode` untuk memasukkan atau menyesuaikan angka proyeksi/realisasi bulan baru.
+   - Disajikan dalam antarmuka visual grafik SVG responsif beresolusi tinggi, ramah lansia, tanpa awalan `Rp`, dan tabel rincian angka eksak di bawah masing-masing grafik.
 
 ---
 

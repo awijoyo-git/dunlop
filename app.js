@@ -168,10 +168,9 @@ function onLoginSuccess(animate = true) {
 
 function showLoginView() {
   // Hide all panels
-  document.getElementById('viewLogin').style.display = 'flex';
-  document.getElementById('viewDashboard').style.display = 'none';
-  document.getElementById('viewCategory').style.display = 'none';
-  document.getElementById('viewStore').style.display = 'none';
+  hideAllViews();
+  const vLogin = document.getElementById('viewLogin');
+  if (vLogin) vLogin.style.display = 'flex';
 
   // Hide floating button on login screen and expand header
   const floatingBtn = document.getElementById('btnFloatingHeader');
@@ -314,6 +313,8 @@ function processHashRoute(hash) {
     showBlacklistView(false);
   } else if (route === 'pembayaran') {
     showPaymentView(false);
+  } else if (route === 'owner') {
+    showOwnerView(false);
   }
 }
 
@@ -336,11 +337,15 @@ function navigateBack() {
       navigateTo('#/blacklist');
     } else if (currentCategoryId === 'payment') {
       navigateTo('#/pembayaran');
+    } else if (currentCategoryId === 'owner') {
+      navigateTo('#/owner');
     } else if (currentCategoryId) {
       navigateTo(`#/category/${currentCategoryId}`);
     } else {
       navigateTo('#/');
     }
+  } else if (currentCategoryId === 'owner') {
+    navigateTo('#/');
   } else if (currentCategoryId) {
     navigateTo('#/');
   } else {
@@ -349,7 +354,7 @@ function navigateBack() {
 }
 
 function hideAllViews() {
-  const views = ['viewLogin', 'viewDashboard', 'viewCategory', 'viewStore', 'viewBlacklist', 'viewPayment'];
+  const views = ['viewLogin', 'viewDashboard', 'viewCategory', 'viewStore', 'viewBlacklist', 'viewPayment', 'viewOwner'];
   views.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
@@ -472,6 +477,18 @@ function renderDashboard() {
     const dashPayInvoicesCount = document.getElementById('dashPayInvoicesCount');
     if (dashPayInvoicesCount) dashPayInvoicesCount.textContent = `${recon.totalInvoicesPaid} Nota`;
   }
+
+  // Update Owner Dashboard Launcher
+  const ownerHist = getMonthlyHistoricalData();
+  const latestMonthData = ownerHist && ownerHist.length > 0 ? ownerHist[ownerHist.length - 1] : null;
+  if (latestMonthData) {
+    const dashOwnerOmzet = document.getElementById('dashOwnerOmzetAmount');
+    if (dashOwnerOmzet) dashOwnerOmzet.textContent = formatRupiah(latestMonthData.omzet);
+    const dashOwnerStores = document.getElementById('dashOwnerActiveStores');
+    if (dashOwnerStores) dashOwnerStores.textContent = `${latestMonthData.activeStoresCount} Toko`;
+    const dashOwnerBadge = document.getElementById('dashOwnerPeriodBadge');
+    if (dashOwnerBadge) dashOwnerBadge.textContent = `Tren ${ownerHist.length} Bulan`;
+  }
 }
 
 // Global Search
@@ -534,10 +551,9 @@ function showCategoryView(catId, updateUrl = true) {
   currentStoreKode = null;
   activeCategoryFilterText = '';
 
-  document.getElementById('viewLogin').style.display = 'none';
-  document.getElementById('viewDashboard').style.display = 'none';
-  document.getElementById('viewCategory').style.display = 'flex';
-  document.getElementById('viewStore').style.display = 'none';
+  hideAllViews();
+  const vCat = document.getElementById('viewCategory');
+  if (vCat) vCat.style.display = 'flex';
 
   let catTitle = '';
   let catTagClass = 'tag-green';
@@ -721,10 +737,9 @@ function showStoreDetailView(kode, fromCat, updateUrl = true) {
   currentStoreKode = kode;
   if (fromCat) currentCategoryId = fromCat;
 
-  document.getElementById('viewLogin').style.display = 'none';
-  document.getElementById('viewDashboard').style.display = 'none';
-  document.getElementById('viewCategory').style.display = 'none';
-  document.getElementById('viewStore').style.display = 'flex';
+  hideAllViews();
+  const vStore = document.getElementById('viewStore');
+  if (vStore) vStore.style.display = 'flex';
 
   const store = (piutangData.stores || []).find(s => s.kode === kode);
   if (!store) {
@@ -1698,4 +1713,970 @@ function applyPaymentFilter() {
       </article>
     `;
   }).join('');
+}
+
+// ==========================================================================
+// VIEW 6: DASHBOARD OWNER (ANALISA TREN PIUTANG, OMZET & TOKO)
+// ==========================================================================
+
+const INDO_MONTH_NAMES = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+
+const INDO_MONTH_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+  'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
+];
+
+let ownerPeriodPreset = '6m';
+let ownerStartMonth = '2026-04';
+let ownerEndMonth = '2026-09';
+let agingValueChartMode = 'stacked';
+
+function formatShortRupiah(num) {
+  if (isNaN(num) || num === null || num === undefined) return '0';
+  const abs = Math.abs(num);
+  if (abs >= 1e9) {
+    const val = (num / 1e9).toFixed(abs % 1e9 === 0 ? 0 : 1);
+    return `${val.replace('.', ',')} M`;
+  }
+  if (abs >= 1e6) {
+    const val = (num / 1e6).toFixed(abs % 1e6 === 0 ? 0 : 0);
+    return `${val.replace('.', ',')} Jt`;
+  }
+  return Math.round(num).toLocaleString('id-ID');
+}
+
+function openOwnerDashboard() {
+  navigateTo('#/owner');
+}
+
+function showOwnerView(updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
+  currentCategoryId = 'owner';
+  currentStoreKode = null;
+
+  hideAllViews();
+  const ownerPanel = document.getElementById('viewOwner');
+  if (ownerPanel) ownerPanel.style.display = 'flex';
+
+  updateStickyBar(true, '← KEMBALI KE DASHBOARD', 'Dashboard > Dashboard Owner');
+  initOwnerPeriodDropdowns();
+  renderOwnerDashboard();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (updateUrl) {
+    navigateTo('#/owner', false);
+  }
+}
+
+function getMonthlyHistoricalData() {
+  if (!piutangData || !piutangData.stores) return [];
+
+  const allInvoices = [];
+  piutangData.stores.forEach(s => {
+    (s.invoices || []).forEach(inv => {
+      let invDate = null;
+      if (inv.tanggalNota) {
+        const m = inv.tanggalNota.match(/(\d{2})\/(\d{2})\/(\d{2})/);
+        if (m) {
+          const day = parseInt(m[1], 10);
+          const month = parseInt(m[2], 10) - 1;
+          const year = 2000 + parseInt(m[3], 10);
+          invDate = new Date(year, month, day);
+        }
+      }
+      allInvoices.push({
+        kode: s.kode,
+        namaToko: s.namaToko,
+        jumlah: inv.jumlah || 0,
+        invDate: invDate,
+        tanggalNota: inv.tanggalNota
+      });
+    });
+  });
+
+  const monthMap = new Map();
+  allInvoices.forEach(inv => {
+    if (inv.invDate) {
+      const y = inv.invDate.getFullYear();
+      const m = String(inv.invDate.getMonth() + 1).padStart(2, '0');
+      const key = `${y}-${m}`;
+      if (y >= 2026) {
+        monthMap.set(key, true);
+      }
+    }
+  });
+
+  ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'].forEach(k => {
+    monthMap.set(k, true);
+  });
+
+  const customPeriods = getOwnerCustomPeriods();
+  Object.keys(customPeriods).forEach(k => monthMap.set(k, true));
+
+  const sortedMonthKeys = Array.from(monthMap.keys()).sort();
+  const history = [];
+
+  sortedMonthKeys.forEach((key) => {
+    const parts = key.split('-');
+    const year = parseInt(parts[0], 10);
+    const monthNum = parseInt(parts[1], 10);
+    const monthIdx = monthNum - 1;
+
+    const shortLabel = `${INDO_MONTH_SHORT[monthIdx]} ${String(year).slice(-2)}`;
+    const fullLabel = `${INDO_MONTH_NAMES[monthIdx]} ${year}`;
+
+    if (customPeriods[key]) {
+      const c = customPeriods[key];
+      const totVal = (c.agingValues?.lt30 || 0) + (c.agingValues?.['31_60'] || 0) + (c.agingValues?.['61_90'] || 0) + (c.agingValues?.['91_120'] || 0) + (c.agingValues?.gt120 || 0);
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: c.omzet || 0,
+        activeStoresCount: c.activeStoresCount || 0,
+        invoiceCount: c.invoiceCount || 0,
+        agingValues: {
+          lt30: c.agingValues?.lt30 || 0,
+          '31_60': c.agingValues?.['31_60'] || 0,
+          '61_90': c.agingValues?.['61_90'] || 0,
+          '91_120': c.agingValues?.['91_120'] || 0,
+          gt120: c.agingValues?.gt120 || 0,
+          total: totVal
+        },
+        agingStores: {
+          lt30: c.agingStores?.lt30 || 0,
+          '31_60': c.agingStores?.['31_60'] || 0,
+          '61_90': c.agingStores?.['61_90'] || 0,
+          '91_120': c.agingStores?.['91_120'] || 0,
+          gt120: c.agingStores?.gt120 || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    const lastDay = new Date(year, monthIdx + 1, 0).getDate();
+    const asOfDate = new Date(year, monthIdx, lastDay, 23, 59, 59);
+
+    let omzet = 0;
+    const activeStoresSet = new Set();
+    let invCount = 0;
+
+    const valLt30 = { sum: 0, stores: new Set() };
+    const val3160 = { sum: 0, stores: new Set() };
+    const val6190 = { sum: 0, stores: new Set() };
+    const val91120 = { sum: 0, stores: new Set() };
+    const valGt120 = { sum: 0, stores: new Set() };
+
+    allInvoices.forEach(inv => {
+      if (!inv.invDate) return;
+
+      if (inv.invDate.getFullYear() === year && inv.invDate.getMonth() === monthIdx) {
+        omzet += inv.jumlah;
+        activeStoresSet.add(inv.kode);
+        invCount++;
+      }
+
+      if (inv.invDate <= asOfDate) {
+        const ageDays = Math.max(0, Math.floor((asOfDate - inv.invDate) / (1000 * 60 * 60 * 24)));
+        if (ageDays <= 30) {
+          valLt30.sum += inv.jumlah;
+          valLt30.stores.add(inv.kode);
+        } else if (ageDays <= 60) {
+          val3160.sum += inv.jumlah;
+          val3160.stores.add(inv.kode);
+        } else if (ageDays <= 90) {
+          val6190.sum += inv.jumlah;
+          val6190.stores.add(inv.kode);
+        } else if (ageDays <= 120) {
+          val91120.sum += inv.jumlah;
+          val91120.stores.add(inv.kode);
+        } else {
+          valGt120.sum += inv.jumlah;
+          valGt120.stores.add(inv.kode);
+        }
+      }
+    });
+
+    const totalPiutangMonth = valLt30.sum + val3160.sum + val6190.sum + val91120.sum + valGt120.sum;
+
+    history.push({
+      key,
+      shortLabel,
+      fullLabel,
+      year,
+      monthNum,
+      omzet,
+      activeStoresCount: activeStoresSet.size,
+      invoiceCount: invCount,
+      agingValues: {
+        lt30: valLt30.sum,
+        '31_60': val3160.sum,
+        '61_90': val6190.sum,
+        '91_120': val91120.sum,
+        gt120: valGt120.sum,
+        total: totalPiutangMonth
+      },
+      agingStores: {
+        lt30: valLt30.stores.size,
+        '31_60': val3160.stores.size,
+        '61_90': val6190.stores.size,
+        '91_120': val91120.stores.size,
+        gt120: valGt120.stores.size
+      },
+      momGrowth: 0
+    });
+  });
+
+  for (let i = 0; i < history.length; i++) {
+    if (i > 0 && history[i - 1].omzet > 0) {
+      const prev = history[i - 1].omzet;
+      const curr = history[i].omzet;
+      history[i].momGrowth = ((curr - prev) / prev) * 100;
+    } else {
+      history[i].momGrowth = 0;
+    }
+  }
+
+  return history;
+}
+
+function getOwnerCustomPeriods() {
+  try {
+    const raw = localStorage.getItem('dunlop_owner_custom_periods');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function initOwnerPeriodDropdowns() {
+  const history = getMonthlyHistoricalData();
+  const selectStart = document.getElementById('ownerSelectStartMonth');
+  const selectEnd = document.getElementById('ownerSelectEndMonth');
+  if (!selectStart || !selectEnd || history.length === 0) return;
+
+  const optionsHtml = history.map(item => `
+    <option value="${item.key}">${item.fullLabel}</option>
+  `).join('');
+
+  selectStart.innerHTML = optionsHtml;
+  selectEnd.innerHTML = optionsHtml;
+
+  if (!history.find(h => h.key === ownerStartMonth)) {
+    ownerStartMonth = history.length >= 6 ? history[history.length - 6].key : history[0].key;
+  }
+  if (!history.find(h => h.key === ownerEndMonth)) {
+    ownerEndMonth = history[history.length - 1].key;
+  }
+
+  selectStart.value = ownerStartMonth;
+  selectEnd.value = ownerEndMonth;
+}
+
+function setOwnerPeriodPreset(preset) {
+  ownerPeriodPreset = preset;
+  const history = getMonthlyHistoricalData();
+  if (history.length === 0) return;
+
+  ['3M', '6M', '2026', 'All'].forEach(p => {
+    const btn = document.getElementById(`presetOwner${p}`);
+    if (btn) btn.classList.remove('active');
+  });
+
+  if (preset === '3m') {
+    document.getElementById('presetOwner3M')?.classList.add('active');
+    ownerStartMonth = history.length >= 3 ? history[history.length - 3].key : history[0].key;
+    ownerEndMonth = history[history.length - 1].key;
+  } else if (preset === '6m') {
+    document.getElementById('presetOwner6M')?.classList.add('active');
+    ownerStartMonth = history.length >= 6 ? history[history.length - 6].key : history[0].key;
+    ownerEndMonth = history[history.length - 1].key;
+  } else if (preset === '2026') {
+    document.getElementById('presetOwner2026')?.classList.add('active');
+    const m2026 = history.filter(h => h.key.startsWith('2026'));
+    if (m2026.length > 0) {
+      ownerStartMonth = m2026[0].key;
+      ownerEndMonth = m2026[m2026.length - 1].key;
+    }
+  } else if (preset === 'all') {
+    document.getElementById('presetOwnerAll')?.classList.add('active');
+    ownerStartMonth = history[0].key;
+    ownerEndMonth = history[history.length - 1].key;
+  }
+
+  const selectStart = document.getElementById('ownerSelectStartMonth');
+  const selectEnd = document.getElementById('ownerSelectEndMonth');
+  if (selectStart) selectStart.value = ownerStartMonth;
+  if (selectEnd) selectEnd.value = ownerEndMonth;
+
+  renderOwnerDashboard();
+}
+
+function handleOwnerCustomRangeChange() {
+  const selectStart = document.getElementById('ownerSelectStartMonth');
+  const selectEnd = document.getElementById('ownerSelectEndMonth');
+  if (!selectStart || !selectEnd) return;
+
+  let start = selectStart.value;
+  let end = selectEnd.value;
+
+  if (start > end) {
+    end = start;
+    selectEnd.value = end;
+  }
+
+  ownerStartMonth = start;
+  ownerEndMonth = end;
+  ownerPeriodPreset = 'custom';
+
+  ['3M', '6M', '2026', 'All'].forEach(p => {
+    document.getElementById(`presetOwner${p}`)?.classList.remove('active');
+  });
+
+  renderOwnerDashboard();
+}
+
+function setAgingValueChartMode(mode) {
+  agingValueChartMode = mode;
+  document.getElementById('btnModeStackedValue')?.classList.toggle('active', mode === 'stacked');
+  document.getElementById('btnModeGroupedValue')?.classList.toggle('active', mode === 'grouped');
+  renderOwnerDashboard();
+}
+
+function renderOwnerDashboard() {
+  const fullHistory = getMonthlyHistoricalData();
+  if (fullHistory.length === 0) return;
+
+  const filtered = fullHistory.filter(h => h.key >= ownerStartMonth && h.key <= ownerEndMonth);
+  if (filtered.length === 0) return;
+
+  const startItem = filtered[0];
+  const endItem = filtered[filtered.length - 1];
+
+  const periodTag = document.getElementById('ownerBannerPeriodTag');
+  if (periodTag) {
+    periodTag.textContent = `Periode: ${startItem.shortLabel} - ${endItem.shortLabel} (${filtered.length} Bulan)`;
+  }
+
+  const totalOmzet = filtered.reduce((sum, h) => sum + h.omzet, 0);
+  const avgOmzet = Math.round(totalOmzet / filtered.length);
+  const avgActiveStores = Math.round(filtered.reduce((sum, h) => sum + h.activeStoresCount, 0) / filtered.length);
+  const endPiutang = endItem.agingValues.total;
+  const startPiutang = startItem.agingValues.total;
+  const piutangGrowthPct = startPiutang > 0 ? ((endPiutang - startPiutang) / startPiutang) * 100 : 0;
+  const endMacetVal = endItem.agingValues.gt120;
+  const endMacetStores = endItem.agingStores.gt120;
+
+  const kpiOmzet = document.getElementById('ownerKpiTotalOmzet');
+  if (kpiOmzet) kpiOmzet.textContent = formatRupiah(totalOmzet);
+  const kpiAvgOmzet = document.getElementById('ownerKpiAvgOmzet');
+  if (kpiAvgOmzet) kpiAvgOmzet.textContent = `Rata-rata: ${formatRupiah(avgOmzet)} / bulan`;
+
+  const kpiStores = document.getElementById('ownerKpiAvgActiveStores');
+  if (kpiStores) kpiStores.textContent = `${avgActiveStores} Toko`;
+  const kpiLatestStores = document.getElementById('ownerKpiLatestActiveStores');
+  if (kpiLatestStores) kpiLatestStores.textContent = `Bulan ${endItem.shortLabel}: ${endItem.activeStoresCount} toko`;
+
+  const kpiPiutang = document.getElementById('ownerKpiEndPiutang');
+  if (kpiPiutang) kpiPiutang.textContent = formatRupiah(endPiutang);
+  const kpiPiutangGrowth = document.getElementById('ownerKpiPiutangGrowth');
+  if (kpiPiutangGrowth) {
+    const sign = piutangGrowthPct >= 0 ? '+' : '';
+    kpiPiutangGrowth.textContent = `Perubahan: ${sign}${piutangGrowthPct.toFixed(1).replace('.', ',')}% dari ${startItem.shortLabel}`;
+  }
+
+  const kpiMacet = document.getElementById('ownerKpiMacetAmount');
+  if (kpiMacet) kpiMacet.textContent = formatRupiah(endMacetVal);
+  const kpiMacetStores = document.getElementById('ownerKpiMacetStores');
+  if (kpiMacetStores) kpiMacetStores.textContent = `${endMacetStores} Toko macet (>120H)`;
+
+  renderSvgAgingValue(filtered, agingValueChartMode);
+  renderSvgAgingStores(filtered);
+  renderSvgMonthlyOmzet(filtered);
+  renderSvgActiveStores(filtered);
+
+  renderTableAgingValue(filtered);
+  renderTableAgingStores(filtered);
+  renderTableMonthlyOmzet(filtered);
+  renderTableActiveStores(filtered);
+}
+
+function renderSvgAgingValue(dataList, mode = 'stacked') {
+  const container = document.getElementById('svgAgingValueContainer');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const w = 840;
+  const h = 340;
+  const padLeft = 80;
+  const padRight = 30;
+  const padTop = 35;
+  const padBottom = 45;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const n = dataList.length;
+  const colSlotW = plotW / n;
+  const colW = Math.max(16, Math.min(64, colSlotW * 0.65));
+
+  let maxVal = 0;
+  if (mode === 'stacked') {
+    maxVal = Math.max(...dataList.map(d => d.agingValues.total || 0));
+  } else {
+    dataList.forEach(d => {
+      maxVal = Math.max(maxVal, d.agingValues.lt30, d.agingValues['31_60'], d.agingValues['61_90'], d.agingValues['91_120'], d.agingValues.gt120);
+    });
+  }
+  maxVal = Math.max(1000000, maxVal * 1.15);
+
+  let gridSvg = '';
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const yVal = (maxVal / steps) * s;
+    const yPos = padTop + plotH - (s / steps) * plotH;
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="var(--text-light)" text-anchor="end">${formatShortRupiah(yVal)}</text>
+    `;
+  }
+
+  const colors = {
+    lt30: '#10b981',
+    '31_60': '#3b82f6',
+    '61_90': '#f97316',
+    '91_120': '#f43f5e',
+    gt120: '#dc2626'
+  };
+
+  let barsSvg = '';
+
+  dataList.forEach((d, i) => {
+    const xCenter = padLeft + (i + 0.5) * colSlotW;
+
+    if (mode === 'stacked') {
+      const barX = xCenter - colW / 2;
+      let currY = padTop + plotH;
+      const cats = ['gt120', '91_120', '61_90', '31_60', 'lt30'];
+
+      cats.forEach(catKey => {
+        const val = d.agingValues[catKey] || 0;
+        const segH = (val / maxVal) * plotH;
+        if (segH > 0) {
+          currY -= segH;
+          barsSvg += `
+            <rect x="${barX}" y="${currY}" width="${colW}" height="${segH}" fill="${colors[catKey]}" opacity="0.92">
+              <title>${d.fullLabel} - ${catKey}: ${formatRupiah(val)}</title>
+            </rect>
+          `;
+        }
+      });
+
+      const totalH = (d.agingValues.total / maxVal) * plotH;
+      const topY = padTop + plotH - totalH;
+      barsSvg += `
+        <text x="${xCenter}" y="${topY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${formatShortRupiah(d.agingValues.total)}
+        </text>
+      `;
+    } else {
+      const groupCats = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
+      const subBarW = Math.max(3, (colW / 5) - 2);
+      const groupTotalW = subBarW * 5 + 4 * 2;
+      let subX = xCenter - groupTotalW / 2;
+
+      groupCats.forEach(catKey => {
+        const val = d.agingValues[catKey] || 0;
+        const barH = (val / maxVal) * plotH;
+        const barY = padTop + plotH - barH;
+        barsSvg += `
+          <rect x="${subX}" y="${barY}" width="${subBarW}" height="${barH}" fill="${colors[catKey]}" rx="2" ry="2" opacity="0.9">
+            <title>${d.fullLabel} - ${catKey}: ${formatRupiah(val)}</title>
+          </rect>
+        `;
+        subX += subBarW + 2;
+      });
+    }
+
+    barsSvg += `
+      <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${d.shortLabel}
+      </text>
+    `;
+  });
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+      ${gridSvg}
+      ${barsSvg}
+    </svg>
+  `;
+}
+
+function renderSvgAgingStores(dataList) {
+  const container = document.getElementById('svgAgingStoresContainer');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const w = 840;
+  const h = 330;
+  const padLeft = 60;
+  const padRight = 30;
+  const padTop = 35;
+  const padBottom = 45;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const n = dataList.length;
+  const colSlotW = plotW / n;
+
+  let maxStores = 0;
+  dataList.forEach(d => {
+    maxStores = Math.max(maxStores, d.agingStores.lt30, d.agingStores['31_60'], d.agingStores['61_90'], d.agingStores['91_120'], d.agingStores.gt120);
+  });
+  maxStores = Math.max(10, Math.ceil(maxStores * 1.25));
+
+  let gridSvg = '';
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const sVal = Math.round((maxStores / steps) * s);
+    const yPos = padTop + plotH - (s / steps) * plotH;
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="var(--text-light)" text-anchor="end">${sVal}</text>
+    `;
+  }
+
+  const colors = {
+    lt30: '#10b981',
+    '31_60': '#3b82f6',
+    '61_90': '#f97316',
+    '91_120': '#f43f5e',
+    gt120: '#dc2626'
+  };
+
+  let barsSvg = '';
+  const cats = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
+
+  dataList.forEach((d, i) => {
+    const xCenter = padLeft + (i + 0.5) * colSlotW;
+    const subBarW = Math.max(5, Math.min(18, (colSlotW * 0.7) / 5 - 2));
+    const groupW = subBarW * 5 + 4 * 2;
+    let subX = xCenter - groupW / 2;
+
+    cats.forEach(catKey => {
+      const count = d.agingStores[catKey] || 0;
+      const barH = (count / maxStores) * plotH;
+      const barY = padTop + plotH - barH;
+      barsSvg += `
+        <rect x="${subX}" y="${barY}" width="${subBarW}" height="${barH}" fill="${colors[catKey]}" rx="2" ry="2" opacity="0.92">
+          <title>${d.fullLabel} - ${catKey}: ${count} Toko</title>
+        </rect>
+        ${count > 0 ? `<text x="${subX + subBarW / 2}" y="${barY - 4}" font-family="var(--font-mono)" font-size="9" font-weight="700" fill="var(--text-muted)" text-anchor="middle">${count}</text>` : ''}
+      `;
+      subX += subBarW + 2;
+    });
+
+    barsSvg += `
+      <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${d.shortLabel}
+      </text>
+    `;
+  });
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+      ${gridSvg}
+      ${barsSvg}
+    </svg>
+  `;
+}
+
+function renderSvgMonthlyOmzet(dataList) {
+  const container = document.getElementById('svgMonthlyOmzetContainer');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const w = 840;
+  const h = 330;
+  const padLeft = 80;
+  const padRight = 30;
+  const padTop = 40;
+  const padBottom = 45;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const n = dataList.length;
+  const colSlotW = plotW / n;
+  const colW = Math.max(20, Math.min(60, colSlotW * 0.55));
+
+  const maxVal = Math.max(1000000, Math.max(...dataList.map(d => d.omzet || 0)) * 1.25);
+
+  let gridSvg = '';
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const yVal = (maxVal / steps) * s;
+    const yPos = padTop + plotH - (s / steps) * plotH;
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="var(--text-light)" text-anchor="end">${formatShortRupiah(yVal)}</text>
+    `;
+  }
+
+  let barsSvg = '';
+  const points = [];
+
+  dataList.forEach((d, i) => {
+    const xCenter = padLeft + (i + 0.5) * colSlotW;
+    const barX = xCenter - colW / 2;
+    const barH = (d.omzet / maxVal) * plotH;
+    const barY = padTop + plotH - barH;
+
+    points.push({ x: xCenter, y: barY });
+
+    barsSvg += `
+      <rect x="${barX}" y="${barY}" width="${colW}" height="${barH}" fill="url(#omzetGrad)" rx="6" ry="6">
+        <title>${d.fullLabel}: Omzet ${formatRupiah(d.omzet)} (${d.invoiceCount} Nota)</title>
+      </rect>
+      <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${formatShortRupiah(d.omzet)}
+      </text>
+    `;
+
+    if (i > 0 && d.momGrowth !== 0) {
+      const isPos = d.momGrowth > 0;
+      const sign = isPos ? '+' : '';
+      const badgeText = `${sign}${d.momGrowth.toFixed(1).replace('.', ',')}%`;
+      const badgeColor = isPos ? '#10b981' : '#ef4444';
+      const badgeBg = isPos ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+
+      barsSvg += `
+        <rect x="${xCenter - 28}" y="${barY - 28}" width="56" height="17" rx="4" fill="${badgeBg}" stroke="${badgeColor}" stroke-width="1" />
+        <text x="${xCenter}" y="${barY - 16}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="${badgeColor}" text-anchor="middle">${badgeText}</text>
+      `;
+    }
+
+    barsSvg += `
+      <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${d.shortLabel}
+      </text>
+    `;
+  });
+
+  let lineSvg = '';
+  if (points.length > 1) {
+    const ptsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    lineSvg = `
+      <polyline points="${ptsStr}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#ffffff" stroke="#0284c7" stroke-width="3"/>`).join('')}
+    `;
+  }
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="omzetGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.75"/>
+        </linearGradient>
+      </defs>
+      ${gridSvg}
+      ${barsSvg}
+      ${lineSvg}
+    </svg>
+  `;
+}
+
+function renderSvgActiveStores(dataList) {
+  const container = document.getElementById('svgActiveStoresContainer');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const w = 840;
+  const h = 330;
+  const padLeft = 70;
+  const padRight = 85;
+  const padTop = 35;
+  const padBottom = 45;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const n = dataList.length;
+  const colSlotW = plotW / n;
+  const colW = Math.max(20, Math.min(56, colSlotW * 0.55));
+
+  const maxStores = Math.max(10, Math.ceil(Math.max(...dataList.map(d => d.activeStoresCount || 0)) * 1.3));
+  const maxAvgOrder = Math.max(1, Math.max(...dataList.map(d => (d.activeStoresCount > 0 ? d.omzet / d.activeStoresCount : 0)))) * 1.25;
+
+  let gridSvg = '';
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const sVal = Math.round((maxStores / steps) * s);
+    const yPos = padTop + plotH - (s / steps) * plotH;
+    const avgVal = (maxAvgOrder / steps) * s;
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.12" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="12" font-weight="700" fill="#a855f7" text-anchor="end">${sVal} Toko</text>
+      <text x="${w - padRight + 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#10b981" text-anchor="start">${formatShortRupiah(avgVal)}</text>
+    `;
+  }
+
+  let barsSvg = '';
+  const avgPoints = [];
+
+  dataList.forEach((d, i) => {
+    const xCenter = padLeft + (i + 0.5) * colSlotW;
+    const barX = xCenter - colW / 2;
+    const barH = (d.activeStoresCount / maxStores) * plotH;
+    const barY = padTop + plotH - barH;
+
+    const avgVal = d.activeStoresCount > 0 ? d.omzet / d.activeStoresCount : 0;
+    const avgY = padTop + plotH - (avgVal / maxAvgOrder) * plotH;
+    avgPoints.push({ x: xCenter, y: avgY, avgVal });
+
+    barsSvg += `
+      <rect x="${barX}" y="${barY}" width="${colW}" height="${barH}" fill="#a855f7" opacity="0.85" rx="5" ry="5">
+        <title>${d.fullLabel}: ${d.activeStoresCount} Toko Bertransaksi</title>
+      </rect>
+      <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="#c084fc" text-anchor="middle">
+        ${d.activeStoresCount}
+      </text>
+    `;
+
+    barsSvg += `
+      <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${d.shortLabel}
+      </text>
+    `;
+  });
+
+  let lineSvg = '';
+  if (avgPoints.length > 1) {
+    const ptsStr = avgPoints.map(p => `${p.x},${p.y}`).join(' ');
+    lineSvg = `
+      <polyline points="${ptsStr}" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      ${avgPoints.map(p => `
+        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#10b981" stroke-width="3">
+          <title>Rata-rata Pembelian/Toko: ${formatRupiah(p.avgVal)}</title>
+        </circle>
+      `).join('')}
+    `;
+  }
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+      ${gridSvg}
+      ${barsSvg}
+      ${lineSvg}
+    </svg>
+  `;
+}
+
+function renderTableAgingValue(dataList) {
+  const container = document.getElementById('tableAgingValue');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const cats = [
+    { key: 'lt30', label: '< 30 Hari' },
+    { key: '31_60', label: '31 - 60 Hari' },
+    { key: '61_90', label: '61 - 90 Hari' },
+    { key: '91_120', label: '91 - 120 Hari' },
+    { key: 'gt120', label: '> 120 Hari (Macet)' }
+  ];
+
+  let headerHtml = '<th>Kelompok Usia</th>';
+  dataList.forEach(d => {
+    headerHtml += `<th style="text-align:right;">${d.shortLabel}</th>`;
+  });
+
+  let bodyHtml = '';
+  cats.forEach(c => {
+    bodyHtml += `<tr><td class="col-label">${c.label}</td>`;
+    dataList.forEach(d => {
+      const val = d.agingValues[c.key] || 0;
+      bodyHtml += `<td style="text-align:right;">${formatRupiah(val)}</td>`;
+    });
+    bodyHtml += `</tr>`;
+  });
+
+  bodyHtml += `<tr class="row-total"><td class="col-label">Total Piutang</td>`;
+  dataList.forEach(d => {
+    bodyHtml += `<td style="text-align:right;">${formatRupiah(d.agingValues.total)}</td>`;
+  });
+  bodyHtml += `</tr>`;
+
+  container.innerHTML = `
+    <table class="chart-data-table">
+      <thead><tr>${headerHtml}</tr></thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+}
+
+function renderTableAgingStores(dataList) {
+  const container = document.getElementById('tableAgingStores');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  const cats = [
+    { key: 'lt30', label: '< 30 Hari (Toko)' },
+    { key: '31_60', label: '31 - 60 Hari (Toko)' },
+    { key: '61_90', label: '61 - 90 Hari (Toko)' },
+    { key: '91_120', label: '91 - 120 Hari (Toko)' },
+    { key: 'gt120', label: '> 120 Hari (Macet Toko)' }
+  ];
+
+  let headerHtml = '<th>Kelompok Usia</th>';
+  dataList.forEach(d => {
+    headerHtml += `<th style="text-align:right;">${d.shortLabel}</th>`;
+  });
+
+  let bodyHtml = '';
+  cats.forEach(c => {
+    bodyHtml += `<tr><td class="col-label">${c.label}</td>`;
+    dataList.forEach(d => {
+      const count = d.agingStores[c.key] || 0;
+      bodyHtml += `<td style="text-align:right;">${count} Toko</td>`;
+    });
+    bodyHtml += `</tr>`;
+  });
+
+  container.innerHTML = `
+    <table class="chart-data-table">
+      <thead><tr>${headerHtml}</tr></thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+}
+
+function renderTableMonthlyOmzet(dataList) {
+  const container = document.getElementById('tableMonthlyOmzet');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  let bodyHtml = dataList.map((d, i) => {
+    let growthBadge = '<span style="color:var(--text-muted);">-</span>';
+    if (i > 0 && d.momGrowth !== 0) {
+      const isPos = d.momGrowth > 0;
+      const sign = isPos ? '+' : '';
+      const color = isPos ? '#10b981' : '#ef4444';
+      growthBadge = `<span style="color:${color}; font-weight:800;">${sign}${d.momGrowth.toFixed(1).replace('.', ',')}%</span>`;
+    }
+
+    return `
+      <tr>
+        <td class="col-label">${d.fullLabel}</td>
+        <td style="text-align:right; font-weight:700;">${formatRupiah(d.omzet)}</td>
+        <td style="text-align:right;">${d.invoiceCount.toLocaleString('id-ID')} Nota</td>
+        <td style="text-align:right;">${growthBadge}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="chart-data-table">
+      <thead>
+        <tr>
+          <th>Bulan &amp; Tahun</th>
+          <th style="text-align:right;">Omzet Penjualan</th>
+          <th style="text-align:right;">Faktur/Nota Terbit</th>
+          <th style="text-align:right;">Pertumbuhan (MoM)</th>
+        </tr>
+      </thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+}
+
+function renderTableActiveStores(dataList) {
+  const container = document.getElementById('tableActiveStores');
+  if (!container || !dataList || dataList.length === 0) return;
+
+  let bodyHtml = dataList.map(d => {
+    const avgOrder = d.activeStoresCount > 0 ? Math.round(d.omzet / d.activeStoresCount) : 0;
+    return `
+      <tr>
+        <td class="col-label">${d.fullLabel}</td>
+        <td style="text-align:right; font-weight:800; color:#c084fc;">${d.activeStoresCount} Toko</td>
+        <td style="text-align:right;">${formatRupiah(d.omzet)}</td>
+        <td style="text-align:right; font-weight:700; color:#10b981;">${formatRupiah(avgOrder)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="chart-data-table">
+      <thead>
+        <tr>
+          <th>Bulan &amp; Tahun</th>
+          <th style="text-align:right;">Toko Bertransaksi</th>
+          <th style="text-align:right;">Total Omzet</th>
+          <th style="text-align:right;">Rata-rata per Toko</th>
+        </tr>
+      </thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+}
+
+// Modal Handlers for Adding Custom Period Snapshot
+function openOwnerPeriodModal() {
+  document.getElementById('ownerPeriodModal').style.display = 'flex';
+}
+
+function closeOwnerPeriodModal() {
+  document.getElementById('ownerPeriodModal').style.display = 'none';
+}
+
+function closeOwnerPeriodModalOnBackdrop(e) {
+  if (e.target.id === 'ownerPeriodModal') {
+    closeOwnerPeriodModal();
+  }
+}
+
+function handleSaveOwnerCustomPeriod(e) {
+  e.preventDefault();
+
+  const key = document.getElementById('inputPeriodKey').value;
+  const omzet = parseFloat(document.getElementById('inputPeriodOmzet').value) || 0;
+  const activeStoresCount = parseInt(document.getElementById('inputPeriodActiveStores').value, 10) || 0;
+
+  const lt30 = parseFloat(document.getElementById('inputPeriodLt30').value) || 0;
+  const b3160 = parseFloat(document.getElementById('inputPeriod3160').value) || 0;
+  const b6190 = parseFloat(document.getElementById('inputPeriod6190').value) || 0;
+  const b91120 = parseFloat(document.getElementById('inputPeriod91120').value) || 0;
+  const gt120 = parseFloat(document.getElementById('inputPeriodGt120').value) || 0;
+
+  const customPeriods = getOwnerCustomPeriods();
+  customPeriods[key] = {
+    key,
+    omzet,
+    activeStoresCount,
+    invoiceCount: Math.round(activeStoresCount * 8),
+    agingValues: {
+      lt30,
+      '31_60': b3160,
+      '61_90': b6190,
+      '91_120': b91120,
+      gt120
+    },
+    agingStores: {
+      lt30: Math.round(activeStoresCount * 0.95),
+      '31_60': Math.round(activeStoresCount * 0.9),
+      '61_90': Math.round(activeStoresCount * 0.7),
+      '91_120': Math.round(activeStoresCount * 0.35),
+      gt120: Math.round(activeStoresCount * 0.25)
+    }
+  };
+
+  localStorage.setItem('dunlop_owner_custom_periods', JSON.stringify(customPeriods));
+  closeOwnerPeriodModal();
+
+  initOwnerPeriodDropdowns();
+  setOwnerPeriodPreset('all');
+  alert(`Data periode ${key} berhasil disimpan dan dimasukkan ke grafik!`);
 }
