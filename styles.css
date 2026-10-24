@@ -154,6 +154,39 @@ body {
   gap: 12px;
 }
 
+.brand-period-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.brand-period-label {
+  font-size: calc(0.95rem * var(--font-scale-factor));
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.select-app-period {
+  background: var(--bg-card-secondary);
+  border: 2px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  font-weight: 800;
+  font-size: calc(0.95rem * var(--font-scale-factor));
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.select-app-period:hover,
+.select-app-period:focus {
+  outline: none;
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
 .btn-close-header {
   background: var(--bg-card-secondary);
   color: var(--text-main);

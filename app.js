@@ -220,10 +220,32 @@ function togglePasswordVisibility() {
 }
 
 // ==========================================================================
-// DATA LOADING
+// DATA LOADING & MULTI-PERIOD SUPPORT
 // ==========================================================================
 
+let activePeriodKey = localStorage.getItem('dunlop_active_period') || '2026-09';
+
+function getPeriodData(key) {
+  if (key === '2026-04' && window.PIUTANG_DATA_APR2026) return window.PIUTANG_DATA_APR2026;
+  if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) return window.PIUTANG_DATA_MAR2026;
+  if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) return window.PIUTANG_DATA_FEB2026;
+  if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) return window.PIUTANG_DATA_JAN2026;
+  if (window.PIUTANG_DATA) return window.PIUTANG_DATA;
+  return null;
+}
+
+function getPreviousPeriodData(key) {
+  if (key === '2026-09') return getPeriodData('2026-04') || getPeriodData('2026-01');
+  if (key === '2026-04') return getPeriodData('2026-03');
+  if (key === '2026-03') return getPeriodData('2026-02');
+  if (key === '2026-02') return getPeriodData('2026-01');
+  return null;
+}
+
 function loadData() {
+  const selectEl = document.getElementById('selectAppPeriod');
+  if (selectEl) selectEl.value = activePeriodKey;
+
   // 1. Check local storage first (for custom uploaded monthly data)
   const localDb = localStorage.getItem('dunlop_custom_data');
   if (localDb) {
@@ -238,10 +260,10 @@ function loadData() {
     }
   }
 
-  // 2. Check window.PIUTANG_DATA (embedded fallback via data.js)
-  if (window.PIUTANG_DATA) {
-    piutangData = window.PIUTANG_DATA;
-    console.log('Loaded data from window.PIUTANG_DATA');
+  // 2. Load based on activePeriodKey (2026-01, 2026-02, 2026-03, 2026-04, 2026-09)
+  const pData = getPeriodData(activePeriodKey);
+  if (pData) {
+    piutangData = pData;
     renderDashboard();
     if (isAuthenticated()) handleInitialRoute();
     return;
@@ -258,6 +280,33 @@ function loadData() {
     .catch(err => {
       console.error('Could not load data.json', err);
     });
+}
+
+function handleAppPeriodChange(periodKey) {
+  activePeriodKey = periodKey;
+  localStorage.setItem('dunlop_active_period', periodKey);
+  localStorage.removeItem('dunlop_custom_data');
+
+  const pData = getPeriodData(periodKey);
+  if (pData) {
+    piutangData = pData;
+  }
+
+  if (currentStoreKode) {
+    navigateTo('#/');
+  }
+
+  renderDashboard();
+
+  if (currentCategoryId === 'blacklist') {
+    renderBlacklist();
+  } else if (currentCategoryId === 'payment') {
+    renderPaymentView();
+  } else if (currentCategoryId === 'owner') {
+    renderOwnerDashboard();
+  } else if (currentCategoryId) {
+    showCategoryView(currentCategoryId, false);
+  }
 }
 
 // ==========================================================================
@@ -1509,6 +1558,17 @@ function getReconciliationData() {
     }
   }
 
+  // Real multi-period reconciliation between consecutive official monthly reports!
+  const prevData = getPreviousPeriodData(activePeriodKey);
+  const currData = getPeriodData(activePeriodKey);
+  if (prevData && currData) {
+    const realRecon = computePaymentReconciliation(prevData, currData);
+    if (realRecon) {
+      realRecon.period = `${prevData.meta?.period || 'Bulan Lalu'} ➔ ${currData.meta?.period || 'Bulan Ini'} (Realisasi Pembayaran)`;
+      return realRecon;
+    }
+  }
+
   return generateSimulatedReconciliation();
 }
 
@@ -1777,27 +1837,42 @@ function showOwnerView(updateUrl = true) {
 }
 
 function getMonthlyHistoricalData() {
-  if (!piutangData || !piutangData.stores) return [];
+  const storeDatasets = [];
+  if (window.PIUTANG_DATA && window.PIUTANG_DATA.stores) storeDatasets.push(window.PIUTANG_DATA);
+  if (window.PIUTANG_DATA_APR2026 && window.PIUTANG_DATA_APR2026.stores) storeDatasets.push(window.PIUTANG_DATA_APR2026);
+  if (window.PIUTANG_DATA_MAR2026 && window.PIUTANG_DATA_MAR2026.stores) storeDatasets.push(window.PIUTANG_DATA_MAR2026);
+  if (window.PIUTANG_DATA_FEB2026 && window.PIUTANG_DATA_FEB2026.stores) storeDatasets.push(window.PIUTANG_DATA_FEB2026);
+  if (window.PIUTANG_DATA_JAN2026 && window.PIUTANG_DATA_JAN2026.stores) storeDatasets.push(window.PIUTANG_DATA_JAN2026);
+  if (storeDatasets.length === 0 && piutangData && piutangData.stores) storeDatasets.push(piutangData);
+  if (storeDatasets.length === 0) return [];
 
+  const seenInvoices = new Set();
   const allInvoices = [];
-  piutangData.stores.forEach(s => {
-    (s.invoices || []).forEach(inv => {
-      let invDate = null;
-      if (inv.tanggalNota) {
-        const m = inv.tanggalNota.match(/(\d{2})\/(\d{2})\/(\d{2})/);
-        if (m) {
-          const day = parseInt(m[1], 10);
-          const month = parseInt(m[2], 10) - 1;
-          const year = 2000 + parseInt(m[3], 10);
-          invDate = new Date(year, month, day);
+
+  storeDatasets.forEach(ds => {
+    (ds.stores || []).forEach(s => {
+      (s.invoices || []).forEach(inv => {
+        const invKey = `${s.kode}_${inv.noNota}_${inv.tanggalNota}_${inv.jumlah}`;
+        if (seenInvoices.has(invKey)) return;
+        seenInvoices.add(invKey);
+
+        let invDate = null;
+        if (inv.tanggalNota) {
+          const m = inv.tanggalNota.match(/(\d{2})\/(\d{2})\/(\d{2})/);
+          if (m) {
+            const day = parseInt(m[1], 10);
+            const month = parseInt(m[2], 10) - 1;
+            const year = 2000 + parseInt(m[3], 10);
+            invDate = new Date(year, month, day);
+          }
         }
-      }
-      allInvoices.push({
-        kode: s.kode,
-        namaToko: s.namaToko,
-        jumlah: inv.jumlah || 0,
-        invDate: invDate,
-        tanggalNota: inv.tanggalNota
+        allInvoices.push({
+          kode: s.kode,
+          namaToko: s.namaToko,
+          jumlah: inv.jumlah || 0,
+          invDate: invDate,
+          tanggalNota: inv.tanggalNota
+        });
       });
     });
   });
@@ -1859,6 +1934,166 @@ function getMonthlyHistoricalData() {
           '61_90': c.agingStores?.['61_90'] || 0,
           '91_120': c.agingStores?.['91_120'] || 0,
           gt120: c.agingStores?.gt120 || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    // January 2026 official report snapshot
+    if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) {
+      const cats = window.PIUTANG_DATA_JAN2026.categories;
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: 4026849357,
+        activeStoresCount: 75,
+        invoiceCount: 510,
+        agingValues: {
+          lt30: cats.lt30?.total || 0,
+          '31_60': cats['31_60']?.total || 0,
+          '61_90': cats['61_90']?.total || 0,
+          '91_120': cats['91_120']?.total || 0,
+          gt120: cats.gt120?.total || 0,
+          total: window.PIUTANG_DATA_JAN2026.meta.grandTotal || 12837649297
+        },
+        agingStores: {
+          lt30: cats.lt30?.stores?.length || 0,
+          '31_60': cats['31_60']?.stores?.length || 0,
+          '61_90': cats['61_90']?.stores?.length || 0,
+          '91_120': cats['91_120']?.stores?.length || 0,
+          gt120: cats.gt120?.stores?.length || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    // February 2026 official report snapshot
+    if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) {
+      const cats = window.PIUTANG_DATA_FEB2026.categories;
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: cats.lt30?.total || 5606112310,
+        activeStoresCount: cats.lt30?.stores?.length || 64,
+        invoiceCount: 602,
+        agingValues: {
+          lt30: cats.lt30?.total || 0,
+          '31_60': cats['31_60']?.total || 0,
+          '61_90': cats['61_90']?.total || 0,
+          '91_120': cats['91_120']?.total || 0,
+          gt120: cats.gt120?.total || 0,
+          total: window.PIUTANG_DATA_FEB2026.meta?.grandTotal || 14228148030
+        },
+        agingStores: {
+          lt30: cats.lt30?.stores?.length || 0,
+          '31_60': cats['31_60']?.stores?.length || 0,
+          '61_90': cats['61_90']?.stores?.length || 0,
+          '91_120': cats['91_120']?.stores?.length || 0,
+          gt120: cats.gt120?.stores?.length || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    // March 2026 official report snapshot
+    if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) {
+      const cats = window.PIUTANG_DATA_MAR2026.categories;
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: cats.lt30?.total || 5182189591,
+        activeStoresCount: cats.lt30?.stores?.length || 65,
+        invoiceCount: 595,
+        agingValues: {
+          lt30: cats.lt30?.total || 0,
+          '31_60': cats['31_60']?.total || 0,
+          '61_90': cats['61_90']?.total || 0,
+          '91_120': cats['91_120']?.total || 0,
+          gt120: cats.gt120?.total || 0,
+          total: window.PIUTANG_DATA_MAR2026.meta?.grandTotal || 14344105532
+        },
+        agingStores: {
+          lt30: cats.lt30?.stores?.length || 0,
+          '31_60': cats['31_60']?.stores?.length || 0,
+          '61_90': cats['61_90']?.stores?.length || 0,
+          '91_120': cats['91_120']?.stores?.length || 0,
+          gt120: cats.gt120?.stores?.length || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    // April 2026 official report snapshot
+    if (key === '2026-04' && window.PIUTANG_DATA_APR2026) {
+      const cats = window.PIUTANG_DATA_APR2026.categories;
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: cats.lt30?.total || 6819674315,
+        activeStoresCount: cats.lt30?.stores?.length || 74,
+        invoiceCount: 617,
+        agingValues: {
+          lt30: cats.lt30?.total || 0,
+          '31_60': cats['31_60']?.total || 0,
+          '61_90': cats['61_90']?.total || 0,
+          '91_120': cats['91_120']?.total || 0,
+          gt120: cats.gt120?.total || 0,
+          total: window.PIUTANG_DATA_APR2026.meta?.grandTotal || 16466868951
+        },
+        agingStores: {
+          lt30: cats.lt30?.stores?.length || 0,
+          '31_60': cats['31_60']?.stores?.length || 0,
+          '61_90': cats['61_90']?.stores?.length || 0,
+          '91_120': cats['91_120']?.stores?.length || 0,
+          gt120: cats.gt120?.stores?.length || 0
+        },
+        momGrowth: 0
+      });
+      return;
+    }
+
+    // September 2026 official report snapshot
+    if (key === '2026-09' && window.PIUTANG_DATA) {
+      const cats = window.PIUTANG_DATA.categories;
+      history.push({
+        key,
+        shortLabel,
+        fullLabel,
+        year,
+        monthNum,
+        omzet: 5372405872,
+        activeStoresCount: 60,
+        invoiceCount: 493,
+        agingValues: {
+          lt30: cats.lt30?.total || 0,
+          '31_60': cats['31_60']?.total || 0,
+          '61_90': cats['61_90']?.total || 0,
+          '91_120': cats['91_120']?.total || 0,
+          gt120: cats.gt120?.total || 0,
+          total: window.PIUTANG_DATA.meta?.grandTotal || 17382231343
+        },
+        agingStores: {
+          lt30: cats.lt30?.stores?.length || 0,
+          '31_60': cats['31_60']?.stores?.length || 0,
+          '61_90': cats['61_90']?.stores?.length || 0,
+          '91_120': cats['91_120']?.stores?.length || 0,
+          gt120: cats.gt120?.stores?.length || 0
         },
         momGrowth: 0
       });

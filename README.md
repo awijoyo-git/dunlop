@@ -24,6 +24,14 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
 2. **Navigasi Sederhana & Tombol BACK Pasti**:
    - Setiap halaman sub-menu memiliki tombol **`← KEMBALI`** besar yang mencolok di bagian atas.
    - Tombol BACK dijamin kembali ke posisi/halaman persis sebelumnya (tidak akan tersesat).
+3. **Pilihan Periode Fleksibel (Multi-Period Switcher)**:
+   - Tersedia pemilih periode di header yang dapat diganti sewaktu-waktu:
+     - **September 2026** (`17.382.231.343` | 82 Toko)
+     - **April 2026** (`16.466.868.951` | 89 Toko)
+     - **Maret 2026** (`14.344.105.532` | 85 Toko)
+     - **Februari 2026** (`14.228.148.030` | 83 Toko)
+     - **Januari 2026** (`12.837.649.297` | 89 Toko)
+   - Seluruh dashboard, summary kategori, audit Data BL, dan detail toko akan langsung berganti sesuai periode yang dipilih.
 3. **5 Kategori Usia Piutang & Persentase Sesuai Kolom PDF**:
    - **Halaman 1: Dashboard Utama**
      - Total Piutang Bulan Ini: **`17.382.231.343`** (ditampilkan dalam 1 baris tanpa terpotong/overflow)
@@ -151,9 +159,17 @@ Website di GitHub Pages akan langsung terupdate otomatis!
 
 ## 📂 Struktur File
 
-- `index.html` : Halaman antarmuka utama (Dashboard, Summary Kategori, Detail Toko, Modal Update).
-- `styles.css` : Desain responsif ramah lansia, tombol zoom huruf, dan palet warna kontras lembut.
-- `app.js` : Logika aplikasi, navigasi tombol BACK pasti, pencarian toko, dan parser OCR.
-- `data.js` & `data.json` : Database piutang hasil parsing 22 halaman PDF (1.674 nota, 82 toko).
-- `raw_ocr.txt` : Teks OCR lengkap 22 halaman periode 30 September 2026.
+- `index.html` : Halaman antarmuka utama (Dashboard, Summary Kategori, Detail Toko, Data BL, Rekonsiliasi Pembayaran, Owner Dashboard, Modal Update).
+- `styles.css` : Desain responsif ramah lansia, tombol zoom huruf, layout fleksibel mobile/tablet, dan palet warna kontras lembut.
+- `app.js` : Logika aplikasi, period switcher, navigasi tombol BACK pasti, rekonsiliasi antar periode, analitika owner, dan parser OCR.
+- `data.js` & `data.json` : Database piutang periode 30 September 2026 (17.382.231.343 | 82 toko | 1.674 nota).
+- `data_apr2026.js` & `data_apr2026.json` : Database piutang periode 30 April 2026 (16.466.868.951 | 89 toko | 1.779 nota).
+- `data_mar2026.js` & `data_mar2026.json` : Database piutang periode 31 Maret 2026 (14.344.105.532 | 85 toko | 1.645 nota).
+- `data_feb2026.js` & `data_feb2026.json` : Database piutang periode 28 Pebruari 2026 (14.228.148.030 | 83 toko | 1.665 nota).
+- `data_jan2026.js` & `data_jan2026.json` : Database piutang periode 31 Januari 2026 (12.837.649.297 | 89 toko | 1.529 nota).
+- `raw_ocr.txt` : Teks OCR lengkap periode 30 September 2026.
+- `raw_ocr_apr2026.txt` : Teks OCR lengkap periode 30 April 2026.
+- `raw_ocr_mar2026.txt` : Teks OCR lengkap periode 31 Maret 2026.
+- `raw_ocr_feb2026.txt` : Teks OCR lengkap periode 28 Pebruari 2026.
+- `raw_ocr_jan2026.txt` : Teks OCR lengkap periode 31 Januari 2026.
 - `update_monthly.ps1` : Script otomatis pemrosesan bulanan.

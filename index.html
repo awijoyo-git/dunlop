@@ -28,7 +28,16 @@
         <div class="brand-block">
           <span class="brand-badge">DUNLOP</span>
           <h1 class="brand-title" id="headerCompanyTitle">INDO BALI SATYA GRAHA</h1>
-          <p class="brand-subtitle" id="headerPeriodTitle">Laporan Piutang • Per 30 Sept 2026</p>
+          <div class="brand-period-select-wrap">
+            <span class="brand-period-label">Periode:</span>
+            <select id="selectAppPeriod" class="select-app-period" onchange="handleAppPeriodChange(this.value)">
+              <option value="2026-09" selected>Per 30 September 2026</option>
+              <option value="2026-04">Per 30 April 2026</option>
+              <option value="2026-03">Per 31 Maret 2026</option>
+              <option value="2026-02">Per 28 Pebruari 2026</option>
+              <option value="2026-01">Per 31 Januari 2026</option>
+            </select>
+          </div>
         </div>
         <button type="button" class="btn-close-header" id="btnCloseHeader" onclick="toggleHeaderCollapse(true)" title="Sembunyikan Header / Menu">
           <span class="close-icon">✕</span>
@@ -859,6 +868,10 @@
 
   <!-- LOAD DATA (Embedded Fallback + External) -->
   <script src="data.js"></script>
+  <script src="data_jan2026.js"></script>
+  <script src="data_feb2026.js"></script>
+  <script src="data_mar2026.js"></script>
+  <script src="data_apr2026.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
