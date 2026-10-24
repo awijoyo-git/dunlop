@@ -242,6 +242,111 @@ function getPreviousPeriodData(key) {
   return null;
 }
 
+// Master registry to track invoice installment lifecycle across periods
+let invoiceHistoryMasterCache = null;
+
+function getInvoiceHistoryMaster() {
+  if (invoiceHistoryMasterCache) return invoiceHistoryMasterCache;
+
+  const master = new Map();
+  const datasets = [];
+
+  // Collect all available official and custom datasets
+  if (window.PIUTANG_DATA_JAN2026 && window.PIUTANG_DATA_JAN2026.stores) datasets.push(window.PIUTANG_DATA_JAN2026);
+  if (window.PIUTANG_DATA_FEB2026 && window.PIUTANG_DATA_FEB2026.stores) datasets.push(window.PIUTANG_DATA_FEB2026);
+  if (window.PIUTANG_DATA_MAR2026 && window.PIUTANG_DATA_MAR2026.stores) datasets.push(window.PIUTANG_DATA_MAR2026);
+  if (window.PIUTANG_DATA_APR2026 && window.PIUTANG_DATA_APR2026.stores) datasets.push(window.PIUTANG_DATA_APR2026);
+  if (window.PIUTANG_DATA && window.PIUTANG_DATA.stores) datasets.push(window.PIUTANG_DATA);
+
+  const localDb = localStorage.getItem('dunlop_custom_data');
+  if (localDb) {
+    try {
+      const parsed = JSON.parse(localDb);
+      if (parsed && parsed.stores) datasets.push(parsed);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  datasets.forEach((ds) => {
+    (ds.stores || []).forEach((s) => {
+      (s.invoices || []).forEach((inv) => {
+        if (!inv || !inv.noNota || typeof inv.jumlah !== 'number') return;
+        const keyWithDate = `${s.kode}_${inv.noNota}_${inv.tanggalNota || ''}`;
+        const keyNoDate = `${s.kode}_${inv.noNota}`;
+
+        // Register keyWithDate (preferred)
+        if (!master.has(keyWithDate)) {
+          master.set(keyWithDate, {
+            maxAmount: inv.jumlah,
+            minAmount: inv.jumlah,
+            records: []
+          });
+        }
+        const entryDate = master.get(keyWithDate);
+        if (inv.jumlah > entryDate.maxAmount) entryDate.maxAmount = inv.jumlah;
+        if (inv.jumlah < entryDate.minAmount) entryDate.minAmount = inv.jumlah;
+        entryDate.records.push({ period: ds.meta?.period || '', jumlah: inv.jumlah });
+
+        // Register keyNoDate (fallback)
+        if (!master.has(keyNoDate)) {
+          master.set(keyNoDate, {
+            maxAmount: inv.jumlah,
+            minAmount: inv.jumlah,
+            records: []
+          });
+        }
+        const entryNoDate = master.get(keyNoDate);
+        if (inv.jumlah > entryNoDate.maxAmount) entryNoDate.maxAmount = inv.jumlah;
+        if (inv.jumlah < entryNoDate.minAmount) entryNoDate.minAmount = inv.jumlah;
+        entryNoDate.records.push({ period: ds.meta?.period || '', jumlah: inv.jumlah });
+      });
+    });
+  });
+
+  invoiceHistoryMasterCache = master;
+  return master;
+}
+
+function getInvoiceCicilanInfo(storeKode, inv) {
+  if (!inv || typeof inv.jumlah !== 'number') return null;
+
+  // If explicit properties already present
+  if (inv.totalAwal && inv.totalAwal > inv.jumlah) {
+    const totalAwal = inv.totalAwal;
+    const sudahDicicil = totalAwal - inv.jumlah;
+    const persen = ((sudahDicicil / totalAwal) * 100).toFixed(1);
+    return {
+      hasCicilan: true,
+      totalAwal,
+      sisaNota: inv.jumlah,
+      sudahDicicil,
+      persen
+    };
+  }
+
+  const master = getInvoiceHistoryMaster();
+  const keyWithDate = `${storeKode}_${inv.noNota}_${inv.tanggalNota || ''}`;
+  const keyNoDate = `${storeKode}_${inv.noNota}`;
+
+  const entry = master.get(keyWithDate) || master.get(keyNoDate);
+  if (entry && entry.maxAmount > inv.jumlah) {
+    const totalAwal = entry.maxAmount;
+    const sudahDicicil = totalAwal - inv.jumlah;
+    const persen = ((sudahDicicil / totalAwal) * 100).toFixed(1);
+    return {
+      hasCicilan: true,
+      totalAwal,
+      sisaNota: inv.jumlah,
+      sudahDicicil,
+      persen,
+      historyCount: entry.records ? entry.records.length : 1
+    };
+  }
+
+  return null;
+}
+
 function loadData() {
   const selectEl = document.getElementById('selectAppPeriod');
   if (selectEl) selectEl.value = activePeriodKey;
@@ -286,6 +391,7 @@ function handleAppPeriodChange(periodKey) {
   activePeriodKey = periodKey;
   localStorage.setItem('dunlop_active_period', periodKey);
   localStorage.removeItem('dunlop_custom_data');
+  invoiceHistoryMasterCache = null;
 
   const pData = getPeriodData(periodKey);
   if (pData) {
@@ -694,6 +800,11 @@ function renderCategoryStoresList(stores) {
     }
 
     const isBL = blStoreCodes.has(s.kode);
+    const fullStore = (piutangData.stores || []).find(st => st.kode === s.kode);
+    const hasCicilan = fullStore && (fullStore.invoices || []).some(inv => {
+      const c = getInvoiceCicilanInfo(s.kode, inv);
+      return c !== null;
+    });
 
     return `
       <article class="store-card" onclick="openStoreDetail('${s.kode}', '${currentCategoryId}')">
@@ -701,6 +812,7 @@ function renderCategoryStoresList(stores) {
           <div class="store-card-name">
             ${index + 1}. ${s.namaToko}
             ${isBL ? '<span class="badge-bl-warning" style="margin-left:8px; vertical-align:middle;">⛔ DATA BL</span>' : ''}
+            ${hasCicilan ? '<span class="badge-cicilan" style="margin-left:6px; vertical-align:middle;">💳 Ada Cicilan</span>' : ''}
           </div>
           <span class="store-card-code">${s.kode}</span>
         </div>
@@ -849,6 +961,36 @@ function renderStoreBucketGroups(store) {
 
   let html = '';
 
+  // Calculate cicilan stats for this store
+  let storeCicilanCount = 0;
+  let storeCicilanTotalPaid = 0;
+  let storeCicilanTotalAwal = 0;
+  (store.invoices || []).forEach(inv => {
+    const cicilan = getInvoiceCicilanInfo(store.kode, inv);
+    if (cicilan) {
+      storeCicilanCount++;
+      storeCicilanTotalPaid += cicilan.sudahDicicil;
+      storeCicilanTotalAwal += cicilan.totalAwal;
+    }
+  });
+
+  if (storeCicilanCount > 0) {
+    const persenLunas = ((storeCicilanTotalPaid / storeCicilanTotalAwal) * 100).toFixed(1);
+    html += `
+      <div class="store-cicilan-banner">
+        <div class="cicilan-banner-icon">💳</div>
+        <div class="cicilan-banner-text">
+          <div class="cicilan-banner-title">
+            HISTORI CICILAN: ${storeCicilanCount} NOTA SEDANG DICICIL (${persenLunas}% TERBAYAR)
+          </div>
+          <div class="cicilan-banner-desc">
+            Total pembayaran cicilan yang sudah masuk sebesar <strong class="text-success">+ ${formatRupiah(storeCicilanTotalPaid)}</strong> dari total nilai nota awal <strong style="text-decoration:line-through; opacity:0.85;">${formatRupiah(storeCicilanTotalAwal)}</strong>. Sisa tagihan toko saat ini adalah <strong>${formatRupiah(store.totalPiutang)}</strong>.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   if (isBL) {
     html += `
       <div class="store-bl-alert-box">
@@ -891,6 +1033,36 @@ function renderStoreBucketGroups(store) {
               invFlag = '<span class="invoice-bl-badge">⛔ Diterbitkan Saat Masih Macet &gt; 120H</span>';
             }
 
+            const cicilan = getInvoiceCicilanInfo(store.kode, inv);
+            let cicilanHtml = '';
+            if (cicilan) {
+              cicilanHtml = `
+                <div class="invoice-cicilan-card">
+                  <div class="cicilan-card-header">
+                    <span class="cicilan-card-badge">💳 Ada Cicilan (${cicilan.persen}% Terbayar)</span>
+                    <span class="cicilan-card-num">Nota Awal: ${formatRupiah(cicilan.totalAwal)}</span>
+                  </div>
+                  <div class="cicilan-card-metrics">
+                    <div class="cicilan-metric-item">
+                      <span class="cicilan-metric-label">Sudah Dicicil</span>
+                      <span class="cicilan-metric-val val-green">+ ${formatRupiah(cicilan.sudahDicicil)}</span>
+                    </div>
+                    <div class="cicilan-metric-item">
+                      <span class="cicilan-metric-label">Total Nota Awal</span>
+                      <span class="cicilan-metric-val val-muted">${formatRupiah(cicilan.totalAwal)}</span>
+                    </div>
+                    <div class="cicilan-metric-item">
+                      <span class="cicilan-metric-label">Sisa Tagihan</span>
+                      <span class="cicilan-metric-val val-blue">${formatRupiah(inv.jumlah)}</span>
+                    </div>
+                  </div>
+                  <div class="cicilan-card-bar">
+                    <div class="cicilan-bar-progress" style="width: ${cicilan.persen}%;"></div>
+                  </div>
+                </div>
+              `;
+            }
+
             return `
               <div class="invoice-item">
                 <div class="invoice-row-main">
@@ -902,6 +1074,7 @@ function renderStoreBucketGroups(store) {
                   ${inv.ket ? `<span class="invoice-ket">${inv.ket}</span>` : ''}
                 </div>
                 ${invFlag ? `<div style="margin-top:4px;">${invFlag}</div>` : ''}
+                ${cicilanHtml}
               </div>
             `;
           }).join('')}
@@ -985,6 +1158,7 @@ function applyNewData(newData, successMsg) {
   }
 
   piutangData = newData;
+  invoiceHistoryMasterCache = null;
   localStorage.setItem('dunlop_custom_data', JSON.stringify(newData));
   renderDashboard();
   showUpdateStatus(successMsg, true);
@@ -1397,36 +1571,52 @@ function applyBLFilterAndSort() {
             ⚠️ Nota Baru yang Diterbitkan Saat Macet (${s.newCount} Nota):
           </div>
           <div class="bl-invoices-subgrid">
-            ${s.newInvoices.map(inv => `
+            ${s.newInvoices.map(inv => {
+              const cicilan = getInvoiceCicilanInfo(s.kode, inv);
+              return `
               <div class="bl-invoice-row">
                 <div class="bl-inv-left">
                   <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
                   <span class="bl-inv-date">Kategori: ${inv.catLabel} (Usia ${inv.umurHari} hari)</span>
+                  ${cicilan ? `
+                    <div class="bl-inv-cicilan-badge">
+                      💳 Dicicil: <strong class="text-success">+ ${formatRupiah(cicilan.sudahDicicil)}</strong> dari awal <strong>${formatRupiah(cicilan.totalAwal)}</strong> (${cicilan.persen}%) • Sisa: <strong>${formatRupiah(inv.jumlah)}</strong>
+                    </div>
+                  ` : ''}
                 </div>
                 <div class="bl-inv-right">
                   <span class="bl-inv-amount">${formatRupiah(inv.jumlah)}</span>
                   <span class="bl-inv-tag bl-tag-new">Nota Baru</span>
                 </div>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
 
           <div style="font-weight: 800; font-size: 0.95em; color: #ef4444; margin-top: 14px;">
             ⛔ Tunggakan Macet &gt; 120 Hari Penyebab Blacklist (${s.macetCount} Nota):
           </div>
           <div class="bl-invoices-subgrid">
-            ${s.macetInvoices.map(inv => `
+            ${s.macetInvoices.map(inv => {
+              const cicilan = getInvoiceCicilanInfo(s.kode, inv);
+              return `
               <div class="bl-invoice-row">
                 <div class="bl-inv-left">
                   <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
                   <span class="bl-inv-date">Usia ${inv.umurHari} hari ${inv.ket ? '• ' + inv.ket : ''}</span>
+                  ${cicilan ? `
+                    <div class="bl-inv-cicilan-badge">
+                      💳 Dicicil: <strong class="text-success">+ ${formatRupiah(cicilan.sudahDicicil)}</strong> dari awal <strong>${formatRupiah(cicilan.totalAwal)}</strong> (${cicilan.persen}%) • Sisa: <strong>${formatRupiah(inv.jumlah)}</strong>
+                    </div>
+                  ` : ''}
                 </div>
                 <div class="bl-inv-right">
                   <span class="bl-inv-amount text-danger">${formatRupiah(inv.jumlah)}</span>
                   <span class="bl-inv-tag bl-tag-macet">Macet &gt; 120H</span>
                 </div>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
         </div>
       </article>
@@ -1754,13 +1944,28 @@ function applyPaymentFilter() {
         <div class="pay-invoices-sublist">
           ${s.invoices.map(inv => {
             const badgeClass = inv.status === 'Lunas' ? 'badge-lunas' : 'badge-sebagian';
+            const cicilan = getInvoiceCicilanInfo(s.kode, { noNota: inv.noNota, tanggalNota: inv.tanggalNota, jumlah: inv.currAmount });
+            const totalAwal = (cicilan && cicilan.totalAwal > inv.prevAmount) ? cicilan.totalAwal : inv.prevAmount;
+            const sudahDicicilTotal = totalAwal - inv.currAmount;
+            const persenTotal = totalAwal > 0 ? ((sudahDicicilTotal / totalAwal) * 100).toFixed(1) : '0.0';
+
+            let cicilanExtra = '';
+            if (inv.status !== 'Lunas' && totalAwal > 0) {
+              cicilanExtra = `
+                <div style="font-size:0.85em; color:var(--text-main); margin-top:3px; font-weight:700;">
+                  💳 Sudah dicicil: <span class="text-success">+ ${formatRupiah(sudahDicicilTotal)}</span> (${persenTotal}%) dari total nota awal <span style="text-decoration:line-through; opacity:0.85;">${formatRupiah(totalAwal)}</span>
+                </div>
+              `;
+            }
+
             return `
               <div class="pay-inv-item">
                 <div class="pay-inv-meta">
                   <span class="pay-inv-number">📄 Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
                   <span class="pay-inv-balances">
-                    Saldo Lama: ${formatRupiah(inv.prevAmount)} ➔ Sisa Saldo: ${formatRupiah(inv.currAmount)}
+                    Saldo Bulan Lalu: ${formatRupiah(inv.prevAmount)} ➔ Sisa Saldo Bulan Ini: ${formatRupiah(inv.currAmount)}
                   </span>
+                  ${cicilanExtra}
                 </div>
                 <div class="pay-inv-paid-wrap">
                   <div class="pay-inv-paid-val">+ ${formatRupiah(inv.paidAmount)}</div>
