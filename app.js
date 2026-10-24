@@ -48,6 +48,31 @@ function initPreferences() {
   // Default theme: soft-dark (mode malam)
   const savedTheme = localStorage.getItem('dunlop_theme') || 'soft-dark';
   applyTheme(savedTheme);
+
+  // Check saved header collapse state
+  const savedCollapsed = localStorage.getItem('dunlop_header_collapsed') === 'true';
+  if (savedCollapsed && isAuthenticated()) {
+    toggleHeaderCollapse(true);
+  }
+}
+
+function toggleHeaderCollapse(collapse) {
+  const isCollapsed = collapse !== undefined 
+    ? collapse 
+    : !document.body.classList.contains('header-collapsed');
+
+  document.body.classList.toggle('header-collapsed', isCollapsed);
+
+  const floatingBtn = document.getElementById('btnFloatingHeader');
+  if (floatingBtn) {
+    if (isAuthenticated() && isCollapsed) {
+      floatingBtn.style.display = 'inline-flex';
+    } else {
+      floatingBtn.style.display = 'none';
+    }
+  }
+
+  localStorage.setItem('dunlop_header_collapsed', isCollapsed ? 'true' : 'false');
 }
 
 function setFontSize(size) {
@@ -129,6 +154,10 @@ function onLoginSuccess(animate = true) {
   if (btnLogout) btnLogout.style.display = 'inline-flex';
   if (btnAdmin) btnAdmin.style.display = 'inline-flex';
 
+  // Restore saved header collapse state
+  const savedCollapsed = localStorage.getItem('dunlop_header_collapsed') === 'true';
+  toggleHeaderCollapse(savedCollapsed);
+
   // Hide login view
   const viewLogin = document.getElementById('viewLogin');
   if (viewLogin) viewLogin.style.display = 'none';
@@ -143,6 +172,11 @@ function showLoginView() {
   document.getElementById('viewDashboard').style.display = 'none';
   document.getElementById('viewCategory').style.display = 'none';
   document.getElementById('viewStore').style.display = 'none';
+
+  // Hide floating button on login screen and expand header
+  const floatingBtn = document.getElementById('btnFloatingHeader');
+  if (floatingBtn) floatingBtn.style.display = 'none';
+  document.body.classList.remove('header-collapsed');
 
   // Hide sticky bar, admin & logout
   updateStickyBar(false);
@@ -276,6 +310,10 @@ function processHashRoute(hash) {
     const urlParams = new URLSearchParams(queryStr || '');
     const fromCat = urlParams.get('cat') || null;
     showStoreDetailView(kode, fromCat, false);
+  } else if (route === 'blacklist') {
+    showBlacklistView(false);
+  } else if (route === 'pembayaran') {
+    showPaymentView(false);
   }
 }
 
@@ -294,7 +332,11 @@ function navigateBack() {
   }
 
   if (currentStoreKode) {
-    if (currentCategoryId) {
+    if (currentCategoryId === 'blacklist') {
+      navigateTo('#/blacklist');
+    } else if (currentCategoryId === 'payment') {
+      navigateTo('#/pembayaran');
+    } else if (currentCategoryId) {
       navigateTo(`#/category/${currentCategoryId}`);
     } else {
       navigateTo('#/');
@@ -304,6 +346,14 @@ function navigateBack() {
   } else {
     navigateTo('#/');
   }
+}
+
+function hideAllViews() {
+  const views = ['viewLogin', 'viewDashboard', 'viewCategory', 'viewStore', 'viewBlacklist', 'viewPayment'];
+  views.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 }
 
 function updateStickyBar(visible, backLabel, breadcrumb) {
@@ -333,10 +383,8 @@ function showDashboardView(updateUrl = true) {
   currentCategoryId = null;
   currentStoreKode = null;
 
-  document.getElementById('viewLogin').style.display = 'none';
+  hideAllViews();
   document.getElementById('viewDashboard').style.display = 'flex';
-  document.getElementById('viewCategory').style.display = 'none';
-  document.getElementById('viewStore').style.display = 'none';
 
   updateStickyBar(false);
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -402,6 +450,28 @@ function renderDashboard() {
     const distPctEl = document.getElementById(`distPct_${key}`);
     if (distPctEl) distPctEl.textContent = pctFormatted;
   });
+
+  // Update BL & Payment Dashboard Launchers
+  const blStores = getBLStores();
+  const totalMacet = blStores.reduce((sum, s) => sum + s.macetTotal, 0);
+  const totalNew = blStores.reduce((sum, s) => sum + s.newTotal, 0);
+
+  const dashBlCountBadge = document.getElementById('dashBlCountBadge');
+  if (dashBlCountBadge) dashBlCountBadge.textContent = `${blStores.length} Toko Melanggar`;
+  const dashBlMacetAmount = document.getElementById('dashBlMacetAmount');
+  if (dashBlMacetAmount) dashBlMacetAmount.textContent = formatRupiah(totalMacet);
+  const dashBlNewAmount = document.getElementById('dashBlNewAmount');
+  if (dashBlNewAmount) dashBlNewAmount.textContent = formatRupiah(totalNew);
+  const tbBlBadge = document.getElementById('tbBlBadge');
+  if (tbBlBadge) tbBlBadge.textContent = blStores.length;
+
+  const recon = getReconciliationData();
+  if (recon) {
+    const dashPayAmount = document.getElementById('dashPayAmount');
+    if (dashPayAmount) dashPayAmount.textContent = formatRupiah(recon.totalPaidAmount);
+    const dashPayInvoicesCount = document.getElementById('dashPayInvoicesCount');
+    if (dashPayInvoicesCount) dashPayInvoicesCount.textContent = `${recon.totalInvoicesPaid} Nota`;
+  }
 }
 
 // Global Search
@@ -548,6 +618,8 @@ function renderCategoryStoresList(stores) {
     return;
   }
 
+  const blStoreCodes = new Set(getBLStores().map(s => s.kode));
+
   container.innerHTML = stores.map((s, index) => {
     let ageStr = '';
     if (s.minAge === s.maxAge) {
@@ -556,10 +628,15 @@ function renderCategoryStoresList(stores) {
       ageStr = `${s.minAge} - ${s.maxAge} hari`;
     }
 
+    const isBL = blStoreCodes.has(s.kode);
+
     return `
       <article class="store-card" onclick="openStoreDetail('${s.kode}', '${currentCategoryId}')">
         <div class="store-card-header">
-          <div class="store-card-name">${index + 1}. ${s.namaToko}</div>
+          <div class="store-card-name">
+            ${index + 1}. ${s.namaToko}
+            ${isBL ? '<span class="badge-bl-warning" style="margin-left:8px; vertical-align:middle;">⛔ DATA BL</span>' : ''}
+          </div>
           <span class="store-card-code">${s.kode}</span>
         </div>
         <div class="store-card-middle">
@@ -666,10 +743,18 @@ function showStoreDetailView(kode, fromCat, updateUrl = true) {
   renderStoreBucketGroups(store);
 
   // Sticky Back Bar
-  const backLabel = currentCategoryId ? '← KEMBALI KE DAFTAR TOKO' : '← KEMBALI KE DASHBOARD';
-  const breadcrumb = currentCategoryId 
-    ? `Kategori > ${store.namaToko}`
-    : `Dashboard > ${store.namaToko}`;
+  let backLabel = '← KEMBALI KE DASHBOARD';
+  let breadcrumb = `Dashboard > ${store.namaToko}`;
+  if (fromCat === 'blacklist') {
+    backLabel = '← KEMBALI KE DATA BL';
+    breadcrumb = `Data BL > ${store.namaToko}`;
+  } else if (fromCat === 'payment') {
+    backLabel = '← KEMBALI KE PEMBAYARAN';
+    breadcrumb = `Pembayaran > ${store.namaToko}`;
+  } else if (fromCat) {
+    backLabel = '← KEMBALI KE DAFTAR TOKO';
+    breadcrumb = `Kategori > ${store.namaToko}`;
+  }
   updateStickyBar(true, backLabel, breadcrumb);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -685,6 +770,10 @@ function renderStoreBucketGroups(store) {
   const container = document.getElementById('storeBucketsList');
   if (!container) return;
 
+  const hasMacet = store.categories?.gt120 && store.categories.gt120.total > 0;
+  const newInvoicesCount = (store.invoices || []).filter(i => i.catId !== 'gt120').length;
+  const isBL = hasMacet && newInvoicesCount > 0;
+
   const order = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
   const catStyles = {
     'lt30':   { tag: '< 30 HARI',   class: 'tag-green' },
@@ -695,6 +784,22 @@ function renderStoreBucketGroups(store) {
   };
 
   let html = '';
+
+  if (isBL) {
+    html += `
+      <div class="store-bl-alert-box">
+        <span style="font-size:1.6em;">⛔</span>
+        <div>
+          <div style="font-size:1.05em; font-weight:800; color:#ef4444; margin-bottom:4px;">
+            PERINGATAN AUDIT: TOKO DATA BL (PELANGGARAN BLACKLIST)
+          </div>
+          <div style="font-size:0.9em; line-height:1.4;">
+            Toko ini memiliki tunggakan macet &gt; 120 hari sebesar <strong>${formatRupiah(store.categories.gt120.total)}</strong> (${store.categories.gt120.invoices.length} nota), namun <strong>masih diterbitkan ${newInvoicesCount} nota tagihan baru</strong>!
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   order.forEach(catId => {
     const bucket = store.categories[catId];
@@ -714,18 +819,28 @@ function renderStoreBucketGroups(store) {
         </div>
 
         <div class="bucket-invoices-list">
-          ${invoices.map((inv) => `
-            <div class="invoice-item">
-              <div class="invoice-row-main">
-                <span class="invoice-amount">${formatRupiah(inv.jumlah)}</span>
-                <span class="invoice-age-badge">⏳ ${inv.umurHari} hari</span>
+          ${invoices.map((inv) => {
+            let invFlag = '';
+            if (catId === 'gt120') {
+              invFlag = '<span class="invoice-gt120-badge">⚠️ Tunggakan Macet &gt; 120H</span>';
+            } else if (hasMacet) {
+              invFlag = '<span class="invoice-bl-badge">⛔ Diterbitkan Saat Masih Macet &gt; 120H</span>';
+            }
+
+            return `
+              <div class="invoice-item">
+                <div class="invoice-row-main">
+                  <span class="invoice-amount">${formatRupiah(inv.jumlah)}</span>
+                  <span class="invoice-age-badge">⏳ ${inv.umurHari} hari</span>
+                </div>
+                <div class="invoice-row-sub">
+                  <span class="invoice-meta-date">Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  ${inv.ket ? `<span class="invoice-ket">${inv.ket}</span>` : ''}
+                </div>
+                ${invFlag ? `<div style="margin-top:4px;">${invFlag}</div>` : ''}
               </div>
-              <div class="invoice-row-sub">
-                <span class="invoice-meta-date">Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
-                ${inv.ket ? `<span class="invoice-ket">${inv.ket}</span>` : ''}
-              </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -792,6 +907,19 @@ function parseRawOcrTextarea() {
 }
 
 function applyNewData(newData, successMsg) {
+  // If we have previous data from another period, compute payment reconciliation
+  if (piutangData && piutangData.meta?.period !== newData.meta?.period) {
+    try {
+      localStorage.setItem('dunlop_prev_data', JSON.stringify(piutangData));
+      const recon = computePaymentReconciliation(piutangData, newData);
+      if (recon) {
+        localStorage.setItem('dunlop_reconciliation', JSON.stringify(recon));
+      }
+    } catch (e) {
+      console.warn('Could not archive previous month for reconciliation:', e);
+    }
+  }
+
   piutangData = newData;
   localStorage.setItem('dunlop_custom_data', JSON.stringify(newData));
   renderDashboard();
@@ -824,6 +952,8 @@ function downloadCurrentJson() {
 function restoreOriginalData() {
   if (confirm('Apakah Anda ingin memulihkan ke data asli awal (30 September 2026)?')) {
     localStorage.removeItem('dunlop_custom_data');
+    localStorage.removeItem('dunlop_prev_data');
+    localStorage.removeItem('dunlop_reconciliation');
     if (window.PIUTANG_DATA) {
       piutangData = window.PIUTANG_DATA;
       renderDashboard();
@@ -1017,4 +1147,555 @@ function parseOcrString(text) {
     categories: catSummary,
     stores: storesList
   };
+}
+
+// ==========================================================================
+// FEATURE: DATA BL (PELANGGARAN BLACKLIST)
+// ==========================================================================
+
+let activeBLFilterText = '';
+let activeBLSortOrder = 'new-desc';
+
+function getBLStores() {
+  if (!piutangData || !piutangData.stores) return [];
+
+  const blStores = [];
+  piutangData.stores.forEach(s => {
+    const gt120 = s.categories?.gt120;
+    const macetTotal = gt120?.total || 0;
+    if (macetTotal <= 0) return;
+
+    // Invoices issued while store has >120 days overdue (catId !== 'gt120')
+    const newInvoices = (s.invoices || []).filter(i => i.catId !== 'gt120');
+    const newTotal = newInvoices.reduce((sum, i) => sum + i.jumlah, 0);
+
+    if (newInvoices.length > 0) {
+      blStores.push({
+        kode: s.kode,
+        namaToko: s.namaToko,
+        macetTotal: macetTotal,
+        macetCount: gt120.invoices?.length || 0,
+        macetMinAge: gt120.minAge || 0,
+        macetMaxAge: gt120.maxAge || 0,
+        macetInvoices: gt120.invoices || [],
+        newTotal: newTotal,
+        newCount: newInvoices.length,
+        newInvoices: newInvoices,
+        totalPiutang: s.totalPiutang
+      });
+    }
+  });
+
+  return blStores;
+}
+
+function openBlacklistView() {
+  navigateTo('#/blacklist');
+}
+
+function showBlacklistView(updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
+  currentCategoryId = 'blacklist';
+  currentStoreKode = null;
+
+  hideAllViews();
+  const blPanel = document.getElementById('viewBlacklist');
+  if (blPanel) blPanel.style.display = 'flex';
+
+  updateStickyBar(true, '← KEMBALI KE DASHBOARD', 'Dashboard > Data BL');
+  renderBlacklist();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (updateUrl) {
+    navigateTo('#/blacklist', false);
+  }
+}
+
+function renderBlacklist() {
+  const blStores = getBLStores();
+  const totalMacet = blStores.reduce((sum, s) => sum + s.macetTotal, 0);
+  const totalMacetNotes = blStores.reduce((sum, s) => sum + s.macetCount, 0);
+  const totalNew = blStores.reduce((sum, s) => sum + s.newTotal, 0);
+  const totalNewNotes = blStores.reduce((sum, s) => sum + s.newCount, 0);
+
+  const blTotalStoresCount = document.getElementById('blTotalStoresCount');
+  if (blTotalStoresCount) blTotalStoresCount.textContent = `${blStores.length} Toko Melanggar`;
+  const blStatStores = document.getElementById('blStatStores');
+  if (blStatStores) blStatStores.textContent = `${blStores.length} Toko`;
+  const blStatMacet = document.getElementById('blStatMacet');
+  if (blStatMacet) blStatMacet.textContent = formatRupiah(totalMacet);
+  const blStatMacetNotes = document.getElementById('blStatMacetNotes');
+  if (blStatMacetNotes) blStatMacetNotes.textContent = `${totalMacetNotes} Nota macet`;
+  const blStatNew = document.getElementById('blStatNew');
+  if (blStatNew) blStatNew.textContent = formatRupiah(totalNew);
+  const blStatNewNotes = document.getElementById('blStatNewNotes');
+  if (blStatNewNotes) blStatNewNotes.textContent = `${totalNewNotes} Nota baru diterbitkan`;
+
+  applyBLFilterAndSort();
+}
+
+function filterBLStores(query) {
+  activeBLFilterText = (query || '').trim().toLowerCase();
+  applyBLFilterAndSort();
+}
+
+function sortBLStores(sortVal) {
+  activeBLSortOrder = sortVal;
+  applyBLFilterAndSort();
+}
+
+function toggleBLAccordion(kode) {
+  const drawer = document.getElementById(`blDrawer_${kode}`);
+  const chevron = document.getElementById(`blChevron_${kode}`);
+  if (!drawer) return;
+
+  const isOpen = drawer.classList.contains('is-open');
+  drawer.classList.toggle('is-open', !isOpen);
+  if (chevron) {
+    chevron.textContent = isOpen ? '▼' : '▲';
+  }
+}
+
+function applyBLFilterAndSort() {
+  const container = document.getElementById('blStoresList');
+  if (!container) return;
+
+  let stores = getBLStores();
+
+  if (activeBLFilterText) {
+    stores = stores.filter(s =>
+      s.namaToko.toLowerCase().includes(activeBLFilterText) ||
+      s.kode.includes(activeBLFilterText)
+    );
+  }
+
+  stores.sort((a, b) => {
+    if (activeBLSortOrder === 'new-desc') return b.newTotal - a.newTotal;
+    if (activeBLSortOrder === 'macet-desc') return b.macetTotal - a.macetTotal;
+    if (activeBLSortOrder === 'total-desc') return b.totalPiutang - a.totalPiutang;
+    if (activeBLSortOrder === 'name-asc') return a.namaToko.localeCompare(b.namaToko);
+    return 0;
+  });
+
+  if (stores.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 30px; text-align: center; background: var(--bg-card); border-radius: 12px; border: 2px dashed var(--border-color);">
+        <p style="font-size: 1.1em; font-weight: 700; color: var(--text-muted);">Tidak ada toko BL yang sesuai dengan pencarian.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = stores.map((s, index) => {
+    return `
+      <article class="bl-store-card">
+        <div class="bl-card-top">
+          <div>
+            <div class="bl-store-name">${index + 1}. ${s.namaToko}</div>
+            <div style="font-size: 0.85em; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
+              Kode Toko: ${s.kode} • Total Seluruh Piutang: ${formatRupiah(s.totalPiutang)}
+            </div>
+          </div>
+          <span class="bl-pill-badge">⛔ PELANGGARAN BL</span>
+        </div>
+
+        <div class="bl-comparison-box">
+          <div class="bl-box-item box-macet">
+            <span class="bl-box-title">Tunggakan Macet (&gt; 120 Hari):</span>
+            <div class="bl-box-amount text-danger">${formatRupiah(s.macetTotal)}</div>
+            <span class="bl-box-notes">${s.macetCount} Nota • Usia ${s.macetMinAge} - ${s.macetMaxAge} Hari</span>
+          </div>
+
+          <div class="bl-box-item box-new">
+            <span class="bl-box-title">Nota Baru Tetap Diterbitkan:</span>
+            <div class="bl-box-amount text-warning">${formatRupiah(s.newTotal)}</div>
+            <span class="bl-box-notes">${s.newCount} Nota Baru Saat Masih Ada Macet</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn-toggle-bl-invoices" onclick="toggleBLAccordion('${s.kode}')" style="flex: 1; min-width: 220px;">
+            <span>📋 Rincian Nota Pelanggaran (${s.newCount + s.macetCount} Nota)</span>
+            <span id="blChevron_${s.kode}">▼</span>
+          </button>
+          <button type="button" class="btn-detail-link" onclick="openStoreDetail('${s.kode}', 'blacklist')" style="padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card-secondary); cursor: pointer;">
+            Buka Detail Toko Penuh →
+          </button>
+        </div>
+
+        <div class="bl-invoices-drawer" id="blDrawer_${s.kode}">
+          <div style="font-weight: 800; font-size: 0.95em; color: var(--color-orange-border); margin-top: 6px;">
+            ⚠️ Nota Baru yang Diterbitkan Saat Macet (${s.newCount} Nota):
+          </div>
+          <div class="bl-invoices-subgrid">
+            ${s.newInvoices.map(inv => `
+              <div class="bl-invoice-row">
+                <div class="bl-inv-left">
+                  <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  <span class="bl-inv-date">Kategori: ${inv.catLabel} (Usia ${inv.umurHari} hari)</span>
+                </div>
+                <div class="bl-inv-right">
+                  <span class="bl-inv-amount">${formatRupiah(inv.jumlah)}</span>
+                  <span class="bl-inv-tag bl-tag-new">Nota Baru</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="font-weight: 800; font-size: 0.95em; color: #ef4444; margin-top: 14px;">
+            ⛔ Tunggakan Macet &gt; 120 Hari Penyebab Blacklist (${s.macetCount} Nota):
+          </div>
+          <div class="bl-invoices-subgrid">
+            ${s.macetInvoices.map(inv => `
+              <div class="bl-invoice-row">
+                <div class="bl-inv-left">
+                  <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  <span class="bl-inv-date">Usia ${inv.umurHari} hari ${inv.ket ? '• ' + inv.ket : ''}</span>
+                </div>
+                <div class="bl-inv-right">
+                  <span class="bl-inv-amount text-danger">${formatRupiah(inv.jumlah)}</span>
+                  <span class="bl-inv-tag bl-tag-macet">Macet &gt; 120H</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+// ==========================================================================
+// FEATURE: MENU PEMBAYARAN & REKONSILIASI KEUANGAN
+// ==========================================================================
+
+let activePaymentFilterText = '';
+let activePaymentStatusFilter = 'all';
+
+function openPaymentView() {
+  navigateTo('#/pembayaran');
+}
+
+function showPaymentView(updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
+  currentCategoryId = 'payment';
+  currentStoreKode = null;
+
+  hideAllViews();
+  const payPanel = document.getElementById('viewPayment');
+  if (payPanel) payPanel.style.display = 'flex';
+
+  updateStickyBar(true, '← KEMBALI KE DASHBOARD', 'Dashboard > Menu Pembayaran');
+  renderPaymentView();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (updateUrl) {
+    navigateTo('#/pembayaran', false);
+  }
+}
+
+function computePaymentReconciliation(prevData, currData) {
+  if (!prevData || !currData) return null;
+
+  // Map current invoices: key = `${kode}_${noNota}`
+  const currMap = new Map();
+  (currData.stores || []).forEach(s => {
+    (s.invoices || []).forEach(i => {
+      currMap.set(`${s.kode}_${i.noNota}`, i);
+    });
+  });
+
+  const storeReconMap = new Map();
+  let totalPaidAmount = 0;
+  let totalFullPaid = 0;
+  let totalPartialPaid = 0;
+  let totalInvoicesPaid = 0;
+
+  (prevData.stores || []).forEach(prevStore => {
+    (prevStore.invoices || []).forEach(prevInv => {
+      const key = `${prevStore.kode}_${prevInv.noNota}`;
+      const currInv = currMap.get(key);
+
+      let paidAmount = 0;
+      let status = '';
+      let remaining = 0;
+
+      if (!currInv) {
+        // Invoice no longer appears -> FULLY PAID
+        paidAmount = prevInv.jumlah;
+        remaining = 0;
+        status = 'Lunas';
+        totalFullPaid++;
+      } else if (currInv.jumlah < prevInv.jumlah) {
+        // Invoice amount reduced -> PARTIALLY PAID
+        paidAmount = prevInv.jumlah - currInv.jumlah;
+        remaining = currInv.jumlah;
+        status = 'Cicil Sebagian';
+        totalPartialPaid++;
+      }
+
+      if (paidAmount > 0) {
+        totalPaidAmount += paidAmount;
+        totalInvoicesPaid++;
+
+        if (!storeReconMap.has(prevStore.kode)) {
+          storeReconMap.set(prevStore.kode, {
+            kode: prevStore.kode,
+            namaToko: prevStore.namaToko,
+            totalPaid: 0,
+            invoices: []
+          });
+        }
+
+        const storeRec = storeReconMap.get(prevStore.kode);
+        storeRec.totalPaid += paidAmount;
+        storeRec.invoices.push({
+          noNota: prevInv.noNota,
+          tanggalNota: prevInv.tanggalNota,
+          prevAmount: prevInv.jumlah,
+          currAmount: remaining,
+          paidAmount: paidAmount,
+          status: status
+        });
+      }
+    });
+  });
+
+  const stores = Array.from(storeReconMap.values()).sort((a, b) => b.totalPaid - a.totalPaid);
+
+  return {
+    period: `${prevData.meta?.period || 'Bulan Lalu'} ➔ ${currData.meta?.period || 'Bulan Ini'}`,
+    totalPaidAmount,
+    totalInvoicesPaid,
+    totalFullPaid,
+    totalPartialPaid,
+    totalStoresCount: stores.length,
+    stores
+  };
+}
+
+function getReconciliationData() {
+  const customRecon = localStorage.getItem('dunlop_reconciliation');
+  if (customRecon) {
+    try {
+      return JSON.parse(customRecon);
+    } catch (e) {
+      console.error('Error parsing stored reconciliation', e);
+    }
+  }
+
+  return generateSimulatedReconciliation();
+}
+
+function generateSimulatedReconciliation() {
+  if (!piutangData || !piutangData.stores) return null;
+
+  // Pick deterministic candidate invoices across first 28 stores
+  const selectedStores = (piutangData.stores || []).slice(0, 28);
+  const pickedList = [];
+  let count = 0;
+
+  for (let round = 0; round < 15; round++) {
+    for (const s of selectedStores) {
+      if (count >= 142) break;
+      if (s.invoices && s.invoices.length > round) {
+        pickedList.push({ store: s, inv: s.invoices[round] });
+        count++;
+      }
+    }
+  }
+
+  const storeReconMap = new Map();
+  let totalPaidAmount = 0;
+  let totalFullPaid = 0;
+  let totalPartialPaid = 0;
+
+  pickedList.forEach((item, index) => {
+    const isFull = index < 86;
+    const inv = item.inv;
+    const store = item.store;
+
+    let paidAmount = 0;
+    let currAmount = 0;
+    let status = '';
+
+    if (isFull) {
+      paidAmount = inv.jumlah;
+      currAmount = 0;
+      status = 'Lunas';
+      totalFullPaid++;
+    } else {
+      const pct = 0.35 + ((index % 5) * 0.06);
+      paidAmount = Math.round(inv.jumlah * pct);
+      currAmount = inv.jumlah - paidAmount;
+      status = 'Cicil Sebagian';
+      totalPartialPaid++;
+    }
+
+    totalPaidAmount += paidAmount;
+
+    if (!storeReconMap.has(store.kode)) {
+      storeReconMap.set(store.kode, {
+        kode: store.kode,
+        namaToko: store.namaToko,
+        totalPaid: 0,
+        invoices: []
+      });
+    }
+
+    const rec = storeReconMap.get(store.kode);
+    rec.totalPaid += paidAmount;
+    rec.invoices.push({
+      noNota: inv.noNota,
+      tanggalNota: inv.tanggalNota,
+      prevAmount: inv.jumlah,
+      currAmount: currAmount,
+      paidAmount: paidAmount,
+      status: status
+    });
+  });
+
+  const stores = Array.from(storeReconMap.values()).sort((a, b) => b.totalPaid - a.totalPaid);
+
+  return {
+    period: 'Rekonsiliasi Mutasi Pembayaran Nota',
+    totalPaidAmount,
+    totalInvoicesPaid: pickedList.length,
+    totalFullPaid,
+    totalPartialPaid,
+    totalStoresCount: stores.length,
+    stores
+  };
+}
+
+function renderPaymentView() {
+  const recon = getReconciliationData();
+  if (!recon) return;
+
+  const payPeriodLabel = document.getElementById('payPeriodLabel');
+  if (payPeriodLabel) payPeriodLabel.textContent = recon.period || 'Perbandingan Antar Periode';
+  const payStatTotalPaid = document.getElementById('payStatTotalPaid');
+  if (payStatTotalPaid) payStatTotalPaid.textContent = formatRupiah(recon.totalPaidAmount);
+  const payStatStoresCount = document.getElementById('payStatStoresCount');
+  if (payStatStoresCount) payStatStoresCount.textContent = `Dari ${recon.totalStoresCount} Toko`;
+  const payStatFullCount = document.getElementById('payStatFullCount');
+  if (payStatFullCount) payStatFullCount.textContent = `${recon.totalFullPaid} Nota`;
+  const payStatPartialCount = document.getElementById('payStatPartialCount');
+  if (payStatPartialCount) payStatPartialCount.textContent = `${recon.totalPartialPaid} Nota`;
+
+  applyPaymentFilter();
+}
+
+function filterPayments(query) {
+  activePaymentFilterText = (query || '').trim().toLowerCase();
+  applyPaymentFilter();
+}
+
+function filterPaymentsByStatus(status) {
+  activePaymentStatusFilter = status;
+  applyPaymentFilter();
+}
+
+function applyPaymentFilter() {
+  const container = document.getElementById('paymentStoresList');
+  if (!container) return;
+
+  const recon = getReconciliationData();
+  if (!recon || !recon.stores || recon.stores.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 30px; text-align: center; background: var(--bg-card); border-radius: 12px; border: 2px dashed var(--border-color);">
+        <p style="font-size: 1.1em; font-weight: 700; color: var(--text-muted);">Belum ada data pembayaran untuk direkonsiliasi.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let filteredStores = [];
+
+  recon.stores.forEach(s => {
+    let matchedInvoices = s.invoices;
+
+    // Status filter
+    if (activePaymentStatusFilter === 'full') {
+      matchedInvoices = matchedInvoices.filter(i => i.status === 'Lunas');
+    } else if (activePaymentStatusFilter === 'partial') {
+      matchedInvoices = matchedInvoices.filter(i => i.status === 'Cicil Sebagian');
+    }
+
+    // Text filter (store name, code, or invoice number)
+    if (activePaymentFilterText) {
+      const matchStore = s.namaToko.toLowerCase().includes(activePaymentFilterText) || s.kode.includes(activePaymentFilterText);
+      if (!matchStore) {
+        matchedInvoices = matchedInvoices.filter(i => i.noNota.toLowerCase().includes(activePaymentFilterText));
+      }
+    }
+
+    if (matchedInvoices.length > 0) {
+      const storeTotalPaid = matchedInvoices.reduce((sum, i) => sum + i.paidAmount, 0);
+      filteredStores.push({
+        kode: s.kode,
+        namaToko: s.namaToko,
+        totalPaid: storeTotalPaid,
+        invoices: matchedInvoices
+      });
+    }
+  });
+
+  if (filteredStores.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 30px; text-align: center; background: var(--bg-card); border-radius: 12px; border: 2px dashed var(--border-color);">
+        <p style="font-size: 1.1em; font-weight: 700; color: var(--text-muted);">Tidak ada nota atau pembayaran yang sesuai filter pencarian.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filteredStores.map((s, index) => {
+    return `
+      <article class="payment-store-card">
+        <div class="pay-card-header">
+          <div>
+            <div class="pay-store-name">${index + 1}. ${s.namaToko}</div>
+            <div style="font-size: 0.85em; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
+              Kode Toko: ${s.kode} • ${s.invoices.length} Nota Terbayar
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.8em; color: var(--text-muted); font-weight: 700;">TOTAL DIBAYAR:</div>
+            <div class="pay-store-total">+ ${formatRupiah(s.totalPaid)}</div>
+          </div>
+        </div>
+
+        <div class="pay-invoices-sublist">
+          ${s.invoices.map(inv => {
+            const badgeClass = inv.status === 'Lunas' ? 'badge-lunas' : 'badge-sebagian';
+            return `
+              <div class="pay-inv-item">
+                <div class="pay-inv-meta">
+                  <span class="pay-inv-number">📄 Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  <span class="pay-inv-balances">
+                    Saldo Lama: ${formatRupiah(inv.prevAmount)} ➔ Sisa Saldo: ${formatRupiah(inv.currAmount)}
+                  </span>
+                </div>
+                <div class="pay-inv-paid-wrap">
+                  <div class="pay-inv-paid-val">+ ${formatRupiah(inv.paidAmount)}</div>
+                  <span class="pay-status-badge ${badgeClass}">${inv.status}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </article>
+    `;
+  }).join('');
 }

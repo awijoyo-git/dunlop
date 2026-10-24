@@ -46,6 +46,29 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
        - `61 - 90 Hari`: daftar nota.
        - `91 - 120 Hari`: daftar nota.
        - `> 120 Hari`: daftar nota.
+4. **Header Fleksibel (Bisa Ditutup & Tombol Floating `⚙️ Menu`)**:
+   - Di pojok kanan atas header terdapat tombol **`✕ Tutup`** untuk menyembunyikan header dan membebaskan ruang baca layar.
+   - Begitu header ditutup, muncul tombol melayang (*floating button*) **`⚙️ Menu`** di pojok kanan atas layar agar ayah Anda dapat mengembalikan header dan pengaturan kapan saja dengan 1 ketukan.
+5. **Responsif Cerdas (Mobile & Tablet 8" Landscape Friendly)**:
+   - Lebar container tidak lagi dipaksa sempit (720px), melainkan beradaptasi dinamis hingga lebar layar penuh:
+     - **Di HP (iPhone 16)**: Tampilan tetap ringkas 1 kolom dengan font besar ramah lansia.
+     - **Di Tablet 8" Landscape (1024px - 1280px)**: Ruang layar dimanfaatkan optimal:
+       - Kartu Total Piutang & Komposisi Persentase tampil berdampingan (*side-by-side*).
+       - 5 Kotak Kategori Piutang tertata dalam grid 2-3 kolom sehingga ayah Anda dapat melihat semua kelompok piutang tanpa perlu scroll panjang.
+       - Daftar 82 toko tertata dalam grid multi-kolom yang lapang dan mudah dipindai.
+6. **Menu Data BL (Pelanggaran Blacklist Toko Macet &gt; 120 Hari)**:
+   - Mengidentifikasi toko-toko yang memiliki tunggakan macet usia `> 120 hari` namun anehnya masih diterbitkan nota tagihan baru.
+   - Sesuai kebijakan kredit, toko seperti ini seharusnya diblokir (blacklist) dari penerbitan faktur baru sebelum melunasi tunggakan lama.
+   - Hasil audit pada data September 2026 mendeteksi **9 Toko Pelanggaran BL**:
+     - Total Tunggakan Macet (>120H): **`1.840.774.527`** (218 nota).
+     - Total Nota Baru yang Tetap Diterbitkan: **`4.129.585.100`** (284 nota baru).
+   - Dilengkapi menu khusus `⛔ Data BL (9)`, kartu perbandingan macet vs nota baru, lencana khusus di kartu toko & nota, serta rincian nota yang dapat dibuka/tutup (*accordion*).
+7. **Menu Pembayaran & Rekonsiliasi Keuangan (Otomatis Antar Periode)**:
+   - Saat Anda mengunggah laporan bulan berikutnya, sistem secara cerdas membandingkan seluruh nota per toko antara dua periode.
+   - Menghitung seluruh nota yang saldo piutangnya berkurang atau hilang (lunas), dianggap sebagai pembayaran yang telah dilakukan oleh toko.
+   - Tim Finance dapat langsung menggunakan menu ini untuk mencocokkan (*cross-check*) nilai pelunasan nota dengan mutasi rekening koran bank:
+     - **Lunas Penuh**: Nota periode lalu yang sudah hilang dari laporan (saldo menjadi 0).
+     - **Cicil Sebagian**: Nota yang saldo piutangnya berkurang dari bulan lalu.
 
 ---
 

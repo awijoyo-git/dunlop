@@ -15,16 +15,28 @@
 </head>
 <body class="font-size-normal theme-soft-dark">
 
+  <!-- FLOATING BUTTON TO RESTORE HEADER (SHOWN WHEN HEADER IS CLOSED) -->
+  <button type="button" class="floating-header-btn" id="btnFloatingHeader" onclick="toggleHeaderCollapse(false)" title="Tampilkan Menu & Pengaturan" style="display: none;">
+    <span class="float-icon">⚙️</span>
+    <span class="float-text">Menu</span>
+  </button>
+
   <!-- TOP ACCESSIBILITY & NAVIGATION BAR -->
   <header class="app-header">
     <div class="header-inner">
-      <div class="brand-block">
-        <span class="brand-badge">DUNLOP</span>
-        <h1 class="brand-title" id="headerCompanyTitle">INDO BALI SATYA GRAHA</h1>
-        <p class="brand-subtitle" id="headerPeriodTitle">Laporan Piutang • Per 30 Sept 2026</p>
+      <div class="header-main-row">
+        <div class="brand-block">
+          <span class="brand-badge">DUNLOP</span>
+          <h1 class="brand-title" id="headerCompanyTitle">INDO BALI SATYA GRAHA</h1>
+          <p class="brand-subtitle" id="headerPeriodTitle">Laporan Piutang • Per 30 Sept 2026</p>
+        </div>
+        <button type="button" class="btn-close-header" id="btnCloseHeader" onclick="toggleHeaderCollapse(true)" title="Sembunyikan Header / Menu">
+          <span class="close-icon">✕</span>
+          <span class="close-text">Tutup</span>
+        </button>
       </div>
 
-      <!-- Quick Accessibility Toolbar (Teks Zoom & Tema) -->
+      <!-- Quick Accessibility Toolbar (Teks Zoom, Tema & Menu Navigasi Cepat) -->
       <div class="toolbar-block">
         <div class="zoom-controls" title="Ubah Ukuran Tulisan">
           <span class="zoom-label">Ukuran Huruf:</span>
@@ -35,6 +47,12 @@
         <div class="theme-controls">
           <button type="button" class="btn-theme" id="btnThemeToggle" onclick="toggleTheme()" title="Ganti Mode Terang / Gelap">
             <span id="themeIcon">☀️</span> <span id="themeText">Siang</span>
+          </button>
+          <button type="button" class="btn-tb-nav btn-tb-bl" id="btnNavBL" onclick="openBlacklistView()" title="Buka Data BL (Blacklist Violation)">
+            ⛔ Data BL (9)
+          </button>
+          <button type="button" class="btn-tb-nav btn-tb-pay" id="btnNavPay" onclick="openPaymentView()" title="Buka Menu Pembayaran Rekonsiliasi">
+            💳 Pembayaran
           </button>
           <button type="button" class="btn-admin" id="btnAdmin" onclick="openUpdateModal()" title="Update Data Bulanan" style="display: none;">
             ⚙️ Update
@@ -103,36 +121,39 @@
 
     <!-- VIEW 1: DASHBOARD -->
     <section id="viewDashboard" class="view-panel" style="display: none;">
-      <!-- Total Piutang Card -->
-      <div class="grand-total-card">
-        <div class="card-badge">TOTAL PIUTANG BULAN INI</div>
-        <div class="grand-total-amount" id="dashboardGrandTotal">17.382.231.343</div>
-        <div class="grand-total-meta">
-          <span>🏢 <strong id="dashboardTotalStores">82</strong> Toko Terdaftar</span>
-          <span>•</span>
-          <span>📄 <strong id="dashboardTotalInvoices">1.674</strong> Nota Tagihan</span>
+      <!-- Hero Grid: Grand Total & Komposisi Bar (Side by side on tablet landscape) -->
+      <div class="dashboard-hero-grid">
+        <!-- Total Piutang Card -->
+        <div class="grand-total-card">
+          <div class="card-badge">TOTAL PIUTANG BULAN INI</div>
+          <div class="grand-total-amount" id="dashboardGrandTotal">17.382.231.343</div>
+          <div class="grand-total-meta">
+            <span>🏢 <strong id="dashboardTotalStores">82</strong> Toko Terdaftar</span>
+            <span>•</span>
+            <span>📄 <strong id="dashboardTotalInvoices">1.674</strong> Nota Tagihan</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Visual Distribution Bar (Persentase Tiap Range Hari) -->
-      <div class="distribution-card">
-        <div class="dist-header">
-          <span class="dist-title">📊 Komposisi Piutang</span>
-          <span class="dist-total">Total 100%</span>
-        </div>
-        <div class="dist-stacked-bar">
-          <div class="dist-seg seg-lt30" id="segBar_lt30" style="width: 31.95%;" title="< 30 Hari: 31,9%">31,9%</div>
-          <div class="dist-seg seg-3160" id="segBar_31_60" style="width: 27.43%;" title="31-60 Hari: 27,4%">27,4%</div>
-          <div class="dist-seg seg-6190" id="segBar_61_90" style="width: 18.68%;" title="61-90 Hari: 18,7%">18,7%</div>
-          <div class="dist-seg seg-91120" id="segBar_91_120" style="width: 9.52%;" title="91-120 Hari: 9,5%">9,5%</div>
-          <div class="dist-seg seg-gt120" id="segBar_gt120" style="width: 12.42%;" title="> 120 Hari: 12,4%">12,4%</div>
-        </div>
-        <div class="dist-legend">
-          <div class="legend-item"><span class="dot dot-lt30"></span>&lt; 30H: <strong id="distPct_lt30">31,9%</strong></div>
-          <div class="legend-item"><span class="dot dot-3160"></span>31-60H: <strong id="distPct_31_60">27,4%</strong></div>
-          <div class="legend-item"><span class="dot dot-6190"></span>61-90H: <strong id="distPct_61_90">18,7%</strong></div>
-          <div class="legend-item"><span class="dot dot-91120"></span>91-120H: <strong id="distPct_91_120">9,5%</strong></div>
-          <div class="legend-item"><span class="dot dot-gt120"></span>&gt; 120H: <strong id="distPct_gt120">12,4%</strong></div>
+        <!-- Visual Distribution Bar (Persentase Tiap Range Hari) -->
+        <div class="distribution-card">
+          <div class="dist-header">
+            <span class="dist-title">📊 Komposisi Piutang</span>
+            <span class="dist-total">Total 100%</span>
+          </div>
+          <div class="dist-stacked-bar">
+            <div class="dist-seg seg-lt30" id="segBar_lt30" style="width: 31.95%;" title="< 30 Hari: 31,9%">31,9%</div>
+            <div class="dist-seg seg-3160" id="segBar_31_60" style="width: 27.43%;" title="31-60 Hari: 27,4%">27,4%</div>
+            <div class="dist-seg seg-6190" id="segBar_61_90" style="width: 18.68%;" title="61-90 Hari: 18,7%">18,7%</div>
+            <div class="dist-seg seg-91120" id="segBar_91_120" style="width: 9.52%;" title="91-120 Hari: 9,5%">9,5%</div>
+            <div class="dist-seg seg-gt120" id="segBar_gt120" style="width: 12.42%;" title="> 120 Hari: 12,4%">12,4%</div>
+          </div>
+          <div class="dist-legend">
+            <div class="legend-item"><span class="dot dot-lt30"></span>&lt; 30H: <strong id="distPct_lt30">31,9%</strong></div>
+            <div class="legend-item"><span class="dot dot-3160"></span>31-60H: <strong id="distPct_31_60">27,4%</strong></div>
+            <div class="legend-item"><span class="dot dot-6190"></span>61-90H: <strong id="distPct_61_90">18,7%</strong></div>
+            <div class="legend-item"><span class="dot dot-91120"></span>91-120H: <strong id="distPct_91_120">9,5%</strong></div>
+            <div class="legend-item"><span class="dot dot-gt120"></span>&gt; 120H: <strong id="distPct_gt120">12,4%</strong></div>
+          </div>
         </div>
       </div>
 
@@ -247,23 +268,83 @@
 
       </div>
 
-      <!-- Quick Search All Stores Section -->
-      <div class="search-section">
-        <h2 class="section-title">🔍 Cari Nama Toko Langsung</h2>
-        <div class="search-input-wrap">
-          <input type="text" id="globalStoreSearch" class="input-search" placeholder="Ketik nama toko (contoh: OSCAR, TIMBUL, DUTA)..." oninput="handleGlobalSearch(this.value)">
-          <button type="button" class="btn-clear-search" onclick="clearGlobalSearch()" id="btnClearSearch">✕</button>
-        </div>
-        <div id="globalSearchResults" class="search-results-list"></div>
+      <!-- SECTION AUDIT & REKONSILIASI KHUSUS -->
+      <div class="audit-launcher-grid">
+
+        <!-- Card Launcher 1: Data BL (Blacklist Violation) -->
+        <article class="audit-card card-bl-alert" onclick="openBlacklistView()">
+          <div class="audit-card-header">
+            <span class="audit-tag tag-bl">⛔ AUDIT KEPATUHAN</span>
+            <span class="audit-count-badge" id="dashBlCountBadge">9 Toko Melanggar</span>
+          </div>
+          <div class="audit-title">Data BL (Pelanggaran Blacklist)</div>
+          <div class="audit-desc">
+            Toko yang masih diterbitkan nota tagihan baru padahal masih memiliki tunggakan macet &gt; 120 hari yang belum lunas.
+          </div>
+          <div class="audit-meta-row">
+            <div>
+              <span class="audit-sublabel">Tunggakan Macet (&gt;120H):</span>
+              <div class="audit-subamount text-danger" id="dashBlMacetAmount">1.840.774.527</div>
+            </div>
+            <div>
+              <span class="audit-sublabel">Nota Baru yang Terbit:</span>
+              <div class="audit-subamount text-warning" id="dashBlNewAmount">4.129.585.100</div>
+            </div>
+          </div>
+          <div class="audit-footer">
+            <span class="audit-status-pill pill-danger">Perhatian Direksi</span>
+            <span class="audit-chevron">Buka Data BL →</span>
+          </div>
+        </article>
+
+        <!-- Card Launcher 2: Menu Pembayaran (Rekonsiliasi Finance) -->
+        <article class="audit-card card-pay-alert" onclick="openPaymentView()">
+          <div class="audit-card-header">
+            <span class="audit-tag tag-pay">💳 REKONSILIASI KEUANGAN</span>
+            <span class="audit-count-badge badge-green" id="dashPayCountBadge">Pembayaran Nota</span>
+          </div>
+          <div class="audit-title">Menu Pembayaran &amp; Pelunasan Nota</div>
+          <div class="audit-desc">
+            Selisih saldo nota yang berkurang dari periode sebelumnya untuk direkonsiliasi finance apakah dana sudah masuk rekening.
+          </div>
+          <div class="audit-meta-row">
+            <div>
+              <span class="audit-sublabel">Total Pembayaran:</span>
+              <div class="audit-subamount text-success" id="dashPayAmount">2.418.520.000</div>
+            </div>
+            <div>
+              <span class="audit-sublabel">Nota Terekonsiliasi:</span>
+              <div class="audit-subamount" id="dashPayInvoicesCount">142 Nota</div>
+            </div>
+          </div>
+          <div class="audit-footer">
+            <span class="audit-status-pill pill-success">Cek Rekening Koran</span>
+            <span class="audit-chevron">Buka Pembayaran →</span>
+          </div>
+        </article>
+
       </div>
 
-      <!-- All Stores Quick Jump Button -->
-      <div class="all-stores-launcher">
-        <button type="button" class="btn-all-stores" onclick="openCategory('all')">
-          <span class="all-stores-icon">📋</span>
-          <span class="all-stores-label">Lihat Semua Daftar Toko (82 Toko Lengkap)</span>
-          <span class="all-stores-arrow">→</span>
-        </button>
+      <!-- Dashboard Actions Grid (Search & All Stores Quick Jump) -->
+      <div class="dashboard-actions-grid">
+        <!-- Quick Search All Stores Section -->
+        <div class="search-section">
+          <h2 class="section-title">🔍 Cari Nama Toko Langsung</h2>
+          <div class="search-input-wrap">
+            <input type="text" id="globalStoreSearch" class="input-search" placeholder="Ketik nama toko (contoh: OSCAR, TIMBUL, DUTA)..." oninput="handleGlobalSearch(this.value)">
+            <button type="button" class="btn-clear-search" onclick="clearGlobalSearch()" id="btnClearSearch">✕</button>
+          </div>
+          <div id="globalSearchResults" class="search-results-list"></div>
+        </div>
+
+        <!-- All Stores Quick Jump Button -->
+        <div class="all-stores-launcher">
+          <button type="button" class="btn-all-stores" onclick="openCategory('all')">
+            <span class="all-stores-icon">📋</span>
+            <span class="all-stores-label">Lihat Semua Daftar Toko (82 Toko Lengkap)</span>
+            <span class="all-stores-arrow">→</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -335,6 +416,119 @@
       </div>
     </section>
 
+
+    <!-- VIEW 4: DATA BL (BLACKLIST VIOLATION) -->
+    <section id="viewBlacklist" class="view-panel" style="display: none;">
+      <!-- Blacklist Header Banner -->
+      <div class="bl-banner">
+        <div class="banner-top">
+          <span class="banner-tag tag-darkred">⛔ DATA BL (BLACKLIST)</span>
+          <span class="banner-count" id="blTotalStoresCount">9 Toko Melanggar</span>
+        </div>
+        <h2 class="banner-title">Daftar Toko &amp; Nota Terbit Saat Ada Piutang &gt; 120 Hari</h2>
+        <div class="bl-stats-grid">
+          <div class="bl-stat-box">
+            <span class="bl-stat-label">Total Toko BL:</span>
+            <div class="bl-stat-value text-danger" id="blStatStores">9 Toko</div>
+            <span class="bl-stat-sub">Ada tunggakan macet &gt;120H</span>
+          </div>
+          <div class="bl-stat-box">
+            <span class="bl-stat-label">Tunggakan Macet (&gt;120H):</span>
+            <div class="bl-stat-value text-danger" id="blStatMacet">1.840.774.527</div>
+            <span class="bl-stat-sub" id="blStatMacetNotes">218 Nota macet</span>
+          </div>
+          <div class="bl-stat-box">
+            <span class="bl-stat-label">Nota Baru Tetap Terbit:</span>
+            <div class="bl-stat-value text-warning" id="blStatNew">4.129.585.100</div>
+            <span class="bl-stat-sub" id="blStatNewNotes">284 Nota baru diterbitkan</span>
+          </div>
+        </div>
+        <div class="bl-guide-box">
+          <span class="bl-guide-icon">⚠️</span>
+          <span class="bl-guide-text">
+            <strong>Catatan Audit Direksi:</strong> Sesuai kebijakan kredit, toko yang masih memiliki piutang macet &gt; 120 hari seharusnya di-blacklist dari penerbitan nota baru sampai tunggakan diselesaikan.
+          </span>
+        </div>
+      </div>
+
+      <!-- Filter BL Stores -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <input type="text" id="blSearchInput" class="input-search" placeholder="Cari nama toko BL..." oninput="filterBLStores(this.value)">
+        </div>
+        <div class="sort-box">
+          <label for="blSortSelect" class="sort-label">Urutkan:</label>
+          <select id="blSortSelect" class="select-sort" onchange="sortBLStores(this.value)">
+            <option value="new-desc">Nota Baru Terbesar</option>
+            <option value="macet-desc">Tunggakan Macet Terbesar</option>
+            <option value="total-desc">Total Piutang Toko</option>
+            <option value="name-asc">Nama Toko (A - Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- BL Stores List Container -->
+      <div class="bl-stores-list" id="blStoresList">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+
+    <!-- VIEW 5: MENU PEMBAYARAN & REKONSILIASI NOTA -->
+    <section id="viewPayment" class="view-panel" style="display: none;">
+      <!-- Payment Header Banner -->
+      <div class="payment-banner">
+        <div class="banner-top">
+          <span class="banner-tag tag-green">💳 REKONSILIASI KEUANGAN</span>
+          <span class="banner-count" id="payPeriodLabel">Perbandingan Antar Periode</span>
+        </div>
+        <h2 class="banner-title">Menu Pembayaran &amp; Pelunasan Nota</h2>
+        <div class="pay-stats-grid">
+          <div class="pay-stat-box">
+            <span class="pay-stat-label">Total Pembayaran Diterima:</span>
+            <div class="pay-stat-value text-success" id="payStatTotalPaid">2.418.520.000</div>
+            <span class="pay-stat-sub" id="payStatStoresCount">Dari 28 Toko</span>
+          </div>
+          <div class="pay-stat-box">
+            <span class="pay-stat-label">Nota Lunas Penuh:</span>
+            <div class="pay-stat-value text-good" id="payStatFullCount">86 Nota</div>
+            <span class="pay-stat-sub">Saldo nota menjadi 0</span>
+          </div>
+          <div class="pay-stat-box">
+            <span class="pay-stat-label">Nota Dicicil Sebagian:</span>
+            <div class="pay-stat-value text-info" id="payStatPartialCount">56 Nota</div>
+            <span class="pay-stat-sub">Sisa saldo nota berkurang</span>
+          </div>
+        </div>
+        <div class="pay-guide-box">
+          <span class="pay-guide-icon">🏦</span>
+          <span class="pay-guide-text">
+            <strong>Instruksi Finance:</strong> Data di bawah ini adalah nilai nota piutang yang berkurang dari periode sebelumnya (dianggap telah dibayar). Tim Finance wajib mencocokkan (*cross-check*) nilai ini dengan mutasi rekening koran bank.
+          </span>
+        </div>
+      </div>
+
+      <!-- Filter Controls for Payments -->
+      <div class="filter-controls">
+        <div class="search-box">
+          <input type="text" id="paySearchInput" class="input-search" placeholder="Cari nama toko atau nomor nota..." oninput="filterPayments(this.value)">
+        </div>
+        <div class="sort-box">
+          <label for="payFilterStatus" class="sort-label">Status Bayar:</label>
+          <select id="payFilterStatus" class="select-sort" onchange="filterPaymentsByStatus(this.value)">
+            <option value="all">Semua Pembayaran</option>
+            <option value="full">Hanya Lunas Penuh</option>
+            <option value="partial">Hanya Cicil Sebagian</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Payments Stores List -->
+      <div class="payments-list" id="paymentStoresList">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
   </main>
 
   <!-- UPDATE DATA MODAL (FOR MONTHLY UPDATES) -->
@@ -348,6 +542,10 @@
         <p class="modal-desc">
           Kamu dapat memperbarui data piutang setiap bulan secara langsung dengan salah satu cara berikut:
         </p>
+
+        <div class="update-recon-notice">
+          💡 <strong>Otomatisasi Rekonsiliasi:</strong> Saat kamu mengunggah data bulan baru, sistem otomatis membandingkannya dengan periode sebelumnya dan menghitung seluruh nota yang berkurang/lunas untuk ditampilkan di <strong>Menu Pembayaran</strong> (rekonsiliasi bank).
+        </div>
 
         <div class="upload-options">
           <div class="upload-opt-card">

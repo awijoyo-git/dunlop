@@ -138,12 +138,107 @@ body {
 }
 
 .header-inner {
-  max-width: 720px;
+  max-width: 1240px;
+  width: 100%;
   margin: 0 auto;
   padding: 14px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.header-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.btn-close-header {
+  background: var(--bg-card-secondary);
+  color: var(--text-main);
+  border: 2px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.btn-close-header:hover {
+  background: var(--bg-card);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+.btn-close-header:active {
+  transform: scale(0.95);
+}
+
+.btn-close-header .close-icon {
+  font-size: 1.1em;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+/* Floating button when header is collapsed */
+.floating-header-btn {
+  position: fixed;
+  top: 12px;
+  right: 14px;
+  z-index: 1200;
+  background: var(--bg-card);
+  border: 2.5px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: calc(0.95rem * var(--font-scale-factor));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: floatPop 0.25s ease-out;
+}
+
+@keyframes floatPop {
+  from { opacity: 0; transform: scale(0.7) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.floating-header-btn:hover {
+  background: var(--color-brand-primary);
+  color: #ffffff;
+}
+
+.floating-header-btn:active {
+  transform: scale(0.93);
+}
+
+body.header-collapsed .header-inner {
+  display: none !important;
+}
+
+body.header-collapsed .app-header {
+  border-bottom: none;
+  box-shadow: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+body.header-collapsed .sticky-nav-bar {
+  pointer-events: auto;
+  border-bottom: 2px solid var(--border-color);
+  padding-right: 120px;
 }
 
 .brand-block {
@@ -311,9 +406,10 @@ body {
    ========================================================================== */
 
 .app-main {
-  max-width: 720px;
+  max-width: 1240px;
+  width: 100%;
   margin: 0 auto;
-  padding: 18px;
+  padding: 16px;
 }
 
 .view-panel {
@@ -1601,14 +1697,809 @@ body.theme-soft-dark .login-error-box {
   margin-top: 8px;
 }
 
-@media (min-width: 600px) {
+/* ==========================================================================
+   RESPONSIVE & TABLET ADAPTATIONS (MOBILE TO 8" TABLET LANDSCAPE)
+   ========================================================================== */
+
+/* Base Dashboard Grid Layouts (Mobile Default: Single Column) */
+.dashboard-hero-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Medium Screens & Small Tablets (min-width: 680px) */
+@media (min-width: 680px) {
+  .app-main {
+    padding: 20px 24px;
+  }
+
+  /* 2-column grid for categories on tablet */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  /* 2-column grid for store cards */
+  .store-cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* 2-column grid for invoice items inside bucket */
+  .bucket-invoices-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Search & Sort inline */
+  .filter-controls {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-box {
+    flex: 2;
+  }
+
+  .sort-box {
+    flex: 1.2;
+  }
+}
+
+/* Tablet 8" Landscape & Desktops (min-width: 768px to 1280px) */
+@media (min-width: 768px) {
   .header-inner {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding: 16px 24px;
+    gap: 20px;
   }
 
   .toolbar-block {
     flex-wrap: nowrap;
+    padding: 8px 14px;
   }
+
+  /* Grand Total & Komposisi Bar side-by-side */
+  .dashboard-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .grand-total-card,
+  .distribution-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+  }
+
+  /* Search & All Stores launcher side-by-side */
+  .dashboard-actions-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .search-section,
+  .all-stores-launcher {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .btn-all-stores {
+    height: 100%;
+    min-height: 80px;
+  }
+
+  .sticky-nav-bar {
+    padding: 12px 24px;
+    max-width: 1240px;
+    margin: 0 auto;
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* Store Banner on Tablet Landscape */
+  .store-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    gap: 24px;
+    padding: 24px 28px;
+  }
+
+  .store-total-box {
+    min-width: 320px;
+    text-align: right;
+  }
+}
+
+/* Tablet 8" Landscape full width expansion (min-width: 1024px) */
+@media (min-width: 1024px) {
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .store-cards-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .bucket-invoices-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+/* ==========================================================================
+   FEATURES 3 & 4: DATA BL & MENU PEMBAYARAN REKONSILIASI
+   ========================================================================== */
+
+/* Toolbar Quick Nav Buttons */
+.btn-tb-nav {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-tb-bl {
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+.btn-tb-bl:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-tb-pay {
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.btn-tb-pay:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+/* Dashboard Special Audit Launcher Grid */
+.audit-launcher-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+@media (min-width: 768px) {
+  .audit-launcher-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+.audit-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.audit-card:hover, .audit-card:active {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.card-bl-alert {
+  border-left: 6px solid #ef4444;
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.08), var(--bg-card));
+}
+
+.card-pay-alert {
+  border-left: 6px solid #10b981;
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.08), var(--bg-card));
+}
+
+.audit-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.audit-tag {
+  font-weight: 800;
+  font-size: calc(0.8rem * var(--font-scale-factor));
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.tag-bl {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.tag-pay {
+  background: #059669;
+  color: #ffffff;
+}
+
+.audit-count-badge {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.audit-count-badge.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.audit-title {
+  font-size: calc(1.2rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.audit-desc {
+  font-size: calc(0.9rem * var(--font-scale-factor));
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.audit-meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.audit-sublabel {
+  font-size: calc(0.8rem * var(--font-scale-factor));
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.audit-subamount {
+  font-family: var(--font-mono);
+  font-size: calc(1.15rem * var(--font-scale-factor));
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.audit-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.audit-status-pill {
+  font-size: calc(0.8rem * var(--font-scale-factor));
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.pill-danger {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+}
+
+.pill-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.audit-chevron {
+  font-weight: 800;
+  font-size: calc(0.9rem * var(--font-scale-factor));
+  color: var(--color-brand-primary);
+}
+
+/* ==========================================================================
+   VIEW 4: DATA BL (BLACKLIST VIOLATION BANNER & STORES)
+   ========================================================================== */
+
+.bl-banner, .payment-banner {
+  background: var(--bg-card);
+  border: 3px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bl-banner {
+  border-color: #ef4444;
+}
+
+.payment-banner {
+  border-color: #10b981;
+}
+
+.bl-stats-grid, .pay-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 680px) {
+  .bl-stats-grid, .pay-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+.bl-stat-box, .pay-stat-box {
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bl-stat-label, .pay-stat-label {
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bl-stat-value, .pay-stat-value {
+  font-family: var(--font-mono);
+  font-size: calc(1.4rem * var(--font-scale-factor));
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bl-stat-sub, .pay-stat-sub {
+  font-size: calc(0.8rem * var(--font-scale-factor));
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.bl-guide-box, .pay-guide-box {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: calc(0.9rem * var(--font-scale-factor));
+}
+
+.pay-guide-box {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.bl-guide-icon, .pay-guide-icon {
+  font-size: 1.6em;
+  flex-shrink: 0;
+}
+
+/* BL Stores List */
+.bl-stores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bl-store-card {
+  background: var(--bg-card);
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  border-left: 6px solid #ef4444;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.bl-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bl-store-name {
+  font-size: calc(1.3rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.bl-pill-badge {
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: calc(0.75rem * var(--font-scale-factor));
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.bl-comparison-box {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 600px) {
+  .bl-comparison-box {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bl-box-item {
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bl-box-item.box-macet {
+  border-left: 4px solid #881337;
+}
+
+.bl-box-item.box-new {
+  border-left: 4px solid #f59e0b;
+}
+
+.bl-box-title {
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bl-box-amount {
+  font-family: var(--font-mono);
+  font-size: calc(1.3rem * var(--font-scale-factor));
+  font-weight: 800;
+}
+
+.bl-box-notes {
+  font-size: calc(0.8rem * var(--font-scale-factor));
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+/* Accordion for BL Invoices */
+.btn-toggle-bl-invoices {
+  background: var(--bg-card-secondary);
+  border: 2px solid var(--border-strong);
+  color: var(--text-main);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: calc(0.9rem * var(--font-scale-factor));
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  transition: all 0.15s ease;
+}
+
+.btn-toggle-bl-invoices:hover {
+  background: var(--bg-card);
+  border-color: var(--color-brand-primary);
+}
+
+.bl-invoices-drawer {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.bl-invoices-drawer.is-open {
+  display: flex;
+}
+
+.bl-invoices-subgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bl-invoice-row {
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+}
+
+.bl-inv-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bl-inv-no {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.bl-inv-date {
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.bl-inv-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bl-inv-amount {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.bl-inv-tag {
+  font-size: 0.75em;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  align-self: flex-end;
+}
+
+.bl-tag-new {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.bl-tag-macet {
+  background: rgba(220, 38, 38, 0.2);
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   VIEW 5: PAYMENTS RECONCILIATION LIST & ITEMS
+   ========================================================================== */
+
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.payment-store-card {
+  background: var(--bg-card);
+  border: 2px solid rgba(16, 185, 129, 0.4);
+  border-left: 6px solid #10b981;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.pay-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pay-store-name {
+  font-size: calc(1.3rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.pay-store-total {
+  font-family: var(--font-mono);
+  font-size: calc(1.4rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: #10b981;
+}
+
+.pay-invoices-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pay-inv-item {
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pay-inv-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pay-inv-number {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: calc(0.95rem * var(--font-scale-factor));
+  color: var(--text-main);
+}
+
+.pay-inv-balances {
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  color: var(--text-muted);
+}
+
+.pay-inv-paid-wrap {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.pay-inv-paid-val {
+  font-family: var(--font-mono);
+  font-size: calc(1.2rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: #10b981;
+}
+
+.pay-status-badge {
+  font-size: calc(0.75rem * var(--font-scale-factor));
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-lunas {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-sebagian {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+/* Badge on normal store cards & invoices */
+.badge-bl-warning {
+  background: #dc2626;
+  color: #ffffff;
+  font-size: calc(0.75rem * var(--font-scale-factor));
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.invoice-bl-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.invoice-gt120-badge {
+  background: rgba(136, 19, 55, 0.3);
+  color: #f87171;
+  border: 1px solid rgba(136, 19, 55, 0.5);
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.store-bl-alert-box {
+  background: rgba(220, 38, 38, 0.15);
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  color: #fca5a5;
+  font-size: calc(0.95rem * var(--font-scale-factor));
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.update-recon-notice {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 10px 0;
+  font-size: 0.9em;
+  color: var(--text-main);
+  line-height: 1.4;
 }
