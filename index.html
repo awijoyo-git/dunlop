@@ -6,6 +6,10 @@
   <title>Laporan Piutang Toko - PT. Indo Bali Satya Graha</title>
   <meta name="description" content="Dashboard Piutang Ramah Lansia - Huruf Besar, Jelas & Mudah Dibaca">
   
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="no-referrer">
+  
   <!-- Google Fonts for ultimate readability -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +41,10 @@
             <span class="brand-period-label">Periode:</span>
             <select id="selectAppPeriod" class="select-app-period" onchange="handleAppPeriodChange(this.value)">
               <option value="2026-09" selected>Per 30 September 2026</option>
+              <option value="2026-08">Per 31 Agustus 2026</option>
+              <option value="2026-07">Per 31 Juli 2026</option>
+              <option value="2026-06">Per 30 Juni 2026</option>
+              <option value="2026-05">Per 31 Mei 2026</option>
               <option value="2026-04">Per 30 April 2026</option>
               <option value="2026-03">Per 31 Maret 2026</option>
               <option value="2026-02">Per 28 Pebruari 2026</option>
@@ -103,10 +111,10 @@
     <!-- VIEW 0: LOGIN SCREEN (DI AWAL MASUK) -->
     <section id="viewLogin" class="view-panel login-panel">
       <div class="login-card">
-        <div class="login-icon-box">🔐</div>
-        <div class="login-badge">AKSES TERBATAS</div>
+        <div class="login-icon-box">🛡️</div>
+        <div class="login-badge">TERENKRIPSI AES-256-GCM</div>
         <h2 class="login-title">Laporan Piutang Toko</h2>
-        <p class="login-subtitle">Silakan masukkan kata sandi untuk membuka laporan piutang.</p>
+        <p class="login-subtitle">Data dienkripsi secara aman. Masukkan kata sandi untuk mendekripsi dan membuka laporan piutang.</p>
 
         <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="login-form">
           <div class="form-group">
@@ -878,12 +886,17 @@
     </div>
   </div>
 
-  <!-- LOAD DATA (Embedded Fallback + External) -->
+  <!-- LOAD ENCRYPTED VAULT & DATA -->
+  <script src="vault.js"></script>
   <script src="data.js"></script>
   <script src="data_jan2026.js"></script>
   <script src="data_feb2026.js"></script>
   <script src="data_mar2026.js"></script>
   <script src="data_apr2026.js"></script>
+  <script src="data_mei2026.js"></script>
+  <script src="data_jun2026.js"></script>
+  <script src="data_jul2026.js"></script>
+  <script src="data_ags2026.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

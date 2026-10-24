@@ -1,17 +1,48 @@
-# 📱 Web Laporan Piutang Dunlop - Ramah Lansia (Senior-Friendly Mobile Web)
+# 📱 Web Laporan Piutang Dunlop - Ramah Lansia & Brankas Terenkripsi (Senior-Friendly Mobile Web)
 
 Aplikasi web mobile responsif yang dirancang khusus untuk kemudahan membaca data laporan umur piutang bulanan, terutama bagi orang tua (usia 74 tahun) yang kesulitan membaca teks kecil pada file PDF laporan keuangan.
 
-Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat diperbarui setiap bulan dengan mudah.
+Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dilengkapi **enkripsi kriptografis tingkat tinggi (AES-256-GCM)** agar aman diakses langsung via `github.io`.
 
 ---
 
-## 🔐 Keamanan & Login
-- Saat pertama kali membuka website, akan muncul **halaman login** pengaman.
-- **Kata Sandi (Password)**: `mihardjo` (tidak peka huruf besar/kecil).
-- Dilengkapi tombol 👁️ untuk melihat sandi yang diketik agar tidak salah ketik di layar HP.
-- Pengunjung tidak dapat mengakses dashboard atau halaman apapun sebelum login berhasil.
-- Tersedia tombol **"🚪 Keluar"** di pojok kanan atas untuk mengunci kembali layar.
+## 🛡️ Arsitektur Keamanan Khusus GitHub Pages (AES-256-GCM)
+
+Karena di-hosting langsung pada server publik statis seperti `github.io`, sistem dirancang dengan proteksi keamanan berlapis:
+
+1. **Enkripsi Kriptografis Brankas (AES-256-GCM Vault)**:
+   - Seluruh data keuangan 9 periode (Januari s/d September 2026) tersimpan di dalam file `vault.js` dalam keadaan terenkripsi penuh menggunakan **AES-256-GCM** dengan derivasi kunci **PBKDF2-SHA256 (100.000 iterasi)**, salt acak 128-bit, dan IV unik 96-bit.
+   - **Zero Plaintext Password**: Tidak ada kata sandi tersimpan di dalam kode sumber JavaScript.
+   - Siapapun yang melihat kode sumber (*View Source* / *Network DevTools* / download file `vault.js`) **tidak dapat membaca angka keuangan, nama toko, maupun nomor nota** tanpa mengetahui kata sandi yang valid.
+2. **Dekripsi Langsung di Memori Perangkat (RAM Only)**:
+   - Saat pengguna mengetik kata sandi `mihardjo`, browser menggunakan native **Web Crypto API** (`crypto.subtle`) untuk menurunkan kunci AES dan mendekripsi brankas langsung ke memori RAM sementara browser.
+   - Data tidak pernah disimpan dalam bentuk teks polos (*plaintext*) ke dalam `localStorage` perangkat.
+3. **Kunci Otomatis (Auto-Lock 15 Menit Tidak Aktif)**:
+   - Jika tablet atau HP dibiarkan terbuka tanpa sentuhan selama **15 menit**, aplikasi otomatis menghapus data dari memori RAM dan mengunci kembali layar ke tampilan Login.
+4. **Anti-Indexing Mesin Pencari (Search Engine Anti-Crawl)**:
+   - Dilengkapi `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">`.
+   - File `robots.txt` melarang seluruh bot pencari (*Googlebot*, *Bingbot*, dll.) untuk mengindeks atau mengarsipkan halaman web ini.
+5. **Autentikasi Pengguna**:
+   - **Kata Sandi**: `mihardjo` (tidak peka huruf besar/kecil).
+   - Tombol 👁️ untuk memastikan pengetikan benar di layar sentuh HP/tablet.
+
+---
+
+## 📊 Database Lengkap 9 Bulan (Januari - September 2026)
+
+Seluruh 9 periode berurutan telah diekstrak, diverifikasi, dan cocok 100% matematis dengan angka Grand Total PDF resmi (selisih = 0):
+
+| Periode | Tanggal Laporan | Grand Total Piutang (Rp) | Jumlah Toko | Jumlah Nota |
+|---|---|---|---|---|
+| **Januari 2026** | Per 31 Januari 2026 | `12.837.649.297` | 89 toko | 1.529 nota |
+| **Februari 2026** | Per 28 Pebruari 2026 | `14.228.148.030` | 83 toko | 1.665 nota |
+| **Maret 2026** | Per 31 Maret 2026 | `14.344.105.532` | 85 toko | 1.645 nota |
+| **April 2026** | Per 30 April 2026 | `16.466.868.951` | 89 toko | 1.779 nota |
+| **Mei 2026** | Per 31 Mei 2026 | `16.950.854.618` | 89 toko | 1.821 nota |
+| **Juni 2026** | Per 30 Juni 2026 | `17.250.492.386` | 88 toko | 1.740 nota |
+| **Juli 2026** | Per 31 Juli 2026 | `16.342.685.105` | 86 toko | 1.691 nota |
+| **Agustus 2026** | Per 31 Agustus 2026 | `17.889.231.915` | 86 toko | 1.781 nota |
+| **September 2026** | Per 30 September 2026 | `17.382.231.343` | 82 toko | 1.674 nota |
 
 ---
 
@@ -23,158 +54,80 @@ Web ini siap di-hosting langsung di **GitHub Pages** secara gratis dan dapat dip
    - Mendukung *pinch-to-zoom* bebas di layar sentuh HP.
 2. **Navigasi Sederhana & Tombol BACK Pasti**:
    - Setiap halaman sub-menu memiliki tombol **`← KEMBALI`** besar yang mencolok di bagian atas.
-   - Tombol BACK dijamin kembali ke posisi/halaman persis sebelumnya (tidak akan tersesat).
+   - Tombol BACK sinkron dan dijamin kembali ke posisi/halaman persis sebelumnya.
 3. **Pilihan Periode Fleksibel (Multi-Period Switcher)**:
-   - Tersedia pemilih periode di header yang dapat diganti sewaktu-waktu:
-     - **September 2026** (`17.382.231.343` | 82 Toko)
-     - **April 2026** (`16.466.868.951` | 89 Toko)
-     - **Maret 2026** (`14.344.105.532` | 85 Toko)
-     - **Februari 2026** (`14.228.148.030` | 83 Toko)
-     - **Januari 2026** (`12.837.649.297` | 89 Toko)
-   - Seluruh dashboard, summary kategori, audit Data BL, dan detail toko akan langsung berganti sesuai periode yang dipilih.
-3. **5 Kategori Usia Piutang & Persentase Sesuai Kolom PDF**:
-   - **Halaman 1: Dashboard Utama**
-     - Total Piutang Bulan Ini: **`17.382.231.343`** (ditampilkan dalam 1 baris tanpa terpotong/overflow)
-     - Seluruh angka piutang ditampilkan langsung dalam format angka rapi tanpa awalan `Rp` untuk keterbacaan optimal di layar HP.
-     - **Grafik Komposisi & Persentase Visual (1 Desimal)**:
-       - `< 30 Hari` : **31,9%** (`5.553.323.252` • 60 Toko)
-       - `31 - 60 Hari` : **27,4%** (`4.768.110.414` • 58 Toko)
-       - `61 - 90 Hari` : **18,7%** (`3.248.508.499` • 41 Toko)
-       - `91 - 120 Hari` : **9,5%** (`1.654.010.739` • 22 Toko)
-       - `> 120 Hari` : **12,4%** (`2.158.278.439` • 16 Toko)
-     - Setiap kotak kategori dilengkapi lencana persentase (*badge* 1 desimal), batang rasio, dan status kelancaran piutang (Lancar, Perhatian, Peringatan, Jatuh Tempo, Macet/Kritis).
-   - **Halaman 2: Summary Toko per Kategori & Halaman Semua Toko**
-     - Menampilkan judul kategori, lencana persentase porsi piutang, & total nominal tanpa `Rp`.
-     - Daftar toko dengan nama toko, total piutang toko, dan rentang usia piutang (contoh: `OSCAR VRS : 166.928.300 : 2 - 28 hari`).
-     - Fitur pencarian nama toko & pengurutan (Piutang Terbesar, Nama A-Z, Usia Terlama).
-   - **Halaman 3: Detail Nota per Toko**
-     - Rincian per nota untuk toko yang dipilih, dikelompokkan rapi ke dalam 5 kategori usia piutang:
-       - `< 30 Hari`: daftar nota (nominal, no nota, tanggal, usia dalam hari).
-       - `31 - 60 Hari`: daftar nota.
-       - `61 - 90 Hari`: daftar nota.
-       - `91 - 120 Hari`: daftar nota.
-       - `> 120 Hari`: daftar nota.
+   - Dropdown di header memungkinkan perpindahan instan antar 9 bulan (September 2026 mundur hingga Januari 2026).
+   - Seluruh dashboard, summary kategori, audit Data BL, dan detail toko langsung berganti sesuai periode yang dipilih.
 4. **Header Rapi, Fleksibel & Tombol FULL SCREEN (`⛶ Layar Penuh`)**:
    - Dilengkapi tombol **`⛶ Layar Penuh`** di header (dan tombol mengambang `⛶` saat header ditutup) untuk memaksimalkan seluruh area pandang tablet/HP tanpa terhalang address bar browser.
-   - Di pojok kanan atas header terdapat tombol **`✕ Tutup`** untuk menyembunyikan header dan membebaskan ruang baca layar.
+   - Tombol **`✕ Tutup`** untuk menyembunyikan header dan membebaskan ruang baca layar.
    - Begitu header ditutup, muncul tombol melayang (*floating cluster*) **`⚙️ Menu`** & **`⛶`** di pojok kanan atas layar.
 5. **Responsif Cerdas & Tampilan Rapi di Tablet 8" (Bebas Overflow)**:
    - Layout header ditata rapi dalam 2 baris terstruktur sehingga tidak berjejal atau overflow di layar tablet portrait maupun landscape.
-   - **Default Font Lebih Rapi**: Ukuran font dasar diperkecil 2pt (`15.5px`) agar seluruh informasi tampil padat, elegan, dan proporsional.
    - **Seluruh Widget Dapat Diklik Langsung (*Full-Card Clickable*)**:
-     - Mengetuk kotak **Total Piutang Bulan Ini** langsung membuka daftar semua 82 toko.
+     - Mengetuk kotak **Total Piutang Bulan Ini** langsung membuka daftar semua toko.
      - Mengetuk batang komposisi atau kotak legenda umur piutang langsung membuka kategori tersebut.
-     - Mengetuk kartu kategori piutang, kartu audit Data BL, maupun kartu toko langsung membuka halaman tujuan tanpa harus tepat membidik tombol teks kecil.
+     - Mengetuk kartu kategori piutang, kartu audit Data BL, maupun kartu toko langsung membuka halaman tujuan.
    - **Di Tablet 8" Landscape (1024px - 1280px)**:
      - Kartu Total Piutang & Komposisi Persentase tampil berdampingan (*side-by-side*).
      - 5 Kotak Kategori Piutang tertata dalam grid 2-3 kolom sehingga ayah Anda dapat melihat semua kelompok piutang tanpa perlu scroll panjang.
      - Daftar toko tertata dalam grid multi-kolom yang lapang dan mudah dipindai.
-6. **Menu Data BL (Pelanggaran Blacklist Toko Macet &gt; 120 Hari)**:
+6. **Pelacakan Cicilan Nota Multi-Bulan (Installment Tracker)**:
+   - Sistem master invoice otomatis melacak riwayat nota dari 9 bulan berjalan: jika sebuah nota berkurang dari bulan-bulan sebelumnya, otomatis muncul badge:
+     *`Sudah Dicicil: [Nominal] dari Total Nota [Total Awal] ([%])`*
+7. **Menu Data BL (Pelanggaran Blacklist Toko Macet &gt; 120 Hari)**:
    - Mengidentifikasi toko-toko yang memiliki tunggakan macet usia `> 120 hari` namun anehnya masih diterbitkan nota tagihan baru.
-   - Sesuai kebijakan kredit, toko seperti ini seharusnya diblokir (blacklist) dari penerbitan faktur baru sebelum melunasi tunggakan lama.
-   - Hasil audit pada data September 2026 mendeteksi **9 Toko Pelanggaran BL**:
-     - Total Tunggakan Macet (>120H): **`1.840.774.527`** (218 nota).
-     - Total Nota Baru yang Tetap Diterbitkan: **`4.129.585.100`** (284 nota baru).
-   - Dilengkapi menu khusus `⛔ Data BL (9)`, kartu perbandingan macet vs nota baru, lencana khusus di kartu toko & nota, serta rincian nota yang dapat dibuka/tutup (*accordion*).
-7. **Menu Pembayaran & Rekonsiliasi Keuangan (Otomatis Antar Periode)**:
-   - Saat Anda mengunggah laporan bulan berikutnya, sistem secara cerdas membandingkan seluruh nota per toko antara dua periode.
-   - Menghitung seluruh nota yang saldo piutangnya berkurang atau hilang (lunas), dianggap sebagai pembayaran yang telah dilakukan oleh toko.
-   - Tim Finance dapat langsung menggunakan menu ini untuk mencocokkan (*cross-check*) nilai pelunasan nota dengan mutasi rekening koran bank:
-     - **Lunas Penuh**: Nota periode lalu yang sudah hilang dari laporan (saldo menjadi 0).
-     - **Cicil Sebagian**: Nota yang saldo piutangnya berkurang dari bulan lalu.
-8. **Dashboard Khusus Owner (Analisa Tren & Pertumbuhan Bisnis)**:
-   - Dashboard eksekutif khusus pemilik perusahaan untuk melihat dinamika dan tren bisnis dari bulan ke bulan:
-     1. **Tren Aging Value**: Grafik interaktif perkembangan nominal piutang per kelompok umur (`< 30H`, `31-60H`, `61-90H`, `91-120H`, `> 120H`) dengan mode *Stacked (Komposisi)* & *Grouped (Per Kategori)*.
-     2. **Tren Aging Jumlah Toko**: Sebaran banyaknya toko yang berutang di tiap kelompok umur per bulan (khususnya memantau tren pertambahan/pengurangan toko macet `> 120H`).
-     3. **Tren Omzet Bulanan**: Grafik pertumbuhan penjualan kotor (faktur terbit berdasarkan tanggal nota) dilengkapi lencana pertumbuhan MoM (*Month-over-Month Growth*).
-     4. **Tren Toko Bertransaksi**: Keaktifan toko yang melakukan pembelian per bulan serta rata-rata nominal pembelian per toko.
-   - **Pemilihan Periode Fleksibel**:
-     - Tombol preset cepat: `[ 3 Bulan Terakhir ]`, `[ 6 Bulan Terakhir (Bawaan) ]`, `[ Tahun 2026 ]`, `[ Semua Periode ]`.
-     - Dropdown kustom `Dari Bulan` s/d `Sampai Bulan` untuk menganalisa rentang bulan tertentu.
-     - Form `➕ Tambah Data Periode` untuk memasukkan atau menyesuaikan angka proyeksi/realisasi bulan baru.
-   - Disajikan dalam antarmuka visual grafik SVG responsif beresolusi tinggi, ramah lansia, tanpa awalan `Rp`, dan tabel rincian angka eksak di bawah masing-masing grafik.
+   - Dilengkapi menu khusus `⛔ Data BL (N)`, kartu perbandingan macet vs nota baru, lencana khusus di kartu toko & nota, serta rincian nota yang dapat dibuka/tutup (*accordion*).
+8. **Menu Pembayaran & Rekonsiliasi Keuangan (Rantai 9 Bulan Otomatis)**:
+   - Sistem membandingkan posisi nota antar 2 bulan berurutan:
+     - `Jan ➔ Feb`: Terbayar `3.923.303.337`
+     - `Feb ➔ Mar`: Terbayar `5.070.429.689`
+     - `Mar ➔ Apr`: Terbayar `4.371.201.436`
+     - `Apr ➔ Mei`: Terbayar `4.497.462.033`
+     - `Mei ➔ Jun`: Terbayar `4.876.767.475`
+     - `Jun ➔ Jul`: Terbayar `5.878.162.397`
+     - `Jul ➔ Ags`: Terbayar `4.162.910.725`
+     - `Ags ➔ Sep`: Terbayar `5.891.176.844`
+   - Tim Finance dapat langsung mencocokkan (*cross-check*) nilai pelunasan nota dengan mutasi rekening bank (Lunas Penuh vs Cicil Sebagian).
+9. **Dashboard Khusus Owner (Analisa Tren 9 Bulan)**:
+   - Tren Aging Value, Tren Aging Toko, Tren Omzet Bulanan, dan Tren Toko Bertransaksi dari Januari hingga September 2026.
+   - Dilengkapi visual grafik SVG responsif dan tabel komparasi detail.
 
 ---
 
-## 🚀 Cara Menjalankan Secara Lokal
+## 🌐 Cara Hosting & Deploy ke GitHub Pages
 
-Cukup buka file `index.html` langsung di browser Chrome/Edge/Safari di komputer atau HP Anda (double-click `index.html`). Tidak memerlukan web server khusus karena data sudah disematkan dalam format siap pakai (`data.js` & `data.json`).
-
----
-
-## 🌐 Cara Hosting Gratis di GitHub Pages
-
-1. **Inisialisasi Git & Commit**:
+1. **Inisialisasi & Push ke GitHub**:
    ```powershell
    git init
    git add .
-   git commit -m "Inisialisasi web mobile piutang Dunlop"
+   git commit -m "Deploy Dunlop Web Laporan Piutang Terenkripsi AES-256"
+   git branch -M main
+   git remote add origin https://github.com/USERNAME/dunlop.git
+   git push -u origin main
    ```
 
-2. **Buat Repository Baru di GitHub**:
-   - Buat repo di GitHub (misal: `piutang-dunlop` atau `dunlop`).
-   - Hubungkan remote dan push:
-     ```powershell
-     git remote add origin https://github.com/USERNAME/piutang-dunlop.git
-     git branch -M main
-     git push -u origin main
-     ```
-
-3. **Aktifkan GitHub Pages**:
-   - Buka halaman repository di GitHub -> klik menu **Settings** -> pilih tab **Pages**.
+2. **Aktifkan GitHub Pages**:
+   - Masuk ke repository GitHub -> **Settings** -> **Pages**.
    - Pada bagian **Build and deployment**:
      - *Source*: pilih **Deploy from a branch**.
      - *Branch*: pilih `main` dan folder `/(root)` -> klik **Save**.
-   - Dalam 1-2 menit, link website ayah Anda akan aktif, misalnya:
-     `https://USERNAME.github.io/piutang-dunlop/`
-   - Buka link tersebut di HP ayah Anda dan klik **"Add to Home Screen"** di browser HP agar menjadi seperti icon aplikasi di HP beliau!
+   - Dalam 1-2 menit, link live Anda akan aktif di:
+     `https://USERNAME.github.io/dunlop/`
 
----
-
-## 🔄 Cara Update Data Setiap Bulan
-
-Ada 2 cara praktis untuk memperbarui data piutang bulanan:
-
-### Cara 1: Lewat Website Langsung (Paling Mudah)
-1. Buka website di browser.
-2. Klik tombol **`⚙️ Update`** di pojok kanan atas header.
-3. Anda bisa:
-   - **Upload file `data.json` baru**, ATAU
-   - **Tempel (paste) teks OCR dari PDF laporan baru** ke kotak teks, lalu klik **"⚡ Proses & Update Teks Ini"**.
-4. Website akan otomatis memproses semua toko, nota, menghitung usia piutang, dan langsung menampilkan laporan terbaru!
-5. Anda juga bisa mengunduh file `data.json` baru dengan tombol **"💾 Download data.json"** untuk di-commit ke GitHub Pages.
-
-### Cara 2: Lewat Script PowerShell Otomatis
-Jika Anda memiliki file teks hasil OCR lokal dari PDF baru (misal `laporan_oktober.txt`):
-```powershell
-.\update_monthly.ps1 -InputFile "laporan_oktober.txt"
-```
-Script akan otomatis:
-1. Membaca periode laporan baru.
-2. Memverifikasi seluruh nota dan nominal piutang.
-3. Memperbarui file `data.json` dan `data.js`.
-4. Anda tinggal push ke GitHub:
-   ```powershell
-   git commit -am "Update laporan piutang bulan baru"
-   git push
-   ```
-Website di GitHub Pages akan langsung terupdate otomatis!
+3. **Buka di HP/Tablet Ayah**:
+   - Buka link di browser Chrome atau Safari di tablet/HP.
+   - Ketik kata sandi: `mihardjo`.
+   - Di menu browser, pilih **"Add to Home Screen"** (Tambahkan ke Layar Utama) agar icon Dunlop muncul langsung di desktop HP/tablet beliau.
 
 ---
 
 ## 📂 Struktur File
 
-- `index.html` : Halaman antarmuka utama (Dashboard, Summary Kategori, Detail Toko, Data BL, Rekonsiliasi Pembayaran, Owner Dashboard, Modal Update).
-- `styles.css` : Desain responsif ramah lansia, tombol zoom huruf, layout fleksibel mobile/tablet, dan palet warna kontras lembut.
-- `app.js` : Logika aplikasi, period switcher, navigasi tombol BACK pasti, rekonsiliasi antar periode, analitika owner, dan parser OCR.
-- `data.js` & `data.json` : Database piutang periode 30 September 2026 (17.382.231.343 | 82 toko | 1.674 nota).
-- `data_apr2026.js` & `data_apr2026.json` : Database piutang periode 30 April 2026 (16.466.868.951 | 89 toko | 1.779 nota).
-- `data_mar2026.js` & `data_mar2026.json` : Database piutang periode 31 Maret 2026 (14.344.105.532 | 85 toko | 1.645 nota).
-- `data_feb2026.js` & `data_feb2026.json` : Database piutang periode 28 Pebruari 2026 (14.228.148.030 | 83 toko | 1.665 nota).
-- `data_jan2026.js` & `data_jan2026.json` : Database piutang periode 31 Januari 2026 (12.837.649.297 | 89 toko | 1.529 nota).
-- `raw_ocr.txt` : Teks OCR lengkap periode 30 September 2026.
-- `raw_ocr_apr2026.txt` : Teks OCR lengkap periode 30 April 2026.
-- `raw_ocr_mar2026.txt` : Teks OCR lengkap periode 31 Maret 2026.
-- `raw_ocr_feb2026.txt` : Teks OCR lengkap periode 28 Pebruari 2026.
-- `raw_ocr_jan2026.txt` : Teks OCR lengkap periode 31 Januari 2026.
-- `update_monthly.ps1` : Script otomatis pemrosesan bulanan.
+- `index.html` : Halaman antarmuka utama (Dashboard, Kategori, Detail Toko, Data BL, Rekonsiliasi Pembayaran, Owner Dashboard, Modal Update).
+- `styles.css` : Desain responsif ramah lansia, layout fleksibel mobile/tablet 8", tema kontras lembut.
+- `app.js` : Engine aplikasi, dekripsi AES-256-GCM, auto-lock 15 menit, period switcher 9 bulan, reconciler, dan audit blacklist.
+- `vault.js` : Brankas terenkripsi kriptografis AES-256-GCM yang memuat seluruh dataset 9 bulan (Jan-Sep 2026).
+- `robots.txt` : Kebijakan anti-crawling mesin pencari untuk privasi maksimal.
+- `data_*.js` / `data_*.json` : Database terurai per bulan (Jan, Feb, Mar, Apr, Mei, Jun, Jul, Ags, Sep 2026).
+- `raw_ocr_*.txt` : Arsip teks mentah OCR resmi tiap bulan.

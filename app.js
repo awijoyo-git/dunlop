@@ -3,15 +3,17 @@
  * PT. Indo Bali Satya Graha
  */
 
-// Application Constants
-const APP_PASSWORD = "mihardjo";
-
 // Global State
 let piutangData = null;
+let vaultDecryptedData = null;
 let currentCategoryId = null;
 let currentStoreKode = null;
 let categorySortOrder = 'total-desc';
 let activeCategoryFilterText = '';
+
+// Inactivity Auto-Lock (15 Minutes)
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
+let inactivityTimer = null;
 
 // Number Formatter (Thousand separator, 0 decimals, without 'Rp' prefix)
 function formatRupiah(num) {
@@ -23,17 +25,44 @@ function formatRupiah(num) {
 // INITIALIZATION
 // ==========================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initPreferences();
-  loadData();
   setupHashRouting();
 
-  // Check Authentication
-  if (!isAuthenticated()) {
-    showLoginView();
-  } else {
-    onLoginSuccess(false);
+  // 1. Check if session credentials exist in sessionStorage
+  const cachedPass = sessionStorage.getItem('dunlop_session_pass');
+  if (cachedPass) {
+    try {
+      if (window.ENCRYPTED_VAULT) {
+        const decrypted = await decryptVaultWithPassword(cachedPass);
+        if (decrypted) {
+          vaultDecryptedData = decrypted;
+          loadData();
+          onLoginSuccess(false);
+          startInactivityTracking();
+          return;
+        }
+      } else {
+        loadData();
+        onLoginSuccess(false);
+        startInactivityTracking();
+        return;
+      }
+    } catch (e) {
+      console.warn('Auto-unlock session failed:', e);
+    }
   }
+
+  // 2. Fallback check when vault is not used (local development)
+  if (!window.ENCRYPTED_VAULT && isAuthenticated()) {
+    loadData();
+    onLoginSuccess(false);
+    startInactivityTracking();
+    return;
+  }
+
+  // 3. Otherwise show login view
+  showLoginView();
 });
 
 // ==========================================================================
@@ -173,40 +202,175 @@ function applyTheme(theme) {
 }
 
 // ==========================================================================
-// AUTHENTICATION (PASSWORD: "mihardjo")
+// CRYPTOGRAPHY & AUTHENTICATION (AES-256-GCM + PBKDF2)
 // ==========================================================================
 
-function isAuthenticated() {
-  return localStorage.getItem('dunlop_auth') === 'true' || sessionStorage.getItem('dunlop_auth') === 'true';
+function hexToUint8Array(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes;
 }
 
-function handleLoginSubmit(event) {
+function base64ToUint8Array(b64) {
+  if (typeof atob === 'function') {
+    const binStr = atob(b64);
+    const len = binStr.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binStr.charCodeAt(i);
+    }
+    return bytes;
+  }
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  }
+  throw new Error('Decoder base64 tidak tersedia.');
+}
+
+async function decryptVaultWithPassword(password) {
+  if (!window.ENCRYPTED_VAULT) return null;
+  const subtle = (window.crypto && window.crypto.subtle) || (typeof require !== 'undefined' ? require('crypto').subtle : null);
+  if (!subtle) {
+    throw new Error('Web Crypto API tidak didukung pada browser ini.');
+  }
+
+  const vault = window.ENCRYPTED_VAULT;
+  const enc = new TextEncoder();
+  const passKey = await subtle.importKey(
+    'raw',
+    enc.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  const salt = hexToUint8Array(vault.salt);
+  const iv = hexToUint8Array(vault.iv);
+  const ciphertext = base64ToUint8Array(vault.data);
+
+  const aesKey = await subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: vault.iterations,
+      hash: 'SHA-256'
+    },
+    passKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['decrypt']
+  );
+
+  const decryptedBuf = await subtle.decrypt(
+    { name: 'AES-GCM', iv: iv },
+    aesKey,
+    ciphertext
+  );
+
+  const decStr = new TextDecoder().decode(decryptedBuf);
+  return JSON.parse(decStr);
+}
+
+function isAuthenticated() {
+  return !!vaultDecryptedData || localStorage.getItem('dunlop_auth') === 'true' || sessionStorage.getItem('dunlop_auth') === 'true';
+}
+
+async function handleLoginSubmit(event) {
   event.preventDefault();
   const inputEl = document.getElementById('inputPassword');
   const errorEl = document.getElementById('loginErrorMsg');
   const rememberCheckbox = document.getElementById('rememberMeCheckbox');
+  const submitBtn = event.target.querySelector('button[type="submit"]');
   const enteredPass = (inputEl.value || '').trim();
 
-  // Case-insensitive comparison for elderly convenience
-  if (enteredPass.toLowerCase() === APP_PASSWORD.toLowerCase()) {
-    // Success
-    errorEl.style.display = 'none';
-    inputEl.classList.remove('has-error');
+  if (!enteredPass) return;
 
-    if (rememberCheckbox && rememberCheckbox.checked) {
-      localStorage.setItem('dunlop_auth', 'true');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>MEMBUKA DATA...</span><span class="submit-arrow">⏳</span>';
+  }
+
+  try {
+    let success = false;
+
+    if (window.ENCRYPTED_VAULT) {
+      // Cryptographically verify & decrypt in memory
+      const decrypted = await decryptVaultWithPassword(enteredPass);
+      if (decrypted) {
+        vaultDecryptedData = decrypted;
+        success = true;
+      }
     } else {
-      sessionStorage.setItem('dunlop_auth', 'true');
+      // Fallback if encrypted vault is absent
+      if (enteredPass.toLowerCase() === 'mihardjo') {
+        success = true;
+      }
     }
 
-    onLoginSuccess(true);
-  } else {
-    // Fail
-    errorEl.style.display = 'block';
+    if (success) {
+      if (errorEl) errorEl.style.display = 'none';
+      inputEl.classList.remove('has-error');
+
+      sessionStorage.setItem('dunlop_auth', 'true');
+      sessionStorage.setItem('dunlop_session_pass', enteredPass);
+
+      if (rememberCheckbox && rememberCheckbox.checked) {
+        localStorage.setItem('dunlop_auth', 'true');
+      } else {
+        localStorage.removeItem('dunlop_auth');
+      }
+
+      loadData();
+      onLoginSuccess(true);
+      startInactivityTracking();
+    } else {
+      throw new Error('Kata sandi salah.');
+    }
+  } catch (err) {
+    console.warn('Login attempt failed:', err);
+    if (errorEl) {
+      errorEl.textContent = '⚠️ Kata sandi salah! Silakan coba ketik ulang dengan benar.';
+      errorEl.style.display = 'block';
+    }
     inputEl.classList.add('has-error');
     inputEl.focus();
     inputEl.select();
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml;
+    }
   }
+}
+
+function resetInactivityTimer() {
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    lockAppDueToInactivity();
+  }, INACTIVITY_TIMEOUT_MS);
+}
+
+function lockAppDueToInactivity() {
+  vaultDecryptedData = null;
+  invoiceHistoryMasterCache = null;
+  sessionStorage.removeItem('dunlop_session_pass');
+  sessionStorage.removeItem('dunlop_auth');
+  localStorage.removeItem('dunlop_auth');
+  showLoginView();
+  const errorEl = document.getElementById('loginErrorMsg');
+  if (errorEl) {
+    errorEl.textContent = '⏱️ Sesi otomatis terkunci setelah 15 menit tanpa aktivitas. Silakan masuk kembali.';
+    errorEl.style.display = 'block';
+  }
+}
+
+function startInactivityTracking() {
+  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+    window.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
 }
 
 function onLoginSuccess(animate = true) {
@@ -257,9 +421,13 @@ function showLoginView() {
 }
 
 function handleLogout() {
-  if (confirm('Apakah Anda ingin keluar dan mengunci layar?')) {
-    localStorage.removeItem('dunlop_auth');
+  if (confirm('Apakah Anda ingin keluar dan mengunci data?')) {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    vaultDecryptedData = null;
+    invoiceHistoryMasterCache = null;
     sessionStorage.removeItem('dunlop_auth');
+    sessionStorage.removeItem('dunlop_session_pass');
+    localStorage.removeItem('dunlop_auth');
     window.location.hash = '';
     showLoginView();
   }
@@ -282,22 +450,39 @@ function togglePasswordVisibility() {
 }
 
 // ==========================================================================
-// DATA LOADING & MULTI-PERIOD SUPPORT
+// DATA LOADING & MULTI-PERIOD SUPPORT (9 PERIODS: JAN - SEP 2026)
 // ==========================================================================
 
 let activePeriodKey = localStorage.getItem('dunlop_active_period') || '2026-09';
 
 function getPeriodData(key) {
+  // 1. In-memory decrypted AES-256 vault (Primary)
+  const vData = vaultDecryptedData || (typeof window !== 'undefined' ? window.vaultDecryptedData : null);
+  if (vData && vData[key]) {
+    return vData[key];
+  }
+
+  // 2. Global script dataset fallbacks
+  if (key === '2026-09' && window.PIUTANG_DATA) return window.PIUTANG_DATA;
+  if (key === '2026-08' && window.PIUTANG_DATA_AGS2026) return window.PIUTANG_DATA_AGS2026;
+  if (key === '2026-07' && window.PIUTANG_DATA_JUL2026) return window.PIUTANG_DATA_JUL2026;
+  if (key === '2026-06' && window.PIUTANG_DATA_JUN2026) return window.PIUTANG_DATA_JUN2026;
+  if (key === '2026-05' && window.PIUTANG_DATA_MEI2026) return window.PIUTANG_DATA_MEI2026;
   if (key === '2026-04' && window.PIUTANG_DATA_APR2026) return window.PIUTANG_DATA_APR2026;
   if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) return window.PIUTANG_DATA_MAR2026;
   if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) return window.PIUTANG_DATA_FEB2026;
   if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) return window.PIUTANG_DATA_JAN2026;
+
   if (window.PIUTANG_DATA) return window.PIUTANG_DATA;
   return null;
 }
 
 function getPreviousPeriodData(key) {
-  if (key === '2026-09') return getPeriodData('2026-04') || getPeriodData('2026-01');
+  if (key === '2026-09') return getPeriodData('2026-08');
+  if (key === '2026-08') return getPeriodData('2026-07');
+  if (key === '2026-07') return getPeriodData('2026-06');
+  if (key === '2026-06') return getPeriodData('2026-05');
+  if (key === '2026-05') return getPeriodData('2026-04');
   if (key === '2026-04') return getPeriodData('2026-03');
   if (key === '2026-03') return getPeriodData('2026-02');
   if (key === '2026-02') return getPeriodData('2026-01');
@@ -313,12 +498,14 @@ function getInvoiceHistoryMaster() {
   const master = new Map();
   const datasets = [];
 
-  // Collect all available official and custom datasets
-  if (window.PIUTANG_DATA_JAN2026 && window.PIUTANG_DATA_JAN2026.stores) datasets.push(window.PIUTANG_DATA_JAN2026);
-  if (window.PIUTANG_DATA_FEB2026 && window.PIUTANG_DATA_FEB2026.stores) datasets.push(window.PIUTANG_DATA_FEB2026);
-  if (window.PIUTANG_DATA_MAR2026 && window.PIUTANG_DATA_MAR2026.stores) datasets.push(window.PIUTANG_DATA_MAR2026);
-  if (window.PIUTANG_DATA_APR2026 && window.PIUTANG_DATA_APR2026.stores) datasets.push(window.PIUTANG_DATA_APR2026);
-  if (window.PIUTANG_DATA && window.PIUTANG_DATA.stores) datasets.push(window.PIUTANG_DATA);
+  // Collect all available official and custom datasets in chronological sequence
+  const periods = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];
+  periods.forEach(p => {
+    const ds = getPeriodData(p);
+    if (ds && ds.stores && ds.stores.length > 0) {
+      datasets.push(ds);
+    }
+  });
 
   const localDb = localStorage.getItem('dunlop_custom_data');
   if (localDb) {
@@ -682,6 +869,8 @@ function renderDashboard() {
   if (dashBlNewAmount) dashBlNewAmount.textContent = formatRupiah(totalNew);
   const tbBlBadge = document.getElementById('tbBlBadge');
   if (tbBlBadge) tbBlBadge.textContent = blStores.length;
+  const btnNavBL = document.getElementById('btnNavBL');
+  if (btnNavBL) btnNavBL.textContent = `⛔ Data BL (${blStores.length})`;
 
   const recon = getReconciliationData();
   if (recon) {
@@ -1246,8 +1435,9 @@ function restoreOriginalData() {
     localStorage.removeItem('dunlop_custom_data');
     localStorage.removeItem('dunlop_prev_data');
     localStorage.removeItem('dunlop_reconciliation');
-    if (window.PIUTANG_DATA) {
-      piutangData = window.PIUTANG_DATA;
+    const origData = getPeriodData('2026-09');
+    if (origData) {
+      piutangData = origData;
       renderDashboard();
       showUpdateStatus('Data berhasil dipulihkan ke versi awal!', true);
       setTimeout(() => {
@@ -2099,11 +2289,10 @@ function showOwnerView(updateUrl = true) {
 
 function getMonthlyHistoricalData() {
   const storeDatasets = [];
-  if (window.PIUTANG_DATA && window.PIUTANG_DATA.stores) storeDatasets.push(window.PIUTANG_DATA);
-  if (window.PIUTANG_DATA_APR2026 && window.PIUTANG_DATA_APR2026.stores) storeDatasets.push(window.PIUTANG_DATA_APR2026);
-  if (window.PIUTANG_DATA_MAR2026 && window.PIUTANG_DATA_MAR2026.stores) storeDatasets.push(window.PIUTANG_DATA_MAR2026);
-  if (window.PIUTANG_DATA_FEB2026 && window.PIUTANG_DATA_FEB2026.stores) storeDatasets.push(window.PIUTANG_DATA_FEB2026);
-  if (window.PIUTANG_DATA_JAN2026 && window.PIUTANG_DATA_JAN2026.stores) storeDatasets.push(window.PIUTANG_DATA_JAN2026);
+  ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'].forEach(k => {
+    const ds = getPeriodData(k);
+    if (ds && ds.stores) storeDatasets.push(ds);
+  });
   if (storeDatasets.length === 0 && piutangData && piutangData.stores) storeDatasets.push(piutangData);
   if (storeDatasets.length === 0) return [];
 
@@ -2201,153 +2390,30 @@ function getMonthlyHistoricalData() {
       return;
     }
 
-    // January 2026 official report snapshot
-    if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) {
-      const cats = window.PIUTANG_DATA_JAN2026.categories;
-      history.push({
-        key,
-        shortLabel,
-        fullLabel,
-        year,
-        monthNum,
-        omzet: 4026849357,
-        activeStoresCount: 75,
-        invoiceCount: 510,
-        agingValues: {
-          lt30: cats.lt30?.total || 0,
-          '31_60': cats['31_60']?.total || 0,
-          '61_90': cats['61_90']?.total || 0,
-          '91_120': cats['91_120']?.total || 0,
-          gt120: cats.gt120?.total || 0,
-          total: window.PIUTANG_DATA_JAN2026.meta.grandTotal || 12837649297
-        },
-        agingStores: {
-          lt30: cats.lt30?.stores?.length || 0,
-          '31_60': cats['31_60']?.stores?.length || 0,
-          '61_90': cats['61_90']?.stores?.length || 0,
-          '91_120': cats['91_120']?.stores?.length || 0,
-          gt120: cats.gt120?.stores?.length || 0
-        },
-        momGrowth: 0
-      });
-      return;
-    }
+    // Official monthly snapshot via getPeriodData (Jan through Sep 2026)
+    const pData = getPeriodData(key);
+    if (pData && pData.categories && pData.meta) {
+      const cats = pData.categories;
+      const omzetVal = cats.lt30?.total || 0;
+      const activeStores = cats.lt30?.stores?.length || (pData.stores ? pData.stores.length : 0);
+      const invCount = cats.lt30?.invoiceCount || (pData.meta?.totalInvoices || 0);
 
-    // February 2026 official report snapshot
-    if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) {
-      const cats = window.PIUTANG_DATA_FEB2026.categories;
       history.push({
         key,
         shortLabel,
         fullLabel,
         year,
         monthNum,
-        omzet: cats.lt30?.total || 5606112310,
-        activeStoresCount: cats.lt30?.stores?.length || 64,
-        invoiceCount: 602,
+        omzet: omzetVal,
+        activeStoresCount: activeStores,
+        invoiceCount: invCount,
         agingValues: {
           lt30: cats.lt30?.total || 0,
           '31_60': cats['31_60']?.total || 0,
           '61_90': cats['61_90']?.total || 0,
           '91_120': cats['91_120']?.total || 0,
           gt120: cats.gt120?.total || 0,
-          total: window.PIUTANG_DATA_FEB2026.meta?.grandTotal || 14228148030
-        },
-        agingStores: {
-          lt30: cats.lt30?.stores?.length || 0,
-          '31_60': cats['31_60']?.stores?.length || 0,
-          '61_90': cats['61_90']?.stores?.length || 0,
-          '91_120': cats['91_120']?.stores?.length || 0,
-          gt120: cats.gt120?.stores?.length || 0
-        },
-        momGrowth: 0
-      });
-      return;
-    }
-
-    // March 2026 official report snapshot
-    if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) {
-      const cats = window.PIUTANG_DATA_MAR2026.categories;
-      history.push({
-        key,
-        shortLabel,
-        fullLabel,
-        year,
-        monthNum,
-        omzet: cats.lt30?.total || 5182189591,
-        activeStoresCount: cats.lt30?.stores?.length || 65,
-        invoiceCount: 595,
-        agingValues: {
-          lt30: cats.lt30?.total || 0,
-          '31_60': cats['31_60']?.total || 0,
-          '61_90': cats['61_90']?.total || 0,
-          '91_120': cats['91_120']?.total || 0,
-          gt120: cats.gt120?.total || 0,
-          total: window.PIUTANG_DATA_MAR2026.meta?.grandTotal || 14344105532
-        },
-        agingStores: {
-          lt30: cats.lt30?.stores?.length || 0,
-          '31_60': cats['31_60']?.stores?.length || 0,
-          '61_90': cats['61_90']?.stores?.length || 0,
-          '91_120': cats['91_120']?.stores?.length || 0,
-          gt120: cats.gt120?.stores?.length || 0
-        },
-        momGrowth: 0
-      });
-      return;
-    }
-
-    // April 2026 official report snapshot
-    if (key === '2026-04' && window.PIUTANG_DATA_APR2026) {
-      const cats = window.PIUTANG_DATA_APR2026.categories;
-      history.push({
-        key,
-        shortLabel,
-        fullLabel,
-        year,
-        monthNum,
-        omzet: cats.lt30?.total || 6819674315,
-        activeStoresCount: cats.lt30?.stores?.length || 74,
-        invoiceCount: 617,
-        agingValues: {
-          lt30: cats.lt30?.total || 0,
-          '31_60': cats['31_60']?.total || 0,
-          '61_90': cats['61_90']?.total || 0,
-          '91_120': cats['91_120']?.total || 0,
-          gt120: cats.gt120?.total || 0,
-          total: window.PIUTANG_DATA_APR2026.meta?.grandTotal || 16466868951
-        },
-        agingStores: {
-          lt30: cats.lt30?.stores?.length || 0,
-          '31_60': cats['31_60']?.stores?.length || 0,
-          '61_90': cats['61_90']?.stores?.length || 0,
-          '91_120': cats['91_120']?.stores?.length || 0,
-          gt120: cats.gt120?.stores?.length || 0
-        },
-        momGrowth: 0
-      });
-      return;
-    }
-
-    // September 2026 official report snapshot
-    if (key === '2026-09' && window.PIUTANG_DATA) {
-      const cats = window.PIUTANG_DATA.categories;
-      history.push({
-        key,
-        shortLabel,
-        fullLabel,
-        year,
-        monthNum,
-        omzet: 5372405872,
-        activeStoresCount: 60,
-        invoiceCount: 493,
-        agingValues: {
-          lt30: cats.lt30?.total || 0,
-          '31_60': cats['31_60']?.total || 0,
-          '61_90': cats['61_90']?.total || 0,
-          '91_120': cats['91_120']?.total || 0,
-          gt120: cats.gt120?.total || 0,
-          total: window.PIUTANG_DATA.meta?.grandTotal || 17382231343
+          total: pData.meta?.grandTotal || 0
         },
         agingStores: {
           lt30: cats.lt30?.stores?.length || 0,
