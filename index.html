@@ -15,11 +15,16 @@
 </head>
 <body class="font-size-normal theme-soft-dark">
 
-  <!-- FLOATING BUTTON TO RESTORE HEADER (SHOWN WHEN HEADER IS CLOSED) -->
-  <button type="button" class="floating-header-btn" id="btnFloatingHeader" onclick="toggleHeaderCollapse(false)" title="Tampilkan Menu & Pengaturan" style="display: none;">
-    <span class="float-icon">⚙️</span>
-    <span class="float-text">Menu</span>
-  </button>
+  <!-- FLOATING BUTTON CLUSTER (SHOWN WHEN HEADER IS CLOSED) -->
+  <div class="floating-header-cluster" id="floatingCluster" style="display: none;">
+    <button type="button" class="floating-header-btn" id="btnFloatingHeader" onclick="toggleHeaderCollapse(false)" title="Tampilkan Menu & Pengaturan">
+      <span class="float-icon">⚙️</span>
+      <span class="float-text">Menu</span>
+    </button>
+    <button type="button" class="floating-header-btn btn-float-fs" id="btnFloatingFs" onclick="toggleFullscreen()" title="Layar Penuh (Full Screen)">
+      <span class="float-icon">⛶</span>
+    </button>
+  </div>
 
   <!-- TOP ACCESSIBILITY & NAVIGATION BAR -->
   <header class="app-header">
@@ -39,10 +44,16 @@
             </select>
           </div>
         </div>
-        <button type="button" class="btn-close-header" id="btnCloseHeader" onclick="toggleHeaderCollapse(true)" title="Sembunyikan Header / Menu">
-          <span class="close-icon">✕</span>
-          <span class="close-text">Tutup</span>
-        </button>
+        <div class="header-top-actions">
+          <button type="button" class="btn-fullscreen-toggle" id="btnFullscreenToggle" onclick="toggleFullscreen()" title="Tampilkan Layar Penuh (Full Screen)">
+            <span class="fs-icon">⛶</span>
+            <span class="fs-text">Layar Penuh</span>
+          </button>
+          <button type="button" class="btn-close-header" id="btnCloseHeader" onclick="toggleHeaderCollapse(true)" title="Sembunyikan Header / Menu">
+            <span class="close-icon">✕</span>
+            <span class="close-text">Tutup</span>
+          </button>
+        </div>
       </div>
 
       <!-- Quick Accessibility Toolbar (Teks Zoom, Tema & Menu Navigasi Cepat) -->
@@ -135,8 +146,8 @@
     <section id="viewDashboard" class="view-panel" style="display: none;">
       <!-- Hero Grid: Grand Total & Komposisi Bar (Side by side on tablet landscape) -->
       <div class="dashboard-hero-grid">
-        <!-- Total Piutang Card -->
-        <div class="grand-total-card">
+        <!-- Total Piutang Card (Klik untuk Lihat Semua Toko) -->
+        <div class="grand-total-card" onclick="openCategory('all')" title="Ketuk untuk melihat semua toko" role="button" tabindex="0">
           <div class="card-badge">TOTAL PIUTANG BULAN INI</div>
           <div class="grand-total-amount" id="dashboardGrandTotal">17.382.231.343</div>
           <div class="grand-total-meta">
@@ -144,6 +155,7 @@
             <span>•</span>
             <span>📄 <strong id="dashboardTotalInvoices">1.674</strong> Nota Tagihan</span>
           </div>
+          <div class="card-click-hint">Lihat Semua Daftar Toko →</div>
         </div>
 
         <!-- Visual Distribution Bar (Persentase Tiap Range Hari) -->
@@ -153,18 +165,18 @@
             <span class="dist-total">Total 100%</span>
           </div>
           <div class="dist-stacked-bar">
-            <div class="dist-seg seg-lt30" id="segBar_lt30" style="width: 31.95%;" title="< 30 Hari: 31,9%">31,9%</div>
-            <div class="dist-seg seg-3160" id="segBar_31_60" style="width: 27.43%;" title="31-60 Hari: 27,4%">27,4%</div>
-            <div class="dist-seg seg-6190" id="segBar_61_90" style="width: 18.68%;" title="61-90 Hari: 18,7%">18,7%</div>
-            <div class="dist-seg seg-91120" id="segBar_91_120" style="width: 9.52%;" title="91-120 Hari: 9,5%">9,5%</div>
-            <div class="dist-seg seg-gt120" id="segBar_gt120" style="width: 12.42%;" title="> 120 Hari: 12,4%">12,4%</div>
+            <div class="dist-seg seg-lt30" id="segBar_lt30" onclick="openCategory('lt30')" style="width: 31.95%;" title="< 30 Hari: 31,9% (Ketuk untuk buka)">31,9%</div>
+            <div class="dist-seg seg-3160" id="segBar_31_60" onclick="openCategory('31_60')" style="width: 27.43%;" title="31-60 Hari: 27,4% (Ketuk untuk buka)">27,4%</div>
+            <div class="dist-seg seg-6190" id="segBar_61_90" onclick="openCategory('61_90')" style="width: 18.68%;" title="61-90 Hari: 18,7% (Ketuk untuk buka)">18,7%</div>
+            <div class="dist-seg seg-91120" id="segBar_91_120" onclick="openCategory('91_120')" style="width: 9.52%;" title="91-120 Hari: 9,5% (Ketuk untuk buka)">9,5%</div>
+            <div class="dist-seg seg-gt120" id="segBar_gt120" onclick="openCategory('gt120')" style="width: 12.42%;" title="> 120 Hari: 12,4% (Ketuk untuk buka)">12,4%</div>
           </div>
           <div class="dist-legend">
-            <div class="legend-item"><span class="dot dot-lt30"></span>&lt; 30H: <strong id="distPct_lt30">31,9%</strong></div>
-            <div class="legend-item"><span class="dot dot-3160"></span>31-60H: <strong id="distPct_31_60">27,4%</strong></div>
-            <div class="legend-item"><span class="dot dot-6190"></span>61-90H: <strong id="distPct_61_90">18,7%</strong></div>
-            <div class="legend-item"><span class="dot dot-91120"></span>91-120H: <strong id="distPct_91_120">9,5%</strong></div>
-            <div class="legend-item"><span class="dot dot-gt120"></span>&gt; 120H: <strong id="distPct_gt120">12,4%</strong></div>
+            <div class="legend-item" onclick="openCategory('lt30')" title="Ketuk untuk buka kategori < 30 Hari"><span class="dot dot-lt30"></span>&lt; 30H: <strong id="distPct_lt30">31,9%</strong></div>
+            <div class="legend-item" onclick="openCategory('31_60')" title="Ketuk untuk buka kategori 31-60 Hari"><span class="dot dot-3160"></span>31-60H: <strong id="distPct_31_60">27,4%</strong></div>
+            <div class="legend-item" onclick="openCategory('61_90')" title="Ketuk untuk buka kategori 61-90 Hari"><span class="dot dot-6190"></span>61-90H: <strong id="distPct_61_90">18,7%</strong></div>
+            <div class="legend-item" onclick="openCategory('91_120')" title="Ketuk untuk buka kategori 91-120 Hari"><span class="dot dot-91120"></span>91-120H: <strong id="distPct_91_120">9,5%</strong></div>
+            <div class="legend-item" onclick="openCategory('gt120')" title="Ketuk untuk buka kategori > 120 Hari"><span class="dot dot-gt120"></span>&gt; 120H: <strong id="distPct_gt120">12,4%</strong></div>
           </div>
         </div>
       </div>
@@ -376,8 +388,8 @@
         </div>
 
         <!-- All Stores Quick Jump Button -->
-        <div class="all-stores-launcher">
-          <button type="button" class="btn-all-stores" onclick="openCategory('all')">
+        <div class="all-stores-launcher" onclick="openCategory('all')" title="Ketuk untuk melihat semua 82 toko lengkap" role="button" tabindex="0">
+          <button type="button" class="btn-all-stores">
             <span class="all-stores-icon">📋</span>
             <span class="all-stores-label">Lihat Semua Daftar Toko (82 Toko Lengkap)</span>
             <span class="all-stores-arrow">→</span>

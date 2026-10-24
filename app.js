@@ -63,6 +63,15 @@ function toggleHeaderCollapse(collapse) {
 
   document.body.classList.toggle('header-collapsed', isCollapsed);
 
+  const floatingCluster = document.getElementById('floatingCluster');
+  if (floatingCluster) {
+    if (isAuthenticated() && isCollapsed) {
+      floatingCluster.style.display = 'flex';
+    } else {
+      floatingCluster.style.display = 'none';
+    }
+  }
+
   const floatingBtn = document.getElementById('btnFloatingHeader');
   if (floatingBtn) {
     if (isAuthenticated() && isCollapsed) {
@@ -74,6 +83,59 @@ function toggleHeaderCollapse(collapse) {
 
   localStorage.setItem('dunlop_header_collapsed', isCollapsed ? 'true' : 'false');
 }
+
+function toggleFullscreen() {
+  const doc = document;
+  const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+
+  if (!isFs) {
+    const docEl = doc.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(err => console.warn('Fullscreen error:', err));
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
+    }
+  } else {
+    if (doc.exitFullscreen) {
+      doc.exitFullscreen().catch(err => console.warn('Exit fullscreen error:', err));
+    } else if (doc.webkitExitFullscreen) {
+      doc.webkitExitFullscreen();
+    } else if (doc.mozCancelFullScreen) {
+      doc.mozCancelFullScreen();
+    } else if (doc.msExitFullscreen) {
+      doc.msExitFullscreen();
+    }
+  }
+}
+
+function updateFullscreenButtons() {
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+
+  const btn = document.getElementById('btnFullscreenToggle');
+  if (btn) {
+    btn.innerHTML = isFs 
+      ? '<span class="fs-icon">🗗</span><span class="fs-text">Keluar Layar Penuh</span>'
+      : '<span class="fs-icon">⛶</span><span class="fs-text">Layar Penuh</span>';
+    btn.title = isFs ? 'Keluar dari Mode Layar Penuh' : 'Tampilkan Layar Penuh (Full Screen)';
+    btn.classList.toggle('active-fullscreen', isFs);
+  }
+
+  const btnFloatFs = document.getElementById('btnFloatingFs');
+  if (btnFloatFs) {
+    btnFloatFs.innerHTML = isFs 
+      ? '<span class="float-icon">🗗</span>'
+      : '<span class="float-icon">⛶</span>';
+    btnFloatFs.title = isFs ? 'Keluar Layar Penuh' : 'Layar Penuh';
+  }
+}
+
+['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+  document.addEventListener(evt, updateFullscreenButtons);
+});
 
 function setFontSize(size) {
   document.body.classList.remove('font-size-normal', 'font-size-large', 'font-size-xlarge');
@@ -1532,24 +1594,25 @@ function applyBLFilterAndSort() {
   container.innerHTML = stores.map((s, index) => {
     return `
       <article class="bl-store-card">
-        <div class="bl-card-top">
+        <div class="bl-card-top" onclick="openStoreDetail('${s.kode}', 'blacklist')" style="cursor: pointer;" title="Ketuk untuk buka rincian penuh toko">
           <div>
             <div class="bl-store-name">${index + 1}. ${s.namaToko}</div>
             <div style="font-size: 0.85em; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
               Kode Toko: ${s.kode} • Total Seluruh Piutang: ${formatRupiah(s.totalPiutang)}
             </div>
+            <div class="card-click-hint" style="font-size: 0.78em; margin-top: 4px;">Lihat Rincian Toko →</div>
           </div>
           <span class="bl-pill-badge">⛔ PELANGGARAN BL</span>
         </div>
 
         <div class="bl-comparison-box">
-          <div class="bl-box-item box-macet">
+          <div class="bl-box-item box-macet" onclick="openStoreDetail('${s.kode}', 'blacklist')" style="cursor: pointer;" title="Ketuk untuk buka rincian toko">
             <span class="bl-box-title">Tunggakan Macet (&gt; 120 Hari):</span>
             <div class="bl-box-amount text-danger">${formatRupiah(s.macetTotal)}</div>
             <span class="bl-box-notes">${s.macetCount} Nota • Usia ${s.macetMinAge} - ${s.macetMaxAge} Hari</span>
           </div>
 
-          <div class="bl-box-item box-new">
+          <div class="bl-box-item box-new" onclick="openStoreDetail('${s.kode}', 'blacklist')" style="cursor: pointer;" title="Ketuk untuk buka rincian toko">
             <span class="bl-box-title">Nota Baru Tetap Diterbitkan:</span>
             <div class="bl-box-amount text-warning">${formatRupiah(s.newTotal)}</div>
             <span class="bl-box-notes">${s.newCount} Nota Baru Saat Masih Ada Macet</span>
@@ -1928,12 +1991,13 @@ function applyPaymentFilter() {
   container.innerHTML = filteredStores.map((s, index) => {
     return `
       <article class="payment-store-card">
-        <div class="pay-card-header">
+        <div class="pay-card-header" onclick="openStoreDetail('${s.kode}', 'payment')" style="cursor: pointer;" title="Ketuk untuk buka rincian penuh toko">
           <div>
             <div class="pay-store-name">${index + 1}. ${s.namaToko}</div>
             <div style="font-size: 0.85em; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
               Kode Toko: ${s.kode} • ${s.invoices.length} Nota Terbayar
             </div>
+            <div class="card-click-hint" style="font-size: 0.78em; margin-top: 4px;">Lihat Rincian Toko →</div>
           </div>
           <div style="text-align: right;">
             <div style="font-size: 0.8em; color: var(--text-muted); font-weight: 700;">TOTAL DIBAYAR:</div>
