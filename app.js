@@ -15,6 +15,34 @@ let activeCategoryFilterText = '';
 const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
 let inactivityTimer = null;
 
+// Safe Storage Helpers (Defensive protection against disabled cookies / private browsing exceptions)
+function getSafeStorage(type, key) {
+  try {
+    const store = type === 'local' ? window.localStorage : window.sessionStorage;
+    return store ? store.getItem(key) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setSafeStorage(type, key, value) {
+  try {
+    const store = type === 'local' ? window.localStorage : window.sessionStorage;
+    if (store) store.setItem(key, String(value));
+  } catch (e) {
+    // Ignore
+  }
+}
+
+function removeSafeStorage(type, key) {
+  try {
+    const store = type === 'local' ? window.localStorage : window.sessionStorage;
+    if (store) store.removeItem(key);
+  } catch (e) {
+    // Ignore
+  }
+}
+
 // Number Formatter (Thousand separator, 0 decimals, without 'Rp' prefix)
 function formatRupiah(num) {
   if (isNaN(num) || num === null || num === undefined) return '0';
@@ -25,12 +53,12 @@ function formatRupiah(num) {
 // INITIALIZATION
 // ==========================================================================
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function startApp() {
   initPreferences();
   setupHashRouting();
 
   // 1. Check if session credentials exist in sessionStorage
-  const cachedPass = sessionStorage.getItem('dunlop_session_pass');
+  const cachedPass = getSafeStorage('session', 'dunlop_session_pass');
   if (cachedPass) {
     try {
       if (window.ENCRYPTED_VAULT) {
@@ -63,7 +91,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 3. Otherwise show login view
   showLoginView();
-});
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+  } else {
+    startApp();
+  }
+}
 
 // ==========================================================================
 // PREFERENCES (DEFAULT: MODE MALAM & UKURAN NORMAL)
@@ -71,15 +107,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function initPreferences() {
   // Default font size: normal (paling kecil)
-  const savedFont = localStorage.getItem('dunlop_font_size') || 'normal';
+  const savedFont = getSafeStorage('local', 'dunlop_font_size') || 'normal';
   setFontSize(savedFont);
 
   // Default theme: soft-dark (mode malam)
-  const savedTheme = localStorage.getItem('dunlop_theme') || 'soft-dark';
+  const savedTheme = getSafeStorage('local', 'dunlop_theme') || 'soft-dark';
   applyTheme(savedTheme);
 
   // Check saved header collapse state
-  const savedCollapsed = localStorage.getItem('dunlop_header_collapsed') === 'true';
+  const savedCollapsed = getSafeStorage('local', 'dunlop_header_collapsed') === 'true';
   if (savedCollapsed && isAuthenticated()) {
     toggleHeaderCollapse(true);
   }
@@ -110,7 +146,7 @@ function toggleHeaderCollapse(collapse) {
     }
   }
 
-  localStorage.setItem('dunlop_header_collapsed', isCollapsed ? 'true' : 'false');
+  setSafeStorage('local', 'dunlop_header_collapsed', isCollapsed ? 'true' : 'false');
 }
 
 function toggleFullscreen() {
@@ -174,7 +210,7 @@ function setFontSize(size) {
   document.getElementById('btnZoomLarge')?.classList.toggle('active', size === 'large');
   document.getElementById('btnZoomXLarge')?.classList.toggle('active', size === 'xlarge');
   
-  localStorage.setItem('dunlop_font_size', size);
+  setSafeStorage('local', 'dunlop_font_size', size);
 }
 
 function toggleTheme() {
@@ -198,7 +234,7 @@ function applyTheme(theme) {
     if (icon) icon.textContent = '🌙';
     if (text) text.textContent = 'Malam';
   }
-  localStorage.setItem('dunlop_theme', theme);
+  setSafeStorage('local', 'dunlop_theme', theme);
 }
 
 // ==========================================================================
@@ -273,16 +309,16 @@ async function decryptVaultWithPassword(password) {
 }
 
 function isAuthenticated() {
-  return !!vaultDecryptedData || localStorage.getItem('dunlop_auth') === 'true' || sessionStorage.getItem('dunlop_auth') === 'true';
+  return !!vaultDecryptedData || getSafeStorage('local', 'dunlop_auth') === 'true' || getSafeStorage('session', 'dunlop_auth') === 'true';
 }
 
 async function handleLoginSubmit(event) {
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
   const inputEl = document.getElementById('inputPassword');
   const errorEl = document.getElementById('loginErrorMsg');
   const rememberCheckbox = document.getElementById('rememberMeCheckbox');
-  const submitBtn = event.target.querySelector('button[type="submit"]');
-  const enteredPass = (inputEl.value || '').trim();
+  const submitBtn = event && event.target && event.target.querySelector ? event.target.querySelector('button[type="submit"]') : document.querySelector('.btn-login-submit');
+  const enteredPass = (inputEl ? inputEl.value : '').trim();
 
   if (!enteredPass) return;
 
@@ -300,9 +336,19 @@ async function handleLoginSubmit(event) {
       const decrypted = await decryptVaultWithPassword(enteredPass);
       if (decrypted) {
         vaultDecryptedData = decrypted;
+        window.vaultDecryptedData = decrypted;
         success = true;
       }
     } else {
+      // If vault is still downloading or absent
+      if (typeof window.ENCRYPTED_VAULT === 'undefined' && typeof window.PIUTANG_DATA === 'undefined') {
+        if (errorEl) {
+          errorEl.textContent = '⏳ Sedang menyiapkan brankas data, silakan tunggu sebentar lalu coba kembali.';
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+
       // Fallback if encrypted vault is absent
       if (enteredPass.toLowerCase() === 'mihardjo') {
         success = true;
@@ -311,15 +357,15 @@ async function handleLoginSubmit(event) {
 
     if (success) {
       if (errorEl) errorEl.style.display = 'none';
-      inputEl.classList.remove('has-error');
+      if (inputEl) inputEl.classList.remove('has-error');
 
-      sessionStorage.setItem('dunlop_auth', 'true');
-      sessionStorage.setItem('dunlop_session_pass', enteredPass);
+      setSafeStorage('session', 'dunlop_auth', 'true');
+      setSafeStorage('session', 'dunlop_session_pass', enteredPass);
 
       if (rememberCheckbox && rememberCheckbox.checked) {
-        localStorage.setItem('dunlop_auth', 'true');
+        setSafeStorage('local', 'dunlop_auth', 'true');
       } else {
-        localStorage.removeItem('dunlop_auth');
+        removeSafeStorage('local', 'dunlop_auth');
       }
 
       loadData();
@@ -334,9 +380,11 @@ async function handleLoginSubmit(event) {
       errorEl.textContent = '⚠️ Kata sandi salah! Silakan coba ketik ulang dengan benar.';
       errorEl.style.display = 'block';
     }
-    inputEl.classList.add('has-error');
-    inputEl.focus();
-    inputEl.select();
+    if (inputEl) {
+      inputEl.classList.add('has-error');
+      inputEl.focus();
+      inputEl.select();
+    }
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -354,10 +402,11 @@ function resetInactivityTimer() {
 
 function lockAppDueToInactivity() {
   vaultDecryptedData = null;
+  window.vaultDecryptedData = null;
   invoiceHistoryMasterCache = null;
-  sessionStorage.removeItem('dunlop_session_pass');
-  sessionStorage.removeItem('dunlop_auth');
-  localStorage.removeItem('dunlop_auth');
+  removeSafeStorage('session', 'dunlop_session_pass');
+  removeSafeStorage('session', 'dunlop_auth');
+  removeSafeStorage('local', 'dunlop_auth');
   showLoginView();
   const errorEl = document.getElementById('loginErrorMsg');
   if (errorEl) {
@@ -381,7 +430,7 @@ function onLoginSuccess(animate = true) {
   if (btnAdmin) btnAdmin.style.display = 'inline-flex';
 
   // Restore saved header collapse state
-  const savedCollapsed = localStorage.getItem('dunlop_header_collapsed') === 'true';
+  const savedCollapsed = getSafeStorage('local', 'dunlop_header_collapsed') === 'true';
   toggleHeaderCollapse(savedCollapsed);
 
   // Hide login view
@@ -424,10 +473,11 @@ function handleLogout() {
   if (confirm('Apakah Anda ingin keluar dan mengunci data?')) {
     if (inactivityTimer) clearTimeout(inactivityTimer);
     vaultDecryptedData = null;
+    window.vaultDecryptedData = null;
     invoiceHistoryMasterCache = null;
-    sessionStorage.removeItem('dunlop_auth');
-    sessionStorage.removeItem('dunlop_session_pass');
-    localStorage.removeItem('dunlop_auth');
+    removeSafeStorage('session', 'dunlop_auth');
+    removeSafeStorage('session', 'dunlop_session_pass');
+    removeSafeStorage('local', 'dunlop_auth');
     window.location.hash = '';
     showLoginView();
   }
@@ -453,7 +503,7 @@ function togglePasswordVisibility() {
 // DATA LOADING & MULTI-PERIOD SUPPORT (9 PERIODS: JAN - SEP 2026)
 // ==========================================================================
 
-let activePeriodKey = localStorage.getItem('dunlop_active_period') || '2026-09';
+let activePeriodKey = getSafeStorage('local', 'dunlop_active_period') || '2026-09';
 
 function getPeriodData(key) {
   // 1. In-memory decrypted AES-256 vault (Primary)
@@ -507,7 +557,7 @@ function getInvoiceHistoryMaster() {
     }
   });
 
-  const localDb = localStorage.getItem('dunlop_custom_data');
+  const localDb = getSafeStorage('local', 'dunlop_custom_data');
   if (localDb) {
     try {
       const parsed = JSON.parse(localDb);
@@ -601,20 +651,20 @@ function loadData() {
   if (selectEl) selectEl.value = activePeriodKey;
 
   // 1. Check local storage first (for custom uploaded monthly data)
-  const localDb = localStorage.getItem('dunlop_custom_data');
+  const localDb = getSafeStorage('local', 'dunlop_custom_data');
   if (localDb) {
     try {
       piutangData = JSON.parse(localDb);
-      console.log('Loaded custom data from localStorage');
+      console.log('Loaded custom data from storage');
       renderDashboard();
       if (isAuthenticated()) handleInitialRoute();
       return;
     } catch (e) {
-      console.error('Error parsing local storage data', e);
+      console.error('Error parsing storage data', e);
     }
   }
 
-  // 2. Load based on activePeriodKey (2026-01, 2026-02, 2026-03, 2026-04, 2026-09)
+  // 2. Load based on activePeriodKey (2026-01 through 2026-09)
   const pData = getPeriodData(activePeriodKey);
   if (pData) {
     piutangData = pData;
@@ -623,23 +673,25 @@ function loadData() {
     return;
   }
 
-  // 3. Fallback to fetch data.json
-  fetch('data.json')
-    .then(res => res.json())
-    .then(data => {
-      piutangData = data;
-      renderDashboard();
-      if (isAuthenticated()) handleInitialRoute();
-    })
-    .catch(err => {
-      console.error('Could not load data.json', err);
-    });
+  // 3. Fallback to fetch data.json if available
+  if (typeof fetch === 'function') {
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        piutangData = data;
+        renderDashboard();
+        if (isAuthenticated()) handleInitialRoute();
+      })
+      .catch(err => {
+        // Silently ignore if data.json is omitted for security
+      });
+  }
 }
 
 function handleAppPeriodChange(periodKey) {
   activePeriodKey = periodKey;
-  localStorage.setItem('dunlop_active_period', periodKey);
-  localStorage.removeItem('dunlop_custom_data');
+  setSafeStorage('local', 'dunlop_active_period', periodKey);
+  removeSafeStorage('local', 'dunlop_custom_data');
   invoiceHistoryMasterCache = null;
 
   const pData = getPeriodData(periodKey);
@@ -3235,10 +3287,52 @@ function handleSaveOwnerCustomPeriod(e) {
     }
   };
 
-  localStorage.setItem('dunlop_owner_custom_periods', JSON.stringify(customPeriods));
+  setSafeStorage('local', 'dunlop_owner_custom_periods', JSON.stringify(customPeriods));
   closeOwnerPeriodModal();
 
   initOwnerPeriodDropdowns();
   setOwnerPeriodPreset('all');
   alert(`Data periode ${key} berhasil disimpan dan dimasukkan ke grafik!`);
+}
+
+// ==========================================================================
+// EXPLICIT GLOBAL BINDINGS (Guarantees inline HTML handlers work everywhere)
+// ==========================================================================
+if (typeof window !== 'undefined') {
+  window.handleLoginSubmit = handleLoginSubmit;
+  window.togglePasswordVisibility = togglePasswordVisibility;
+  window.handleLogout = handleLogout;
+  window.toggleTheme = toggleTheme;
+  window.setFontSize = setFontSize;
+  window.toggleHeaderCollapse = toggleHeaderCollapse;
+  window.toggleFullscreen = toggleFullscreen;
+  window.openCategory = openCategory;
+  window.openStoreDetail = openStoreDetail;
+  window.openBlacklistView = openBlacklistView;
+  window.openPaymentView = openPaymentView;
+  window.openOwnerDashboard = openOwnerDashboard;
+  window.navigateBack = navigateBack;
+  window.handleAppPeriodChange = handleAppPeriodChange;
+  window.handleGlobalSearch = handleGlobalSearch;
+  window.clearGlobalSearch = clearGlobalSearch;
+  window.filterCategoryStores = filterCategoryStores;
+  window.sortCategoryStores = sortCategoryStores;
+  window.filterBLStores = filterBLStores;
+  window.sortBLStores = sortBLStores;
+  window.filterPayments = filterPayments;
+  window.filterPaymentsByStatus = filterPaymentsByStatus;
+  window.setOwnerPeriodPreset = setOwnerPeriodPreset;
+  window.handleOwnerCustomRangeChange = handleOwnerCustomRangeChange;
+  window.openOwnerPeriodModal = openOwnerPeriodModal;
+  window.closeOwnerPeriodModal = closeOwnerPeriodModal;
+  window.closeOwnerPeriodModalOnBackdrop = closeOwnerPeriodModalOnBackdrop;
+  window.setAgingValueChartMode = setAgingValueChartMode;
+  window.handleSaveOwnerCustomPeriod = handleSaveOwnerCustomPeriod;
+  window.closeModalOnBackdrop = closeModalOnBackdrop;
+  window.openUpdateModal = openUpdateModal;
+  window.closeUpdateModal = closeUpdateModal;
+  window.handleJsonFileUpload = handleJsonFileUpload;
+  window.parseRawOcrTextarea = parseRawOcrTextarea;
+  window.downloadCurrentJson = downloadCurrentJson;
+  window.restoreOriginalData = restoreOriginalData;
 }

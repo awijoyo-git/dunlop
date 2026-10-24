@@ -16,6 +16,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Core Application Engine (Loaded first so all handlers are available immediately) -->
+  <script src="app.js"></script>
 </head>
 <body class="font-size-normal theme-soft-dark">
 
@@ -886,17 +889,7 @@
     </div>
   </div>
 
-  <!-- LOAD ENCRYPTED VAULT & DATA -->
+  <!-- ENCRYPTED DATA VAULT (AES-256-GCM) -->
   <script src="vault.js"></script>
-  <script src="data.js"></script>
-  <script src="data_jan2026.js"></script>
-  <script src="data_feb2026.js"></script>
-  <script src="data_mar2026.js"></script>
-  <script src="data_apr2026.js"></script>
-  <script src="data_mei2026.js"></script>
-  <script src="data_jun2026.js"></script>
-  <script src="data_jul2026.js"></script>
-  <script src="data_ags2026.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>
