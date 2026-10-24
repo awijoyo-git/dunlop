@@ -536,10 +536,8 @@ function processHashRoute(hash) {
 }
 
 function navigateTo(hash, pushState = true) {
-  if (pushState) {
+  if (window.location.hash !== hash) {
     window.location.hash = hash;
-  } else {
-    window.location.replace(hash);
   }
 }
 
@@ -551,22 +549,18 @@ function navigateBack() {
 
   if (currentStoreKode) {
     if (currentCategoryId === 'blacklist') {
-      navigateTo('#/blacklist');
+      showBlacklistView(true);
     } else if (currentCategoryId === 'payment') {
-      navigateTo('#/pembayaran');
+      showPaymentView(true);
     } else if (currentCategoryId === 'owner') {
-      navigateTo('#/owner');
-    } else if (currentCategoryId) {
-      navigateTo(`#/category/${currentCategoryId}`);
+      showOwnerView(true);
+    } else if (currentCategoryId && currentCategoryId !== 'all') {
+      showCategoryView(currentCategoryId, true);
     } else {
-      navigateTo('#/');
+      showDashboardView(true);
     }
-  } else if (currentCategoryId === 'owner') {
-    navigateTo('#/');
-  } else if (currentCategoryId) {
-    navigateTo('#/');
   } else {
-    navigateTo('#/');
+    showDashboardView(true);
   }
 }
 
@@ -624,8 +618,10 @@ function renderDashboard() {
   const grandTotal = meta.grandTotal || 0;
 
   // Headers
-  if (meta.company) document.getElementById('headerCompanyTitle').textContent = meta.company;
-  if (meta.period) document.getElementById('headerPeriodTitle').textContent = `Laporan Piutang • Per ${meta.period}`;
+  const companyTitleEl = document.getElementById('headerCompanyTitle');
+  if (companyTitleEl && meta.company) companyTitleEl.textContent = meta.company;
+  const periodTitleEl = document.getElementById('headerPeriodTitle');
+  if (periodTitleEl && meta.period) periodTitleEl.textContent = `Laporan Piutang • Per ${meta.period}`;
 
   // Grand Total Card
   document.getElementById('dashboardGrandTotal').textContent = formatRupiah(grandTotal);
@@ -755,7 +751,7 @@ function clearGlobalSearch() {
 // ==========================================================================
 
 function openCategory(catId) {
-  navigateTo(`#/category/${catId}`);
+  showCategoryView(catId, true);
 }
 
 function showCategoryView(catId, updateUrl = true) {
@@ -944,11 +940,7 @@ function applyCategoryFilterAndSort() {
 // ==========================================================================
 
 function openStoreDetail(kode, fromCat) {
-  let hash = `#/store/${kode}`;
-  if (fromCat) {
-    hash += `?cat=${fromCat}`;
-  }
-  navigateTo(hash);
+  showStoreDetailView(kode, fromCat, true);
 }
 
 function showStoreDetailView(kode, fromCat, updateUrl = true) {
@@ -1490,7 +1482,7 @@ function getBLStores() {
 }
 
 function openBlacklistView() {
-  navigateTo('#/blacklist');
+  showBlacklistView(true);
 }
 
 function showBlacklistView(updateUrl = true) {
@@ -1695,7 +1687,7 @@ let activePaymentFilterText = '';
 let activePaymentStatusFilter = 'all';
 
 function openPaymentView() {
-  navigateTo('#/pembayaran');
+  showPaymentView(true);
 }
 
 function showPaymentView(updateUrl = true) {
@@ -2078,7 +2070,7 @@ function formatShortRupiah(num) {
 }
 
 function openOwnerDashboard() {
-  navigateTo('#/owner');
+  showOwnerView(true);
 }
 
 function showOwnerView(updateUrl = true) {
