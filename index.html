@@ -54,6 +54,15 @@
               <option value="2026-01">Per 31 Januari 2026</option>
             </select>
           </div>
+          <div class="brand-period-select-wrap">
+            <span class="brand-period-label" style="color: #ef4444;">Definisi BL:</span>
+            <select id="selectBlThreshold" class="select-bl-threshold" onchange="handleBlThresholdChange(this.value)" title="Kriteria Blacklist jika ada tunggakan melebihi batas hari ini">
+              <option value="60">&gt; 60 Hari</option>
+              <option value="90" selected>&gt; 90 Hari</option>
+              <option value="120">&gt; 120 Hari</option>
+              <option value="365">&gt; 365 Hari</option>
+            </select>
+          </div>
         </div>
         <div class="header-top-actions">
           <button type="button" class="btn-fullscreen-toggle" id="btnFullscreenToggle" onclick="toggleFullscreen()" title="Tampilkan Layar Penuh (Full Screen)">
@@ -81,6 +90,9 @@
           </button>
           <button type="button" class="btn-tb-nav btn-tb-owner" id="btnNavOwner" onclick="openOwnerDashboard()" title="Buka Dashboard Khusus Owner">
             👑 Owner
+          </button>
+          <button type="button" class="btn-tb-nav btn-tb-health" id="btnNavHealth" onclick="openHealthDashboard()" title="Buka Modul Kesehatan Perusahaan (HPP, Gaji, Operasional & Sunk Cost)">
+            🩺 Kesehatan
           </button>
           <button type="button" class="btn-tb-nav btn-tb-bl" id="btnNavBL" onclick="openBlacklistView()" title="Buka Data BL (Blacklist Violation)">
             ⛔ Data BL (9)
@@ -180,14 +192,16 @@
             <div class="dist-seg seg-3160" id="segBar_31_60" onclick="openCategory('31_60')" style="width: 27.43%;" title="31-60 Hari: 27,4% (Ketuk untuk buka)">27,4%</div>
             <div class="dist-seg seg-6190" id="segBar_61_90" onclick="openCategory('61_90')" style="width: 18.68%;" title="61-90 Hari: 18,7% (Ketuk untuk buka)">18,7%</div>
             <div class="dist-seg seg-91120" id="segBar_91_120" onclick="openCategory('91_120')" style="width: 9.52%;" title="91-120 Hari: 9,5% (Ketuk untuk buka)">9,5%</div>
-            <div class="dist-seg seg-gt120" id="segBar_gt120" onclick="openCategory('gt120')" style="width: 12.42%;" title="> 120 Hari: 12,4% (Ketuk untuk buka)">12,4%</div>
+            <div class="dist-seg seg-121365" id="segBar_121_365" onclick="openCategory('121_365')" style="width: 8.0%;" title="121-365 Hari (Ketuk untuk buka)">8,0%</div>
+            <div class="dist-seg seg-gt365" id="segBar_gt365" onclick="openCategory('gt365')" style="width: 4.42%;" title="> 365 Hari (Ketuk untuk buka)">4,4%</div>
           </div>
           <div class="dist-legend">
             <div class="legend-item" onclick="openCategory('lt30')" title="Ketuk untuk buka kategori < 30 Hari"><span class="dot dot-lt30"></span>&lt; 30H: <strong id="distPct_lt30">31,9%</strong></div>
             <div class="legend-item" onclick="openCategory('31_60')" title="Ketuk untuk buka kategori 31-60 Hari"><span class="dot dot-3160"></span>31-60H: <strong id="distPct_31_60">27,4%</strong></div>
             <div class="legend-item" onclick="openCategory('61_90')" title="Ketuk untuk buka kategori 61-90 Hari"><span class="dot dot-6190"></span>61-90H: <strong id="distPct_61_90">18,7%</strong></div>
             <div class="legend-item" onclick="openCategory('91_120')" title="Ketuk untuk buka kategori 91-120 Hari"><span class="dot dot-91120"></span>91-120H: <strong id="distPct_91_120">9,5%</strong></div>
-            <div class="legend-item" onclick="openCategory('gt120')" title="Ketuk untuk buka kategori > 120 Hari"><span class="dot dot-gt120"></span>&gt; 120H: <strong id="distPct_gt120">12,4%</strong></div>
+            <div class="legend-item" onclick="openCategory('121_365')" title="Ketuk untuk buka kategori 121-365 Hari"><span class="dot dot-121365"></span>121-365H: <strong id="distPct_121_365">8,0%</strong></div>
+            <div class="legend-item" onclick="openCategory('gt365')" title="Ketuk untuk buka kategori > 365 Hari"><span class="dot dot-gt365"></span>&gt; 365H: <strong id="distPct_gt365">4,4%</strong></div>
           </div>
         </div>
       </div>
@@ -281,22 +295,42 @@
           </div>
         </article>
 
-        <!-- Kategori > 120 Hari -->
-        <article class="cat-card card-gt120" onclick="openCategory('gt120')">
+        <!-- Kategori 121 - 365 Hari -->
+        <article class="cat-card card-121365" onclick="openCategory('121_365')">
           <div class="cat-header">
             <div class="cat-header-left">
-              <span class="cat-tag tag-darkred">&gt; 120 HARI</span>
-              <span class="cat-pct-badge pct-darkred" id="catPct_gt120">12,4%</span>
+              <span class="cat-tag tag-darkred">121 - 365 HARI</span>
+              <span class="cat-pct-badge pct-darkred" id="catPct_121_365">8,0%</span>
             </div>
-            <span class="cat-status status-danger">Macet / Kritis</span>
+            <span class="cat-status status-danger">Tunggakan Kritis</span>
           </div>
-          <div class="cat-title">Tagihan Usia Lebih Dari 4 Bulan</div>
-          <div class="cat-amount text-danger" id="catTotal_gt120">2.158.278.439</div>
+          <div class="cat-title">Tagihan Usia 4 - 12 Bulan</div>
+          <div class="cat-amount text-danger" id="catTotal_121_365">0</div>
           <div class="cat-progress-wrap">
-            <div class="cat-progress-bar bar-darkred" id="catProgressBar_gt120" style="width: 12.42%;"></div>
+            <div class="cat-progress-bar bar-121365" id="catProgressBar_121_365" style="width: 8.0%;"></div>
           </div>
           <div class="cat-info">
-            <span id="catMeta_gt120">16 Toko • 137 Nota</span>
+            <span id="catMeta_121_365">0 Toko • 0 Nota</span>
+            <span class="cat-chevron">Buka Toko →</span>
+          </div>
+        </article>
+
+        <!-- Kategori > 365 Hari -->
+        <article class="cat-card card-gt365" onclick="openCategory('gt365')">
+          <div class="cat-header">
+            <div class="cat-header-left">
+              <span class="cat-tag tag-maroon">&gt; 365 HARI</span>
+              <span class="cat-pct-badge pct-maroon" id="catPct_gt365">4,4%</span>
+            </div>
+            <span class="cat-status status-danger" style="background: #450a0a; color: #fecdd3;">Macet Kronis (&gt;1Th)</span>
+          </div>
+          <div class="cat-title">Tagihan Usia Lebih Dari 1 Tahun</div>
+          <div class="cat-amount text-danger" id="catTotal_gt365">0</div>
+          <div class="cat-progress-wrap">
+            <div class="cat-progress-bar bar-gt365" id="catProgressBar_gt365" style="width: 4.4%;"></div>
+          </div>
+          <div class="cat-info">
+            <span id="catMeta_gt365">0 Toko • 0 Nota</span>
             <span class="cat-chevron">Buka Toko →</span>
           </div>
         </article>
@@ -329,6 +363,32 @@
           <div class="audit-footer">
             <span class="audit-status-pill pill-purple">Grafik &amp; Analisa Periode</span>
             <span class="audit-chevron">Buka Dashboard Owner →</span>
+          </div>
+        </article>
+
+        <!-- Card Launcher: Modul Kesehatan Perusahaan -->
+        <article class="audit-card card-health-alert" onclick="openHealthDashboard()">
+          <div class="audit-card-header">
+            <span class="audit-tag tag-health">🩺 KESEHATAN PERUSAHAAN</span>
+            <span class="audit-count-badge badge-cyan" id="dashHealthStatusBadge">Bulan 5 - 7 (2026)</span>
+          </div>
+          <div class="audit-title">Modul Kesehatan &amp; Kinerja Keuangan</div>
+          <div class="audit-desc">
+            Analisa rasio HPP, Beban Gaji, dan Biaya Operasional (Monthly vs Yearly), Dashboard Sunk Cost, serta peringatan anomali di atas median.
+          </div>
+          <div class="audit-meta-row">
+            <div>
+              <span class="audit-sublabel">Rasio HPP (Juli):</span>
+              <div class="audit-subamount text-danger" id="dashHealthHppRate">99,5% (Kritis)</div>
+            </div>
+            <div>
+              <span class="audit-sublabel">Rasio Biaya Operasional:</span>
+              <div class="audit-subamount text-success" id="dashHealthOpexRate">2,3% vs 3,7% YTD</div>
+            </div>
+          </div>
+          <div class="audit-footer">
+            <span class="audit-status-pill pill-cyan">HPP, Gaji &amp; Sunk Cost</span>
+            <span class="audit-chevron">Buka Modul Kesehatan →</span>
           </div>
         </article>
 
@@ -486,15 +546,15 @@
           <span class="banner-tag tag-darkred">⛔ DATA BL (BLACKLIST)</span>
           <span class="banner-count" id="blTotalStoresCount">9 Toko Melanggar</span>
         </div>
-        <h2 class="banner-title">Daftar Toko &amp; Nota Terbit Saat Ada Piutang &gt; 120 Hari</h2>
+        <h2 class="banner-title" id="blBannerTitle">Daftar Toko &amp; Nota Terbit Saat Ada Piutang &gt; 90 Hari</h2>
         <div class="bl-stats-grid">
           <div class="bl-stat-box">
             <span class="bl-stat-label">Total Toko BL:</span>
             <div class="bl-stat-value text-danger" id="blStatStores">9 Toko</div>
-            <span class="bl-stat-sub">Ada tunggakan macet &gt;120H</span>
+            <span class="bl-stat-sub" id="blStatSubMacet">Ada tunggakan macet &gt; 90H</span>
           </div>
           <div class="bl-stat-box">
-            <span class="bl-stat-label">Tunggakan Macet (&gt;120H):</span>
+            <span class="bl-stat-label" id="blStatMacetLabel">Tunggakan Macet (&gt; 90H):</span>
             <div class="bl-stat-value text-danger" id="blStatMacet">1.840.774.527</div>
             <span class="bl-stat-sub" id="blStatMacetNotes">218 Nota macet</span>
           </div>
@@ -506,8 +566,8 @@
         </div>
         <div class="bl-guide-box">
           <span class="bl-guide-icon">⚠️</span>
-          <span class="bl-guide-text">
-            <strong>Catatan Audit Direksi:</strong> Sesuai kebijakan kredit, toko yang masih memiliki piutang macet &gt; 120 hari seharusnya di-blacklist dari penerbitan nota baru sampai tunggakan diselesaikan.
+          <span class="bl-guide-text" id="blGuideText">
+            <strong>Catatan Audit Direksi:</strong> Sesuai kebijakan kredit, toko yang masih memiliki piutang macet &gt; 90 hari seharusnya di-blacklist dari penerbitan nota baru sampai tunggakan diselesaikan.
           </span>
         </div>
       </div>
@@ -516,6 +576,15 @@
       <div class="filter-controls">
         <div class="search-box">
           <input type="text" id="blSearchInput" class="input-search" placeholder="Cari nama toko BL..." oninput="filterBLStores(this.value)">
+        </div>
+        <div class="sort-box">
+          <label for="blInlineThreshold" class="sort-label" style="color: #ef4444; font-weight: 800;">Definisi BL:</label>
+          <select id="blInlineThreshold" class="select-sort" onchange="handleBlThresholdChange(this.value)" style="border-color: #ef4444; color: #ef4444; font-weight: 800;">
+            <option value="60">&gt; 60 Hari</option>
+            <option value="90" selected>&gt; 90 Hari</option>
+            <option value="120">&gt; 120 Hari</option>
+            <option value="365">&gt; 365 Hari</option>
+          </select>
         </div>
         <div class="sort-box">
           <label for="blSortSelect" class="sort-label">Urutkan:</label>
@@ -704,7 +773,8 @@
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#3b82f6;"></span>31 - 60 Hari</div>
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#f97316;"></span>61 - 90 Hari</div>
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#f43f5e;"></span>91 - 120 Hari</div>
-          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>&gt; 120 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>121 - 365 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#881337;"></span>&gt; 365 Hari</div>
         </div>
 
         <div class="chart-svg-container" id="svgAgingValueContainer">
@@ -732,7 +802,8 @@
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#3b82f6;"></span>31 - 60 Hari</div>
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#f97316;"></span>61 - 90 Hari</div>
           <div class="c-legend-item"><span class="c-legend-dot" style="background:#f43f5e;"></span>91 - 120 Hari</div>
-          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>&gt; 120 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#dc2626;"></span>121 - 365 Hari</div>
+          <div class="c-legend-item"><span class="c-legend-dot" style="background:#881337;"></span>&gt; 365 Hari</div>
         </div>
 
         <div class="chart-svg-container" id="svgAgingStoresContainer">
@@ -784,6 +855,86 @@
           <h4 class="table-title">📋 Rincian Keaktifan Toko &amp; Rata-rata Pembelian per Toko:</h4>
           <div class="table-responsive" id="tableActiveStores"></div>
         </div>
+      </div>
+
+    </section>
+
+
+    <!-- VIEW 7: MODUL KESEHATAN PERUSAHAAN (HPP, GAJI, OPERASIONAL & SUNK COST) -->
+    <section id="viewHealth" class="view-panel" style="display: none;">
+      <!-- Health Header Banner -->
+      <div class="health-banner">
+        <div class="banner-top">
+          <span class="banner-tag tag-health">🩺 MODUL KESEHATAN PERUSAHAAN</span>
+          <span class="banner-count" id="healthPeriodCountBadge">Laporan Mei - Juli 2026</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h2 class="banner-title" style="margin-bottom: 4px;">Analisa Kesehatan Finansial &amp; Sunk Cost</h2>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin: 0;">
+              Laporan evaluasi rasio HPP, Beban Gaji, Biaya Operasional (Bulanan vs Tahunan), serta Pemantauan Sunk Cost PT Indo Bali Satya Graha.
+            </p>
+          </div>
+        </div>
+
+        <!-- Period Selector Pills -->
+        <div class="health-period-selector-row">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Pilih Periode Laporan:</span>
+            <div class="health-period-pills" id="healthPeriodPills">
+              <button type="button" class="health-pill-btn" id="pillHealth_2026-05" onclick="setHealthPeriod('2026-05')">Mei 2026</button>
+              <button type="button" class="health-pill-btn" id="pillHealth_2026-06" onclick="setHealthPeriod('2026-06')">Juni 2026</button>
+              <button type="button" class="health-pill-btn" id="pillHealth_2026-07" onclick="setHealthPeriod('2026-07')">Juli 2026</button>
+              <button type="button" class="health-pill-btn active" id="pillHealth_all" onclick="setHealthPeriod('all')">📊 Komparasi 3 Bulan</button>
+            </div>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;" id="healthPeriodHeaderSummary">
+            Periode Aktif: Komparasi Mei, Juni, Juli 2026
+          </div>
+        </div>
+
+        <!-- 4 Top Metric Cards (Dynamic based on selected period) -->
+        <div class="health-metrics-grid" id="healthTopMetricsGrid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- VISUAL COMPARISON CHART: HPP, GAJI, OPERASIONAL (MONTHLY VS YEARLY) -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">📈 1. Grafik Tren Rasio: HPP, Gaji, dan Biaya Operasional terhadap Omzet</h3>
+            <p class="chart-subtitle">Perbandingan persentase bulanan (*Monthly*) dengan data akumulasi tahunan (*Yearly Benchmark*)</p>
+          </div>
+        </div>
+        <div class="chart-svg-container" id="svgHealthRatioContainer">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- COMPARATIVE P&L & RATIOS TABLE -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">📋 2. Tabel Rincian Keuangan &amp; Rasio (Monthly vs Yearly)</h3>
+            <p class="chart-subtitle">Ringkasan Laporan Laba/Rugi, Rasio HPP, Gaji, dan Beban Operasional per periode</p>
+          </div>
+        </div>
+        <div class="chart-table-wrap">
+          <div class="table-responsive" id="tableHealthFinancials">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SUNK COST DASHBOARD SECTION -->
+      <div class="health-sunk-dashboard" id="healthSunkDashboard">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- EXECUTIVE NOTES & ANOMALY ALERTS SECTION -->
+      <div class="health-notes-card" id="healthExecutiveNotes">
+        <!-- Rendered by JS -->
       </div>
 
     </section>
@@ -841,9 +992,15 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="inputPeriodGt120">&gt; 120 Hari:</label>
-            <input type="number" id="inputPeriodGt120" class="input-password" placeholder="Nominal" required>
+          <div class="form-grid-2col">
+            <div class="form-group">
+              <label class="form-label" for="inputPeriod121365">121 - 365 Hari:</label>
+              <input type="number" id="inputPeriod121365" class="input-password" placeholder="Nominal" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputPeriodGt365">&gt; 365 Hari:</label>
+              <input type="number" id="inputPeriodGt365" class="input-password" placeholder="Nominal" required>
+            </div>
           </div>
 
           <div class="form-actions" style="margin-top: 16px; display: flex; gap: 10px;">

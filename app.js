@@ -504,26 +504,140 @@ function togglePasswordVisibility() {
 // ==========================================================================
 
 let activePeriodKey = getSafeStorage('local', 'dunlop_active_period') || '2026-09';
+let activeBlThreshold = Number(getSafeStorage('local', 'dunlop_bl_threshold')) || 90; // Default: > 90 hari (options: 60, 90, 120, 365)
+
+function isInvoiceMacet(inv, threshold = activeBlThreshold) {
+  if (!inv) return false;
+  if (threshold === 60) {
+    return inv.catId === '61_90' || inv.catId === '91_120' || inv.catId === '121_365' || inv.catId === 'gt365' || inv.catId === 'gt120' || (typeof inv.umurHari === 'number' && inv.umurHari > 60);
+  }
+  if (threshold === 90) {
+    return inv.catId === '91_120' || inv.catId === '121_365' || inv.catId === 'gt365' || inv.catId === 'gt120' || (typeof inv.umurHari === 'number' && inv.umurHari > 90);
+  }
+  if (threshold === 120) {
+    return inv.catId === '121_365' || inv.catId === 'gt365' || inv.catId === 'gt120' || (typeof inv.umurHari === 'number' && inv.umurHari > 120);
+  }
+  if (threshold === 365) {
+    return inv.catId === 'gt365' || (typeof inv.umurHari === 'number' && inv.umurHari > 365);
+  }
+  return inv.catId === 'gt365' || (typeof inv.umurHari === 'number' && inv.umurHari > threshold);
+}
+
+function isCategoryMacet(catId, threshold = activeBlThreshold) {
+  if (threshold === 60) {
+    return catId === '61_90' || catId === '91_120' || catId === '121_365' || catId === 'gt365' || catId === 'gt120';
+  }
+  if (threshold === 90) {
+    return catId === '91_120' || catId === '121_365' || catId === 'gt365' || catId === 'gt120';
+  }
+  if (threshold === 120) {
+    return catId === '121_365' || catId === 'gt365' || catId === 'gt120';
+  }
+  if (threshold === 365) {
+    return catId === 'gt365';
+  }
+  return catId === 'gt365' || catId === '121_365' || catId === 'gt120';
+}
+
+function normalizePeriodCategories(data) {
+  if (!data || !data.stores) return data;
+  if (data.categories && data.categories['121_365'] && data.categories['gt365']) return data;
+
+  const newCatSummary = {
+    'lt30':    data.categories?.['lt30'] || { id: 'lt30', label: '< 30 Hari', sublabel: 'Usia 0 - 30 hari', total: 0, invoiceCount: 0, stores: [] },
+    '31_60':   data.categories?.['31_60'] || { id: '31_60', label: '31 - 60 Hari', sublabel: 'Usia 31 - 60 hari', total: 0, invoiceCount: 0, stores: [] },
+    '61_90':   data.categories?.['61_90'] || { id: '61_90', label: '61 - 90 Hari', sublabel: 'Usia 61 - 90 hari', total: 0, invoiceCount: 0, stores: [] },
+    '91_120':  data.categories?.['91_120'] || { id: '91_120', label: '91 - 120 Hari', sublabel: 'Usia 91 - 120 hari', total: 0, invoiceCount: 0, stores: [] },
+    '121_365': { id: '121_365', label: '121 - 365 Hari', sublabel: 'Usia 121 - 365 hari (4 - 12 Bulan)', total: 0, invoiceCount: 0, stores: [] },
+    'gt365':   { id: 'gt365',   label: '> 365 Hari', sublabel: 'Usia lebih dari 1 tahun (> 365 Hari)', total: 0, invoiceCount: 0, stores: [] }
+  };
+
+  data.stores.forEach(s => {
+    if (!s.categories) s.categories = {};
+    s.categories['121_365'] = { id: '121_365', label: '121 - 365 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] };
+    s.categories['gt365'] = { id: 'gt365', label: '> 365 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] };
+
+    (s.invoices || []).forEach(inv => {
+      if (inv.catId === 'gt120' || inv.catId === '121_365' || inv.catId === 'gt365' || (inv.bOver120 > 0) || (inv.umurHari > 120)) {
+        if (inv.umurHari > 365) {
+          inv.catId = 'gt365';
+          inv.catLabel = '> 365 Hari';
+          const c = s.categories['gt365'];
+          c.total += inv.jumlah;
+          if (inv.umurHari < c.minAge) c.minAge = inv.umurHari;
+          if (inv.umurHari > c.maxAge) c.maxAge = inv.umurHari;
+          c.invoices.push(inv);
+        } else {
+          inv.catId = '121_365';
+          inv.catLabel = '121 - 365 Hari';
+          const c = s.categories['121_365'];
+          c.total += inv.jumlah;
+          if (inv.umurHari < c.minAge) c.minAge = inv.umurHari;
+          if (inv.umurHari > c.maxAge) c.maxAge = inv.umurHari;
+          c.invoices.push(inv);
+        }
+      }
+    });
+
+    ['121_365', 'gt365'].forEach(cid => {
+      const c = s.categories[cid];
+      if (c.invoices.length === 0) c.minAge = 0;
+    });
+  });
+
+  ['121_365', 'gt365'].forEach(cid => {
+    const cSum = newCatSummary[cid];
+    data.stores.forEach(s => {
+      const sc = s.categories[cid];
+      if (sc && sc.total > 0) {
+        cSum.total += sc.total;
+        cSum.invoiceCount += sc.invoices.length;
+        cSum.stores.push({
+          kode: s.kode,
+          namaToko: s.namaToko,
+          total: sc.total,
+          invoiceCount: sc.invoices.length,
+          minAge: sc.minAge,
+          maxAge: sc.maxAge
+        });
+      }
+    });
+    cSum.stores.sort((a, b) => b.total - a.total);
+  });
+
+  newCatSummary['gt120'] = {
+    id: 'gt120',
+    label: '> 120 Hari (Total)',
+    total: newCatSummary['121_365'].total + newCatSummary['gt365'].total,
+    invoiceCount: newCatSummary['121_365'].invoiceCount + newCatSummary['gt365'].invoiceCount,
+    stores: []
+  };
+
+  data.categories = newCatSummary;
+  return data;
+}
 
 function getPeriodData(key) {
   // 1. In-memory decrypted AES-256 vault (Primary)
   const vData = vaultDecryptedData || (typeof window !== 'undefined' ? window.vaultDecryptedData : null);
   if (vData && vData[key]) {
-    return vData[key];
+    return normalizePeriodCategories(vData[key]);
   }
 
   // 2. Global script dataset fallbacks
-  if (key === '2026-09' && window.PIUTANG_DATA) return window.PIUTANG_DATA;
-  if (key === '2026-08' && window.PIUTANG_DATA_AGS2026) return window.PIUTANG_DATA_AGS2026;
-  if (key === '2026-07' && window.PIUTANG_DATA_JUL2026) return window.PIUTANG_DATA_JUL2026;
-  if (key === '2026-06' && window.PIUTANG_DATA_JUN2026) return window.PIUTANG_DATA_JUN2026;
-  if (key === '2026-05' && window.PIUTANG_DATA_MEI2026) return window.PIUTANG_DATA_MEI2026;
-  if (key === '2026-04' && window.PIUTANG_DATA_APR2026) return window.PIUTANG_DATA_APR2026;
-  if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) return window.PIUTANG_DATA_MAR2026;
-  if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) return window.PIUTANG_DATA_FEB2026;
-  if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) return window.PIUTANG_DATA_JAN2026;
+  let res = null;
+  if (key === '2026-09' && window.PIUTANG_DATA) res = window.PIUTANG_DATA;
+  else if (key === '2026-08' && window.PIUTANG_DATA_AGS2026) res = window.PIUTANG_DATA_AGS2026;
+  else if (key === '2026-07' && window.PIUTANG_DATA_JUL2026) res = window.PIUTANG_DATA_JUL2026;
+  else if (key === '2026-06' && window.PIUTANG_DATA_JUN2026) res = window.PIUTANG_DATA_JUN2026;
+  else if (key === '2026-05' && window.PIUTANG_DATA_MEI2026) res = window.PIUTANG_DATA_MEI2026;
+  else if (key === '2026-04' && window.PIUTANG_DATA_APR2026) res = window.PIUTANG_DATA_APR2026;
+  else if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) res = window.PIUTANG_DATA_MAR2026;
+  else if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) res = window.PIUTANG_DATA_FEB2026;
+  else if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) res = window.PIUTANG_DATA_JAN2026;
+  else if (window.PIUTANG_DATA) res = window.PIUTANG_DATA;
 
-  if (window.PIUTANG_DATA) return window.PIUTANG_DATA;
+  if (res) return normalizePeriodCategories(res);
   return null;
 }
 
@@ -649,6 +763,10 @@ function getInvoiceCicilanInfo(storeKode, inv) {
 function loadData() {
   const selectEl = document.getElementById('selectAppPeriod');
   if (selectEl) selectEl.value = activePeriodKey;
+  const blSelect = document.getElementById('selectBlThreshold');
+  if (blSelect) blSelect.value = String(activeBlThreshold);
+  const blInline = document.getElementById('blInlineThreshold');
+  if (blInline) blInline.value = String(activeBlThreshold);
 
   // 1. Check local storage first (for custom uploaded monthly data)
   const localDb = getSafeStorage('local', 'dunlop_custom_data');
@@ -711,6 +829,8 @@ function handleAppPeriodChange(periodKey) {
     renderPaymentView();
   } else if (currentCategoryId === 'owner') {
     renderOwnerDashboard();
+  } else if (currentCategoryId === 'health') {
+    renderHealthDashboard();
   } else if (currentCategoryId) {
     showCategoryView(currentCategoryId, false);
   }
@@ -757,7 +877,8 @@ function processHashRoute(hash) {
   const route = parts[0];
 
   if (route === 'category') {
-    const catId = parts[1];
+    let catId = parts[1];
+    if (catId === 'gt120') catId = '121_365';
     showCategoryView(catId, false);
   } else if (route === 'store') {
     const storeParam = parts[1] || '';
@@ -771,6 +892,8 @@ function processHashRoute(hash) {
     showPaymentView(false);
   } else if (route === 'owner') {
     showOwnerView(false);
+  } else if (route === 'health' || route === 'kesehatan') {
+    showHealthView(false);
   }
 }
 
@@ -793,6 +916,8 @@ function navigateBack() {
       showPaymentView(true);
     } else if (currentCategoryId === 'owner') {
       showOwnerView(true);
+    } else if (currentCategoryId === 'health') {
+      showHealthView(true);
     } else if (currentCategoryId && currentCategoryId !== 'all') {
       showCategoryView(currentCategoryId, true);
     } else {
@@ -804,7 +929,7 @@ function navigateBack() {
 }
 
 function hideAllViews() {
-  const views = ['viewLogin', 'viewDashboard', 'viewCategory', 'viewStore', 'viewBlacklist', 'viewPayment', 'viewOwner'];
+  const views = ['viewLogin', 'viewDashboard', 'viewCategory', 'viewStore', 'viewBlacklist', 'viewPayment', 'viewOwner', 'viewHealth'];
   views.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
@@ -872,7 +997,8 @@ function renderDashboard() {
     { key: '31_60', label: '31 - 60 Hari' },
     { key: '61_90', label: '61 - 90 Hari' },
     { key: '91_120', label: '91 - 120 Hari' },
-    { key: 'gt120', label: '> 120 Hari' }
+    { key: '121_365', label: '121 - 365 Hari' },
+    { key: 'gt365', label: '> 365 Hari' }
   ];
 
   catKeys.forEach(({ key, label }) => {
@@ -1044,7 +1170,8 @@ function showCategoryView(catId, updateUrl = true) {
     else if (catId === '31_60') catTagClass = 'tag-blue';
     else if (catId === '61_90') catTagClass = 'tag-orange';
     else if (catId === '91_120') catTagClass = 'tag-rose';
-    else if (catId === 'gt120') catTagClass = 'tag-darkred';
+    else if (catId === '121_365' || catId === 'gt120') catTagClass = 'tag-darkred';
+    else if (catId === 'gt365') catTagClass = 'tag-maroon';
   }
 
   // Render Banner
@@ -1241,17 +1368,23 @@ function renderStoreBucketGroups(store) {
   const container = document.getElementById('storeBucketsList');
   if (!container) return;
 
-  const hasMacet = store.categories?.gt120 && store.categories.gt120.total > 0;
-  const newInvoicesCount = (store.invoices || []).filter(i => i.catId !== 'gt120').length;
+  const allInvoices = store.invoices || [];
+  const macetInvoices = allInvoices.filter(i => isInvoiceMacet(i));
+  const macetTotal = macetInvoices.reduce((sum, i) => sum + i.jumlah, 0);
+  const newInvoices = allInvoices.filter(i => !isInvoiceMacet(i));
+  const newInvoicesCount = newInvoices.length;
+  const hasMacet = macetTotal > 0;
   const isBL = hasMacet && newInvoicesCount > 0;
 
-  const order = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
+  const order = ['lt30', '31_60', '61_90', '91_120', '121_365', 'gt365', 'gt120'];
   const catStyles = {
-    'lt30':   { tag: '< 30 HARI',   class: 'tag-green' },
-    '31_60':  { tag: '31 - 60 HARI', class: 'tag-blue' },
-    '61_90':  { tag: '61 - 90 HARI', class: 'tag-orange' },
-    '91_120': { tag: '91 - 120 HARI', class: 'tag-rose' },
-    'gt120':  { tag: '> 120 HARI',  class: 'tag-darkred' }
+    'lt30':    { tag: '< 30 HARI',      class: 'tag-green' },
+    '31_60':   { tag: '31 - 60 HARI',   class: 'tag-blue' },
+    '61_90':   { tag: '61 - 90 HARI',   class: 'tag-orange' },
+    '91_120':  { tag: '91 - 120 HARI',  class: 'tag-rose' },
+    '121_365': { tag: '121 - 365 HARI', class: 'tag-darkred' },
+    'gt365':   { tag: '> 365 HARI',     class: 'tag-maroon' },
+    'gt120':   { tag: '121 - 365 HARI', class: 'tag-darkred' }
   };
 
   let html = '';
@@ -1260,7 +1393,7 @@ function renderStoreBucketGroups(store) {
   let storeCicilanCount = 0;
   let storeCicilanTotalPaid = 0;
   let storeCicilanTotalAwal = 0;
-  (store.invoices || []).forEach(inv => {
+  allInvoices.forEach(inv => {
     const cicilan = getInvoiceCicilanInfo(store.kode, inv);
     if (cicilan) {
       storeCicilanCount++;
@@ -1292,15 +1425,32 @@ function renderStoreBucketGroups(store) {
         <span style="font-size:1.6em;">⛔</span>
         <div>
           <div style="font-size:1.05em; font-weight:800; color:#ef4444; margin-bottom:4px;">
-            PERINGATAN AUDIT: TOKO DATA BL (PELANGGARAN BLACKLIST)
+            PERINGATAN AUDIT: TOKO DATA BL (PELANGGARAN BLACKLIST &gt; ${activeBlThreshold} HARI)
           </div>
           <div style="font-size:0.9em; line-height:1.4;">
-            Toko ini memiliki tunggakan macet &gt; 120 hari sebesar <strong>${formatRupiah(store.categories.gt120.total)}</strong> (${store.categories.gt120.invoices.length} nota), namun <strong>masih diterbitkan ${newInvoicesCount} nota tagihan baru</strong>!
+            Toko ini memiliki tunggakan macet &gt; ${activeBlThreshold} hari sebesar <strong>${formatRupiah(macetTotal)}</strong> (${macetInvoices.length} nota), namun <strong>masih diterbitkan ${newInvoicesCount} nota tagihan baru</strong>!
           </div>
         </div>
       </div>
     `;
   }
+
+  // Action bar to collapse / expand all bucket groups
+  html += `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 10px; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 0.85em; color: var(--text-muted); font-weight: 600;">
+        Rincian Per Kelompok Usia (Periode &lt; 30 dan 31-60 default tertutup):
+      </span>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-secondary" onclick="toggleAllStoreBuckets(true)" style="padding: 5px 12px; font-size: 0.8em; font-weight: 700;">
+          ▼ Buka Semua
+        </button>
+        <button type="button" class="btn-secondary" onclick="toggleAllStoreBuckets(false)" style="padding: 5px 12px; font-size: 0.8em; font-weight: 700;">
+          ▲ Tutup Semua
+        </button>
+      </div>
+    </div>
+  `;
 
   order.forEach(catId => {
     const bucket = store.categories[catId];
@@ -1308,24 +1458,34 @@ function renderStoreBucketGroups(store) {
 
     const style = catStyles[catId];
     const invoices = bucket.invoices;
+    const isMacetCat = isCategoryMacet(catId);
+
+    // Collapsed rule: < 30 and 31-60 are default collapsed
+    const isDefaultCollapsed = (catId === 'lt30' || catId === '31_60');
+    const listDisplayClass = isDefaultCollapsed ? 'is-collapsed' : '';
+    const chevronChar = isDefaultCollapsed ? '▼' : '▲';
+    const chevronText = isDefaultCollapsed ? 'Buka Nota' : 'Tutup Nota';
 
     html += `
       <div class="bucket-group">
-        <div class="bucket-header">
+        <div class="bucket-header" onclick="toggleStoreBucketAccordion('${catId}')" style="cursor: pointer; user-select: none;" title="Ketuk untuk buka/tutup daftar nota">
           <div class="bucket-title-wrap">
             <span class="bucket-tag ${style.class}">${style.tag}</span>
             <span style="font-weight:700; color:var(--text-muted);">${invoices.length} Nota</span>
+            <span class="bucket-toggle-indicator" id="bucketToggle_${catId}" style="font-size: 0.8em; color: var(--color-cyan); font-weight: 700; margin-left: 8px; padding: 2px 8px; border-radius: 4px; background: rgba(56, 189, 248, 0.1);">
+              <span id="bucketChevron_${catId}">${chevronChar}</span> ${chevronText}
+            </span>
           </div>
           <div class="bucket-subtotal">${formatRupiah(bucket.total)}</div>
         </div>
 
-        <div class="bucket-invoices-list">
+        <div class="bucket-invoices-list ${listDisplayClass}" id="bucketList_${catId}">
           ${invoices.map((inv) => {
             let invFlag = '';
-            if (catId === 'gt120') {
-              invFlag = '<span class="invoice-gt120-badge">⚠️ Tunggakan Macet &gt; 120H</span>';
+            if (isMacetCat) {
+              invFlag = `<span class="invoice-gt120-badge">⚠️ Tunggakan Macet &gt; ${activeBlThreshold}H</span>`;
             } else if (hasMacet) {
-              invFlag = '<span class="invoice-bl-badge">⛔ Diterbitkan Saat Masih Macet &gt; 120H</span>';
+              invFlag = `<span class="invoice-bl-badge">⛔ Diterbitkan Saat Masih Macet &gt; ${activeBlThreshold}H</span>`;
             }
 
             const cicilan = getInvoiceCicilanInfo(store.kode, inv);
@@ -1390,6 +1550,37 @@ function renderStoreBucketGroups(store) {
   });
 
   container.innerHTML = html;
+}
+
+function toggleStoreBucketAccordion(catId) {
+  const list = document.getElementById(`bucketList_${catId}`);
+  const chevron = document.getElementById(`bucketChevron_${catId}`);
+  const toggle = document.getElementById(`bucketToggle_${catId}`);
+  if (!list) return;
+
+  const isCollapsed = list.classList.toggle('is-collapsed');
+  if (chevron) chevron.textContent = isCollapsed ? '▼' : '▲';
+  if (toggle) {
+    toggle.innerHTML = isCollapsed
+      ? `<span id="bucketChevron_${catId}">▼</span> Buka Nota`
+      : `<span id="bucketChevron_${catId}">▲</span> Tutup Nota`;
+  }
+}
+
+function toggleAllStoreBuckets(expand) {
+  const lists = document.querySelectorAll('.bucket-invoices-list');
+  lists.forEach(list => {
+    list.classList.toggle('is-collapsed', !expand);
+    const catId = list.id.replace('bucketList_', '');
+    const chevron = document.getElementById(`bucketChevron_${catId}`);
+    const toggle = document.getElementById(`bucketToggle_${catId}`);
+    if (chevron) chevron.textContent = expand ? '▲' : '▼';
+    if (toggle) {
+      toggle.innerHTML = expand
+        ? `<span id="bucketChevron_${catId}">▲</span> Tutup Nota`
+        : `<span id="bucketChevron_${catId}">▼</span> Buka Nota`;
+    }
+  });
 }
 
 // ==========================================================================
@@ -1587,7 +1778,15 @@ function parseOcrString(text) {
         else if (b60 > 0) { catId = '31_60'; catLabel = '31 - 60 Hari'; }
         else if (b90 > 0) { catId = '61_90'; catLabel = '61 - 90 Hari'; }
         else if (b120 > 0) { catId = '91_120'; catLabel = '91 - 120 Hari'; }
-        else if (bOver > 0) { catId = 'gt120'; catLabel = '> 120 Hari'; }
+        else if (bOver > 0) {
+          if (ageDays > 365) {
+            catId = 'gt365';
+            catLabel = '> 365 Hari';
+          } else {
+            catId = '121_365';
+            catLabel = '121 - 365 Hari';
+          }
+        }
 
         invoices.push({
           kode,
@@ -1615,11 +1814,12 @@ function parseOcrString(text) {
         invoiceCount: 0,
         invoices: [],
         categories: {
-          'lt30':   { id: 'lt30',   label: '< 30 Hari',   total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          '31_60':  { id: '31_60',  label: '31 - 60 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          '61_90':  { id: '61_90',  label: '61 - 90 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          '91_120': { id: '91_120', label: '91 - 120 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
-          'gt120':  { id: 'gt120',  label: '> 120 Hari',  total: 0, minAge: 99999, maxAge: 0, invoices: [] }
+          'lt30':    { id: 'lt30',    label: '< 30 Hari',      total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '31_60':   { id: '31_60',   label: '31 - 60 Hari',   total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '61_90':   { id: '61_90',   label: '61 - 90 Hari',   total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '91_120':  { id: '91_120',  label: '91 - 120 Hari',  total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          '121_365': { id: '121_365', label: '121 - 365 Hari', total: 0, minAge: 99999, maxAge: 0, invoices: [] },
+          'gt365':   { id: 'gt365',   label: '> 365 Hari',     total: 0, minAge: 99999, maxAge: 0, invoices: [] }
         }
       };
     }
@@ -1634,10 +1834,12 @@ function parseOcrString(text) {
     s.invoices.push(inv);
 
     const c = s.categories[inv.catId];
-    c.total += inv.jumlah;
-    if (inv.umurHari < c.minAge) c.minAge = inv.umurHari;
-    if (inv.umurHari > c.maxAge) c.maxAge = inv.umurHari;
-    c.invoices.push(inv);
+    if (c) {
+      c.total += inv.jumlah;
+      if (inv.umurHari < c.minAge) c.minAge = inv.umurHari;
+      if (inv.umurHari > c.maxAge) c.maxAge = inv.umurHari;
+      c.invoices.push(inv);
+    }
   });
 
   Object.values(storeMap).forEach(s => {
@@ -1647,17 +1849,18 @@ function parseOcrString(text) {
   });
 
   const catSummary = {
-    'lt30':   { id: 'lt30',   label: '< 30 Hari',   sublabel: 'Usia 0 - 30 hari',   total: 0, invoiceCount: 0, stores: [] },
-    '31_60':  { id: '31_60',  label: '31 - 60 Hari', sublabel: 'Usia 31 - 60 hari',  total: 0, invoiceCount: 0, stores: [] },
-    '61_90':  { id: '61_90',  label: '61 - 90 Hari', sublabel: 'Usia 61 - 90 hari',  total: 0, invoiceCount: 0, stores: [] },
-    '91_120': { id: '91_120', label: '91 - 120 Hari', sublabel: 'Usia 91 - 120 hari', total: 0, invoiceCount: 0, stores: [] },
-    'gt120':  { id: 'gt120',  label: '> 120 Hari',  sublabel: 'Usia lebih dari 120 hari', total: 0, invoiceCount: 0, stores: [] }
+    'lt30':    { id: 'lt30',    label: '< 30 Hari',      sublabel: 'Usia 0 - 30 hari',         total: 0, invoiceCount: 0, stores: [] },
+    '31_60':   { id: '31_60',   label: '31 - 60 Hari',   sublabel: 'Usia 31 - 60 hari',        total: 0, invoiceCount: 0, stores: [] },
+    '61_90':   { id: '61_90',   label: '61 - 90 Hari',   sublabel: 'Usia 61 - 90 hari',        total: 0, invoiceCount: 0, stores: [] },
+    '91_120':  { id: '91_120',  label: '91 - 120 Hari',  sublabel: 'Usia 91 - 120 hari',       total: 0, invoiceCount: 0, stores: [] },
+    '121_365': { id: '121_365', label: '121 - 365 Hari', sublabel: 'Usia 121 - 365 hari (4-12 bln)', total: 0, invoiceCount: 0, stores: [] },
+    'gt365':   { id: 'gt365',   label: '> 365 Hari',     sublabel: 'Usia lebih dari 1 tahun',   total: 0, invoiceCount: 0, stores: [] }
   };
 
   Object.values(storeMap).forEach(s => {
-    ['lt30', '31_60', '61_90', '91_120', 'gt120'].forEach(catId => {
+    ['lt30', '31_60', '61_90', '91_120', '121_365', 'gt365'].forEach(catId => {
       const sc = s.categories[catId];
-      if (sc.total > 0) {
+      if (sc && sc.total > 0) {
         const cSum = catSummary[catId];
         cSum.total += sc.total;
         cSum.invoiceCount += sc.invoices.length;
@@ -1706,23 +1909,25 @@ function getBLStores() {
 
   const blStores = [];
   piutangData.stores.forEach(s => {
-    const gt120 = s.categories?.gt120;
-    const macetTotal = gt120?.total || 0;
+    const allInvoices = s.invoices || [];
+    const macetInvoices = allInvoices.filter(i => isInvoiceMacet(i));
+    const macetTotal = macetInvoices.reduce((sum, i) => sum + i.jumlah, 0);
     if (macetTotal <= 0) return;
 
-    // Invoices issued while store has >120 days overdue (catId !== 'gt120')
-    const newInvoices = (s.invoices || []).filter(i => i.catId !== 'gt120');
+    // Invoices issued while store has > threshold days overdue
+    const newInvoices = allInvoices.filter(i => !isInvoiceMacet(i));
     const newTotal = newInvoices.reduce((sum, i) => sum + i.jumlah, 0);
 
     if (newInvoices.length > 0) {
+      const ages = macetInvoices.map(i => i.umurHari || 0);
       blStores.push({
         kode: s.kode,
         namaToko: s.namaToko,
         macetTotal: macetTotal,
-        macetCount: gt120.invoices?.length || 0,
-        macetMinAge: gt120.minAge || 0,
-        macetMaxAge: gt120.maxAge || 0,
-        macetInvoices: gt120.invoices || [],
+        macetCount: macetInvoices.length,
+        macetMinAge: ages.length > 0 ? Math.min(...ages) : activeBlThreshold,
+        macetMaxAge: ages.length > 0 ? Math.max(...ages) : activeBlThreshold,
+        macetInvoices: macetInvoices,
         newTotal: newTotal,
         newCount: newInvoices.length,
         newInvoices: newInvoices,
@@ -1732,6 +1937,31 @@ function getBLStores() {
   });
 
   return blStores;
+}
+
+function handleBlThresholdChange(newThreshold) {
+  activeBlThreshold = Number(newThreshold) || 90;
+  setSafeStorage('local', 'dunlop_bl_threshold', String(activeBlThreshold));
+
+  const headerSelect = document.getElementById('selectBlThreshold');
+  if (headerSelect) headerSelect.value = String(activeBlThreshold);
+  const inlineSelect = document.getElementById('blInlineThreshold');
+  if (inlineSelect) inlineSelect.value = String(activeBlThreshold);
+
+  renderDashboard();
+
+  if (currentCategoryId === 'blacklist') {
+    renderBlacklist();
+  }
+
+  if (currentStoreKode) {
+    const store = (piutangData.stores || []).find(s => s.kode === currentStoreKode);
+    if (store) renderStoreBucketGroups(store);
+  }
+
+  if (currentCategoryId && currentCategoryId !== 'blacklist' && currentCategoryId !== 'payment') {
+    applyCategoryFilterAndSort();
+  }
 }
 
 function openBlacklistView() {
@@ -1780,6 +2010,22 @@ function renderBlacklist() {
   if (blStatNew) blStatNew.textContent = formatRupiah(totalNew);
   const blStatNewNotes = document.getElementById('blStatNewNotes');
   if (blStatNewNotes) blStatNewNotes.textContent = `${totalNewNotes} Nota baru diterbitkan`;
+
+  // Update dynamic threshold labels
+  const blBannerTitle = document.getElementById('blBannerTitle');
+  if (blBannerTitle) blBannerTitle.innerHTML = `Daftar Toko &amp; Nota Terbit Saat Ada Piutang &gt; ${activeBlThreshold} Hari`;
+  const blStatMacetLabel = document.getElementById('blStatMacetLabel');
+  if (blStatMacetLabel) blStatMacetLabel.textContent = `Tunggakan Macet (> ${activeBlThreshold}H):`;
+  const blStatSubMacet = document.getElementById('blStatSubMacet');
+  if (blStatSubMacet) blStatSubMacet.textContent = `Ada tunggakan macet > ${activeBlThreshold}H`;
+  const blGuideText = document.getElementById('blGuideText');
+  if (blGuideText) {
+    blGuideText.innerHTML = `<strong>Catatan Audit Direksi:</strong> Sesuai kebijakan kredit, toko yang masih memiliki piutang macet &gt; ${activeBlThreshold} hari seharusnya di-blacklist dari penerbitan nota baru sampai tunggakan diselesaikan.`;
+  }
+  const inlineSelect = document.getElementById('blInlineThreshold');
+  if (inlineSelect) inlineSelect.value = String(activeBlThreshold);
+  const headerSelect = document.getElementById('selectBlThreshold');
+  if (headerSelect) headerSelect.value = String(activeBlThreshold);
 
   applyBLFilterAndSort();
 }
@@ -1852,7 +2098,7 @@ function applyBLFilterAndSort() {
 
         <div class="bl-comparison-box">
           <div class="bl-box-item box-macet" onclick="openStoreDetail('${s.kode}', 'blacklist')" style="cursor: pointer;" title="Ketuk untuk buka rincian toko">
-            <span class="bl-box-title">Tunggakan Macet (&gt; 120 Hari):</span>
+            <span class="bl-box-title">Tunggakan Macet (&gt; ${activeBlThreshold} Hari):</span>
             <div class="bl-box-amount text-danger">${formatRupiah(s.macetTotal)}</div>
             <span class="bl-box-notes">${s.macetCount} Nota • Usia ${s.macetMinAge} - ${s.macetMaxAge} Hari</span>
           </div>
@@ -1907,7 +2153,7 @@ function applyBLFilterAndSort() {
           </div>
 
           <div style="font-weight: 800; font-size: 0.95em; color: #ef4444; margin-top: 14px;">
-            ⛔ Tunggakan Macet &gt; 120 Hari Penyebab Blacklist (${s.macetCount} Nota):
+            ⛔ Tunggakan Macet &gt; ${activeBlThreshold} Hari Penyebab Blacklist (${s.macetCount} Nota):
           </div>
           <div class="bl-invoices-subgrid">
             ${s.macetInvoices.map(inv => {
@@ -1932,7 +2178,7 @@ function applyBLFilterAndSort() {
                 </div>
                 <div class="bl-inv-right">
                   <span class="bl-inv-amount text-danger">${formatRupiah(inv.jumlah)}</span>
-                  <span class="bl-inv-tag bl-tag-macet">Macet &gt; 120H</span>
+                  <span class="bl-inv-tag bl-tag-macet">Macet &gt; ${activeBlThreshold}H</span>
                 </div>
               </div>
             `;
@@ -2494,7 +2740,10 @@ function getMonthlyHistoricalData() {
 
     if (customPeriods[key]) {
       const c = customPeriods[key];
-      const totVal = (c.agingValues?.lt30 || 0) + (c.agingValues?.['31_60'] || 0) + (c.agingValues?.['61_90'] || 0) + (c.agingValues?.['91_120'] || 0) + (c.agingValues?.gt120 || 0);
+      const val121365 = c.agingValues?.['121_365'] || 0;
+      const valGt365 = c.agingValues?.gt365 || 0;
+      const valGt120 = c.agingValues?.gt120 || (val121365 + valGt365);
+      const totVal = (c.agingValues?.lt30 || 0) + (c.agingValues?.['31_60'] || 0) + (c.agingValues?.['61_90'] || 0) + (c.agingValues?.['91_120'] || 0) + valGt120;
       history.push({
         key,
         shortLabel,
@@ -2509,7 +2758,9 @@ function getMonthlyHistoricalData() {
           '31_60': c.agingValues?.['31_60'] || 0,
           '61_90': c.agingValues?.['61_90'] || 0,
           '91_120': c.agingValues?.['91_120'] || 0,
-          gt120: c.agingValues?.gt120 || 0,
+          '121_365': val121365 || valGt120,
+          gt365: valGt365,
+          gt120: valGt120,
           total: totVal
         },
         agingStores: {
@@ -2517,6 +2768,8 @@ function getMonthlyHistoricalData() {
           '31_60': c.agingStores?.['31_60'] || 0,
           '61_90': c.agingStores?.['61_90'] || 0,
           '91_120': c.agingStores?.['91_120'] || 0,
+          '121_365': c.agingStores?.['121_365'] || c.agingStores?.gt120 || 0,
+          gt365: c.agingStores?.gt365 || 0,
           gt120: c.agingStores?.gt120 || 0
         },
         momGrowth: 0
@@ -2532,6 +2785,14 @@ function getMonthlyHistoricalData() {
       const activeStores = cats.lt30?.stores?.length || (pData.stores ? pData.stores.length : 0);
       const invCount = cats.lt30?.invoiceCount || (pData.meta?.totalInvoices || 0);
 
+      const v121365 = cats['121_365']?.total || 0;
+      const vGt365 = cats.gt365?.total || 0;
+      const vGt120 = cats.gt120?.total || (v121365 + vGt365);
+
+      const s121365 = cats['121_365']?.stores?.length || 0;
+      const sGt365 = cats.gt365?.stores?.length || 0;
+      const sGt120 = cats.gt120?.stores?.length || (s121365 + sGt365);
+
       history.push({
         key,
         shortLabel,
@@ -2546,7 +2807,9 @@ function getMonthlyHistoricalData() {
           '31_60': cats['31_60']?.total || 0,
           '61_90': cats['61_90']?.total || 0,
           '91_120': cats['91_120']?.total || 0,
-          gt120: cats.gt120?.total || 0,
+          '121_365': v121365 || vGt120,
+          gt365: vGt365,
+          gt120: vGt120,
           total: pData.meta?.grandTotal || 0
         },
         agingStores: {
@@ -2554,7 +2817,9 @@ function getMonthlyHistoricalData() {
           '31_60': cats['31_60']?.stores?.length || 0,
           '61_90': cats['61_90']?.stores?.length || 0,
           '91_120': cats['91_120']?.stores?.length || 0,
-          gt120: cats.gt120?.stores?.length || 0
+          '121_365': s121365 || sGt120,
+          gt365: sGt365,
+          gt120: sGt120
         },
         momGrowth: 0
       });
@@ -2572,6 +2837,8 @@ function getMonthlyHistoricalData() {
     const val3160 = { sum: 0, stores: new Set() };
     const val6190 = { sum: 0, stores: new Set() };
     const val91120 = { sum: 0, stores: new Set() };
+    const val121365 = { sum: 0, stores: new Set() };
+    const valGt365 = { sum: 0, stores: new Set() };
     const valGt120 = { sum: 0, stores: new Set() };
 
     allInvoices.forEach(inv => {
@@ -2597,14 +2864,21 @@ function getMonthlyHistoricalData() {
         } else if (ageDays <= 120) {
           val91120.sum += inv.jumlah;
           val91120.stores.add(inv.kode);
+        } else if (ageDays <= 365) {
+          val121365.sum += inv.jumlah;
+          val121365.stores.add(inv.kode);
+          valGt120.sum += inv.jumlah;
+          valGt120.stores.add(inv.kode);
         } else {
+          valGt365.sum += inv.jumlah;
+          valGt365.stores.add(inv.kode);
           valGt120.sum += inv.jumlah;
           valGt120.stores.add(inv.kode);
         }
       }
     });
 
-    const totalPiutangMonth = valLt30.sum + val3160.sum + val6190.sum + val91120.sum + valGt120.sum;
+    const totalPiutangMonth = valLt30.sum + val3160.sum + val6190.sum + val91120.sum + val121365.sum + valGt365.sum;
 
     history.push({
       key,
@@ -2620,6 +2894,8 @@ function getMonthlyHistoricalData() {
         '31_60': val3160.sum,
         '61_90': val6190.sum,
         '91_120': val91120.sum,
+        '121_365': val121365.sum,
+        gt365: valGt365.sum,
         gt120: valGt120.sum,
         total: totalPiutangMonth
       },
@@ -2628,6 +2904,8 @@ function getMonthlyHistoricalData() {
         '31_60': val3160.stores.size,
         '61_90': val6190.stores.size,
         '91_120': val91120.stores.size,
+        '121_365': val121365.stores.size,
+        gt365: valGt365.stores.size,
         gt120: valGt120.stores.size
       },
       momGrowth: 0
@@ -2830,7 +3108,7 @@ function renderSvgAgingValue(dataList, mode = 'stacked') {
     maxVal = Math.max(...dataList.map(d => d.agingValues.total || 0));
   } else {
     dataList.forEach(d => {
-      maxVal = Math.max(maxVal, d.agingValues.lt30, d.agingValues['31_60'], d.agingValues['61_90'], d.agingValues['91_120'], d.agingValues.gt120);
+      maxVal = Math.max(maxVal, d.agingValues.lt30, d.agingValues['31_60'], d.agingValues['61_90'], d.agingValues['91_120'], d.agingValues['121_365'] || 0, d.agingValues.gt365 || 0);
     });
   }
   maxVal = Math.max(1000000, maxVal * 1.15);
@@ -2851,6 +3129,8 @@ function renderSvgAgingValue(dataList, mode = 'stacked') {
     '31_60': '#3b82f6',
     '61_90': '#f97316',
     '91_120': '#f43f5e',
+    '121_365': '#dc2626',
+    gt365: '#881337',
     gt120: '#dc2626'
   };
 
@@ -2862,7 +3142,7 @@ function renderSvgAgingValue(dataList, mode = 'stacked') {
     if (mode === 'stacked') {
       const barX = xCenter - colW / 2;
       let currY = padTop + plotH;
-      const cats = ['gt120', '91_120', '61_90', '31_60', 'lt30'];
+      const cats = ['gt365', '121_365', '91_120', '61_90', '31_60', 'lt30'];
 
       cats.forEach(catKey => {
         const val = d.agingValues[catKey] || 0;
@@ -2885,9 +3165,9 @@ function renderSvgAgingValue(dataList, mode = 'stacked') {
         </text>
       `;
     } else {
-      const groupCats = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
-      const subBarW = Math.max(3, (colW / 5) - 2);
-      const groupTotalW = subBarW * 5 + 4 * 2;
+      const groupCats = ['lt30', '31_60', '61_90', '91_120', '121_365', 'gt365'];
+      const subBarW = Math.max(3, (colW / 6) - 2);
+      const groupTotalW = subBarW * 6 + 5 * 2;
       let subX = xCenter - groupTotalW / 2;
 
       groupCats.forEach(catKey => {
@@ -2936,7 +3216,7 @@ function renderSvgAgingStores(dataList) {
 
   let maxStores = 0;
   dataList.forEach(d => {
-    maxStores = Math.max(maxStores, d.agingStores.lt30, d.agingStores['31_60'], d.agingStores['61_90'], d.agingStores['91_120'], d.agingStores.gt120);
+    maxStores = Math.max(maxStores, d.agingStores.lt30, d.agingStores['31_60'], d.agingStores['61_90'], d.agingStores['91_120'], d.agingStores['121_365'] || 0, d.agingStores.gt365 || 0);
   });
   maxStores = Math.max(10, Math.ceil(maxStores * 1.25));
 
@@ -2956,16 +3236,18 @@ function renderSvgAgingStores(dataList) {
     '31_60': '#3b82f6',
     '61_90': '#f97316',
     '91_120': '#f43f5e',
+    '121_365': '#dc2626',
+    gt365: '#881337',
     gt120: '#dc2626'
   };
 
   let barsSvg = '';
-  const cats = ['lt30', '31_60', '61_90', '91_120', 'gt120'];
+  const cats = ['lt30', '31_60', '61_90', '91_120', '121_365', 'gt365'];
 
   dataList.forEach((d, i) => {
     const xCenter = padLeft + (i + 0.5) * colSlotW;
-    const subBarW = Math.max(5, Math.min(18, (colSlotW * 0.7) / 5 - 2));
-    const groupW = subBarW * 5 + 4 * 2;
+    const subBarW = Math.max(4, Math.min(16, (colSlotW * 0.75) / 6 - 2));
+    const groupW = subBarW * 6 + 5 * 2;
     let subX = xCenter - groupW / 2;
 
     cats.forEach(catKey => {
@@ -3205,7 +3487,8 @@ function renderTableAgingValue(dataList) {
     { key: '31_60', label: '31 - 60 Hari' },
     { key: '61_90', label: '61 - 90 Hari' },
     { key: '91_120', label: '91 - 120 Hari' },
-    { key: 'gt120', label: '> 120 Hari' }
+    { key: '121_365', label: '121 - 365 Hari' },
+    { key: 'gt365', label: '> 365 Hari' }
   ];
 
   let headerHtml = '<th class="col-sticky-freeze">Kelompok Usia</th>';
@@ -3246,7 +3529,8 @@ function renderTableAgingStores(dataList) {
     { key: '31_60', label: '31 - 60 Hari' },
     { key: '61_90', label: '61 - 90 Hari' },
     { key: '91_120', label: '91 - 120 Hari' },
-    { key: 'gt120', label: '> 120 Hari' }
+    { key: '121_365', label: '121 - 365 Hari' },
+    { key: 'gt365', label: '> 365 Hari' }
   ];
 
   let headerHtml = '<th class="col-sticky-freeze">Kelompok Usia</th>';
@@ -3363,11 +3647,13 @@ function handleSaveOwnerCustomPeriod(e) {
   const omzet = parseFloat(document.getElementById('inputPeriodOmzet').value) || 0;
   const activeStoresCount = parseInt(document.getElementById('inputPeriodActiveStores').value, 10) || 0;
 
-  const lt30 = parseFloat(document.getElementById('inputPeriodLt30').value) || 0;
-  const b3160 = parseFloat(document.getElementById('inputPeriod3160').value) || 0;
-  const b6190 = parseFloat(document.getElementById('inputPeriod6190').value) || 0;
-  const b91120 = parseFloat(document.getElementById('inputPeriod91120').value) || 0;
-  const gt120 = parseFloat(document.getElementById('inputPeriodGt120').value) || 0;
+  const lt30 = parseFloat(document.getElementById('inputPeriodLt30')?.value) || 0;
+  const b3160 = parseFloat(document.getElementById('inputPeriod3160')?.value) || 0;
+  const b6190 = parseFloat(document.getElementById('inputPeriod6190')?.value) || 0;
+  const b91120 = parseFloat(document.getElementById('inputPeriod91120')?.value) || 0;
+  const b121365 = parseFloat(document.getElementById('inputPeriod121365')?.value) || parseFloat(document.getElementById('inputPeriodGt120')?.value) || 0;
+  const gt365 = parseFloat(document.getElementById('inputPeriodGt365')?.value) || 0;
+  const gt120 = b121365 + gt365;
 
   const customPeriods = getOwnerCustomPeriods();
   customPeriods[key] = {
@@ -3380,6 +3666,8 @@ function handleSaveOwnerCustomPeriod(e) {
       '31_60': b3160,
       '61_90': b6190,
       '91_120': b91120,
+      '121_365': b121365,
+      gt365,
       gt120
     },
     agingStores: {
@@ -3387,6 +3675,8 @@ function handleSaveOwnerCustomPeriod(e) {
       '31_60': Math.round(activeStoresCount * 0.9),
       '61_90': Math.round(activeStoresCount * 0.7),
       '91_120': Math.round(activeStoresCount * 0.35),
+      '121_365': Math.round(activeStoresCount * 0.18),
+      gt365: Math.round(activeStoresCount * 0.08),
       gt120: Math.round(activeStoresCount * 0.25)
     }
   };
@@ -3397,6 +3687,917 @@ function handleSaveOwnerCustomPeriod(e) {
   initOwnerPeriodDropdowns();
   setOwnerPeriodPreset('all');
   alert(`Data periode ${key} berhasil disimpan dan dimasukkan ke grafik!`);
+}
+
+// ==========================================================================
+// VIEW 7: MODUL KESEHATAN PERUSAHAAN (HPP, GAJI, OPERASIONAL & SUNK COST)
+// ==========================================================================
+
+const HEALTH_FINANCIAL_DATA = {
+  '2026-05': {
+    monthKey: '2026-05',
+    monthLabel: 'Mei 2026',
+    pendapatanKotor: 5673466322,
+    potonganPenjualan: 9259,
+    pendapatanBersih: 5673457063,
+    hpp: 5426299229,
+    labaKotor: 247157834,
+    gajiPegawai: 91446000,
+    karyawanLainnya: 7589138,
+    konsumsi: 469000,
+    totalBiayaStaff: 99504138,
+    biayaOperasional: 122827584,
+    labaOperasional: 124330250,
+    labaBersih: 99025287,
+    yearly: {
+      pendapatanBersih: 29162467835,
+      hpp: 27894124365,
+      labaKotor: 1268343470,
+      gajiPegawai: 473946000,
+      totalBiayaStaff: 514285190,
+      biayaOperasional: 1171243239,
+      labaOperasional: 97100231,
+      labaBersih: -393027299.63
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39758179,
+      pbb: 0,
+      entertainment: 3619926,
+      sumbanganUpacara: 2051250,
+      thr: 0,
+      diskonNota: 9259,
+      servisPemeliharaan: 2063000,
+      transport: 7495640,
+      administrasiBank: 140400,
+      totalSunk: 48630408
+    },
+    notes: [
+      {
+        type: 'success',
+        title: 'Bulan Paling Sehat & Laba Positif (+Rp 99 Jt)',
+        desc: 'Mei 2026 mencetak laba bersih Rp 99.025.287 (+1,75%). Rasio HPP terkendali di 95,64% dan potongan penjualan (diskon) sangat minim (hanya Rp 9.259).'
+      },
+      {
+        type: 'info',
+        title: 'Beban Operasional Sangat Hemat (2,17%)',
+        desc: 'Beban operasional bulanan hanya 2,17% dari omzet, jauh di bawah rata-rata tahunan (4,02%). Biaya entertainment dan pemeliharaan terkendali baik.'
+      }
+    ]
+  },
+  '2026-06': {
+    monthKey: '2026-06',
+    monthLabel: 'Juni 2026',
+    pendapatanKotor: 5750635242,
+    potonganPenjualan: 57397271,
+    pendapatanBersih: 5693237971,
+    hpp: 5543073502,
+    labaKotor: 150164469,
+    gajiPegawai: 132624000,
+    karyawanLainnya: 7764132,
+    konsumsi: 472000,
+    totalBiayaStaff: 140860132,
+    biayaOperasional: 194363975,
+    labaOperasional: -44199506,
+    labaBersih: -72410025.51,
+    yearly: {
+      pendapatanBersih: 34855705806,
+      hpp: 33437197867,
+      labaKotor: 1418507939,
+      gajiPegawai: 606570000,
+      totalBiayaStaff: 655145322,
+      biayaOperasional: 1365607214,
+      labaOperasional: 52900725,
+      labaBersih: -465437325.14
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39756859,
+      pbb: 12550720,
+      entertainment: 16324138,
+      sumbanganUpacara: 675000,
+      thr: 41310000,
+      diskonNota: 57397271,
+      servisPemeliharaan: 8092500,
+      transport: 7908616,
+      administrasiBank: 408848.51,
+      totalSunk: 179296541
+    },
+    notes: [
+      {
+        type: 'warning',
+        title: 'Lonjakan Beban Gaji (2,33%): THR Galungan & Kuningan',
+        desc: 'Rasio beban gaji melonjak ke 2,33% (+0,59% di atas benchmark tahunan 1,74%). Dipicu oleh pembayaran THR Galungan & Kuningan sebesar Rp 41.310.000 pada 10 Juni.'
+      },
+      {
+        type: 'warning',
+        title: 'Beban Musiman Ganda: PBB Tahunan & Entertainment Tamu',
+        desc: 'Biaya operasional membengkak +58% menjadi Rp 194,4 Jt (3,41% dari omzet) akibat pelunasan PBB setahun penuh Rp 12.550.720 dan lonjakan entertainment tamu Rp 16.324.138.'
+      },
+      {
+        type: 'danger',
+        title: 'Pembalikan Menjadi Rugi Bersih (-Rp 72,4 Jt)',
+        desc: 'HPP mulai naik ke 97,36% sementara beban operasional membengkak, membalikkan kinerja perusahaan menjadi rugi operasional -Rp 44,2 Jt dan rugi bersih -Rp 72,4 Jt.'
+      }
+    ]
+  },
+  '2026-07': {
+    monthKey: '2026-07',
+    monthLabel: 'Juli 2026',
+    pendapatanKotor: 5342346360,
+    potonganPenjualan: 189554134,
+    pendapatanBersih: 5152792226,
+    hpp: 5128828952,
+    labaKotor: 23963274,
+    gajiPegawai: 91367000,
+    karyawanLainnya: 7939126,
+    konsumsi: 372000,
+    totalBiayaStaff: 99678126,
+    biayaOperasional: 119997932,
+    labaOperasional: -96034658,
+    labaBersih: -116035806.32,
+    yearly: {
+      pendapatanBersih: 40008498032,
+      hpp: 38566026819,
+      labaKotor: 1442471213,
+      gajiPegawai: 697937000,
+      totalBiayaStaff: 754823448,
+      biayaOperasional: 1485605146,
+      labaOperasional: -43133933,
+      labaBersih: -581473131.46
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39763879,
+      pbb: 0,
+      entertainment: 0,
+      sumbanganUpacara: 1700500,
+      thr: 0,
+      diskonNota: 189554134,
+      servisPemeliharaan: 3492500,
+      transport: 6692000,
+      administrasiBank: 452412.32,
+      bungaPinjamanMihardjo: 20215143,
+      totalSunk: 264419209
+    },
+    notes: [
+      {
+        type: 'danger',
+        title: 'KRITIS: Rasio HPP 99,53% (Jauh di Atas Median)',
+        desc: 'HPP menyedot 99,53% omzet bersih (+3,13% di atas data tahunan 96,40%). Laba kotor tersisa hanya Rp 23,96 Jt (0,47%) dari omzet Rp 5,15 Miliar.'
+      },
+      {
+        type: 'danger',
+        title: 'Anomali Potongan Penjualan (Diskon) Meledak 3,7%',
+        desc: 'Diskon penjualan melonjak 3x lipat menjadi Rp 189.554.134. Concession ini menjadi pemicu kehancuran laba kotor tanpa menghasilkan kenaikan volume omzet.'
+      },
+      {
+        type: 'danger',
+        title: 'Rugi Bersih Terbesar Tahun Ini (-Rp 116 Juta)',
+        desc: 'Meskipun operasional sudah ditekan sangat efisien (2,33%), laba kotor Rp 23,9 Jt tidak mampu menutup gaji pokok Rp 91,4 Jt, menyebabkan rugi bersih terdalam -Rp 116,0 Jt.'
+      }
+    ]
+  }
+};
+
+let activeHealthPeriod = 'all'; // '2026-05', '2026-06', '2026-07', or 'all'
+
+function openHealthDashboard(updateUrl = true) {
+  showHealthView(updateUrl);
+}
+
+function showHealthView(updateUrl = true) {
+  if (!isAuthenticated()) {
+    showLoginView();
+    return;
+  }
+
+  currentCategoryId = 'health';
+  currentStoreKode = null;
+
+  hideAllViews();
+  const healthPanel = document.getElementById('viewHealth');
+  if (healthPanel) healthPanel.style.display = 'flex';
+
+  updateStickyBar(true, '← KEMBALI KE DASHBOARD', 'Dashboard > Kesehatan Perusahaan');
+  renderHealthDashboard();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (updateUrl) {
+    navigateTo('#/health', false);
+  }
+}
+
+function setHealthPeriod(periodKey) {
+  activeHealthPeriod = periodKey;
+  renderHealthDashboard();
+}
+
+function renderHealthDashboard() {
+  // 1. Update Period Selector Pills
+  const pills = ['2026-05', '2026-06', '2026-07', 'all'];
+  pills.forEach(p => {
+    const btn = document.getElementById(`pillHealth_${p}`);
+    if (btn) {
+      if (p === activeHealthPeriod) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+  });
+
+  const headerSummary = document.getElementById('healthPeriodHeaderSummary');
+  if (headerSummary) {
+    if (activeHealthPeriod === 'all') {
+      headerSummary.textContent = 'Mode: Komparasi 3 Bulan (Mei - Juli 2026)';
+    } else {
+      const d = HEALTH_FINANCIAL_DATA[activeHealthPeriod];
+      headerSummary.textContent = `Mode: Periode Tunggal ${d ? d.monthLabel : activeHealthPeriod}`;
+    }
+  }
+
+  // 2. Render Top 4 Summary Cards
+  renderHealthTopMetrics();
+
+  // 3. Render SVG Ratios Chart
+  renderSvgHealthRatios();
+
+  // 4. Render Financial P&L and Ratios Table
+  renderTableHealthFinancials();
+
+  // 5. Render Sunk Cost Dashboard
+  renderHealthSunkDashboard();
+
+  // 6. Render Executive Notes & Anomaly Alerts
+  renderHealthExecutiveNotes();
+}
+
+function renderHealthTopMetrics() {
+  const container = document.getElementById('healthTopMetricsGrid');
+  if (!container) return;
+
+  if (activeHealthPeriod !== 'all' && HEALTH_FINANCIAL_DATA[activeHealthPeriod]) {
+    const d = HEALTH_FINANCIAL_DATA[activeHealthPeriod];
+    const hppPct = (d.hpp / d.pendapatanBersih) * 100;
+    const hppYearlyPct = (d.yearly.hpp / d.yearly.pendapatanBersih) * 100;
+    const hppDiff = hppPct - hppYearlyPct;
+
+    const salaryPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
+    const salaryYearlyPct = (d.yearly.gajiPegawai / d.yearly.pendapatanBersih) * 100;
+    const salaryDiff = salaryPct - salaryYearlyPct;
+
+    const opexPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
+    const opexYearlyPct = (d.yearly.biayaOperasional / d.yearly.pendapatanBersih) * 100;
+    const opexDiff = opexPct - opexYearlyPct;
+
+    // Status classes
+    const hppStatus = hppPct > 98 ? 'status-danger' : hppPct > 96.5 ? 'status-warning' : 'status-safe';
+    const hppBadgeClass = hppPct > 98 ? 'badge-status-danger' : hppPct > 96.5 ? 'badge-status-warning' : 'badge-status-safe';
+    const hppBadgeText = hppPct > 98 ? '🚨 KRITIS' : hppPct > 96.5 ? '⚠️ WASPADA' : '✅ SEHAT';
+
+    const salaryStatus = salaryPct > 2.0 ? 'status-warning' : 'status-safe';
+    const salaryBadgeClass = salaryPct > 2.0 ? 'badge-status-warning' : 'badge-status-safe';
+    const salaryBadgeText = salaryPct > 2.0 ? '⚠️ ADA THR' : '✅ NORMAL';
+
+    const opexStatus = 'status-safe'; // all months are under yearly 3.92%
+    const opexBadgeClass = 'badge-status-safe';
+    const opexBadgeText = '✅ EFISIEN';
+
+    const netStatus = d.labaBersih >= 0 ? 'status-safe' : 'status-danger';
+    const netBadgeClass = d.labaBersih >= 0 ? 'badge-status-safe' : 'badge-status-danger';
+    const netBadgeText = d.labaBersih >= 0 ? '✅ SURPLUS' : '🚨 DEFISIT';
+
+    container.innerHTML = `
+      <div class="health-metric-card ${hppStatus}">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">1. Rasio HPP / Omzet</span>
+          <span class="health-metric-badge ${hppBadgeClass}">${hppBadgeText}</span>
+        </div>
+        <div class="health-metric-main-value ${hppPct > 98 ? 'text-danger' : hppPct > 96.5 ? 'text-warning' : 'text-success'}">
+          ${hppPct.toFixed(2).replace('.', ',')}%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Tahun Berjalan (Yearly):</span>
+          <span class="health-metric-nominal">${hppYearlyPct.toFixed(2).replace('.', ',')}%</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Selisih vs Yearly:</span>
+          <strong style="color: ${hppDiff > 0 ? '#ef4444' : '#10b981'};">
+            ${hppDiff > 0 ? '+' : ''}${hppDiff.toFixed(2).replace('.', ',')}%
+          </strong>
+        </div>
+      </div>
+
+      <div class="health-metric-card ${salaryStatus}">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">2. Rasio Gaji / Omzet</span>
+          <span class="health-metric-badge ${salaryBadgeClass}">${salaryBadgeText}</span>
+        </div>
+        <div class="health-metric-main-value ${salaryPct > 2.0 ? 'text-warning' : 'text-main'}">
+          ${salaryPct.toFixed(2).replace('.', ',')}%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Gaji Bulanan:</span>
+          <span class="health-metric-nominal">${formatRupiah(d.gajiPegawai)}</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Yearly Benchmark:</span>
+          <span>${salaryYearlyPct.toFixed(2).replace('.', ',')}% (${salaryDiff > 0 ? '+' : ''}${salaryDiff.toFixed(2).replace('.', ',')}%)</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card ${opexStatus}">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">3. Rasio Biaya Opex</span>
+          <span class="health-metric-badge ${opexBadgeClass}">${opexBadgeText}</span>
+        </div>
+        <div class="health-metric-main-value text-success">
+          ${opexPct.toFixed(2).replace('.', ',')}%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Total Beban Operasional:</span>
+          <span class="health-metric-nominal">${formatRupiah(d.biayaOperasional)}</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Yearly Opex Rate:</span>
+          <span>${opexYearlyPct.toFixed(2).replace('.', ',')}% (${opexDiff > 0 ? '+' : ''}${opexDiff.toFixed(2).replace('.', ',')}%)</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card ${netStatus}">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">4. Laba Bersih Bulan Ini</span>
+          <span class="health-metric-badge ${netBadgeClass}">${netBadgeText}</span>
+        </div>
+        <div class="health-metric-main-value ${d.labaBersih >= 0 ? 'text-success' : 'text-danger'}">
+          ${formatRupiah(d.labaBersih)}
+        </div>
+        <div class="health-metric-subrow">
+          <span>Net Profit Margin:</span>
+          <strong style="color: ${d.labaBersih >= 0 ? '#10b981' : '#ef4444'};">
+            ${((d.labaBersih / d.pendapatanBersih) * 100).toFixed(2).replace('.', ',')}%
+          </strong>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Total Sunk Cost Bulan Ini:</span>
+          <span class="health-metric-nominal text-danger">${formatRupiah(d.sunkCost.totalSunk)}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    // Mode Komparasi 3 Bulan (All)
+    container.innerHTML = `
+      <div class="health-metric-card status-danger">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">1. Rentang HPP 3 Bulan</span>
+          <span class="health-metric-badge badge-status-danger">🚨 ANOMALI JULI</span>
+        </div>
+        <div class="health-metric-main-value text-danger">
+          95,6% ➔ 99,5%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Median Bulanan:</span>
+          <span class="health-metric-nominal">97,36% (Juni)</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Yearly Benchmark:</span>
+          <span class="health-metric-nominal">95,93% - 96,40%</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-warning">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">2. Rasio Gaji 3 Bulan</span>
+          <span class="health-metric-badge badge-status-warning">⚠️ THR JUNI</span>
+        </div>
+        <div class="health-metric-main-value text-warning">
+          1,6% ➔ 2,3% ➔ 1,8%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Median Bulanan:</span>
+          <span class="health-metric-nominal">1,77% (Juli)</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Puncak Beban:</span>
+          <span class="health-metric-nominal text-warning">Juni (2,33% - THR Rp 41,3M)</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-safe">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">3. Rasio Beban Opex</span>
+          <span class="health-metric-badge badge-status-safe">✅ DI BAWAH TAHUNAN</span>
+        </div>
+        <div class="health-metric-main-value text-success">
+          2,2% - 3,4%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Median Bulanan:</span>
+          <span class="health-metric-nominal">2,33% (Juli)</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Yearly Benchmark:</span>
+          <span class="health-metric-nominal">3,71% - 4,02%</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-danger">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">4. Akumulasi 3 Bulan</span>
+          <span class="health-metric-badge badge-status-danger">🚨 TOTAL RUGI</span>
+        </div>
+        <div class="health-metric-main-value text-danger">
+          -Rp 89,4 Jt
+        </div>
+        <div class="health-metric-subrow">
+          <span>Performa Mei:</span>
+          <strong class="text-success">+ Rp 99.025.287</strong>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Performa Juni & Juli:</span>
+          <strong class="text-danger">- Rp 188.445.831</strong>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderSvgHealthRatios() {
+  const container = document.getElementById('svgHealthRatioContainer');
+  if (!container) return;
+
+  const w = 840;
+  const h = 330;
+  const padLeft = 65;
+  const padRight = 35;
+  const padTop = 45;
+  const padBottom = 55;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const months = ['2026-05', '2026-06', '2026-07'];
+  const data = months.map(k => HEALTH_FINANCIAL_DATA[k]);
+
+  // Grouped Bar chart per month
+  // In each month group:
+  // 1. HPP % (scaled against 0-100% on left axis)
+  // 2. Gaji % (scaled on same or dual axis - to make small % visible, we draw dual axis or clear scaled bars)
+  // Let's draw 3 clear bars per month with clear percentage labels on top!
+  const groupCount = data.length;
+  const slotW = plotW / groupCount;
+  const barW = 34;
+
+  let gridSvg = '';
+  const ySteps = 5;
+  for (let s = 0; s <= ySteps; s++) {
+    const val = (100 / ySteps) * s;
+    const yPos = padTop + plotH - (s / ySteps) * plotH;
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+      <text x="${padLeft - 8}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="end">${val}%</text>
+    `;
+  }
+
+  // Yearly Benchmark lines (Median Yearly HPP 96%, Opex 4%, Salary 1.7%)
+  const yHppBench = padTop + plotH - (96.0 / 100) * plotH;
+  gridSvg += `
+    <line x1="${padLeft}" y1="${yHppBench}" x2="${w - padRight}" y2="${yHppBench}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,4" />
+    <text x="${w - padRight}" y="${yHppBench - 6}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="end">Benchmark HPP Tahunan: ~96,0%</text>
+  `;
+
+  let barsSvg = '';
+  data.forEach((d, i) => {
+    const groupCenter = padLeft + (i + 0.5) * slotW;
+
+    const hppPct = (d.hpp / d.pendapatanBersih) * 100;
+    const salaryPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
+    const opexPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
+
+    // Bar 1: HPP
+    const hppH = (hppPct / 100) * plotH;
+    const hppY = padTop + plotH - hppH;
+    const hppX = groupCenter - barW * 1.6;
+
+    // Bar 2: Gaji
+    // Multiply by 10 for visual clarity on chart, or draw true scale with callout!
+    // True height:
+    const salaryH = Math.max(8, (salaryPct / 100) * plotH);
+    const salaryY = padTop + plotH - salaryH;
+    const salaryX = groupCenter - barW * 0.5;
+
+    // Bar 3: Opex
+    const opexH = Math.max(10, (opexPct / 100) * plotH);
+    const opexY = padTop + plotH - opexH;
+    const opexX = groupCenter + barW * 0.6;
+
+    // Alert flag for July HPP
+    const isJulyHpp = (d.monthKey === '2026-07');
+    const isJuneSalary = (d.monthKey === '2026-06');
+
+    barsSvg += `
+      <!-- HPP Bar (Blue) -->
+      <rect x="${hppX}" y="${hppY}" width="${barW}" height="${hppH}" fill="${isJulyHpp ? 'url(#hppDangerGrad)' : 'url(#hppGrad)'}" rx="4">
+        <title>${d.monthLabel} HPP: ${hppPct.toFixed(2)}% (${formatRupiah(d.hpp)})</title>
+      </rect>
+      <text x="${hppX + barW / 2}" y="${hppY + 16}" font-family="var(--font-mono)" font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">
+        ${hppPct.toFixed(1).replace('.', ',')}%
+      </text>
+
+      <!-- Gaji Bar (Orange) -->
+      <rect x="${salaryX}" y="${salaryY}" width="${barW}" height="${salaryH}" fill="${isJuneSalary ? '#f59e0b' : '#fb923c'}" rx="4">
+        <title>${d.monthLabel} Gaji: ${salaryPct.toFixed(2)}% (${formatRupiah(d.gajiPegawai)})</title>
+      </rect>
+      <text x="${salaryX + barW / 2}" y="${salaryY - 6}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="#f59e0b" text-anchor="middle">
+        ${salaryPct.toFixed(2).replace('.', ',')}%
+      </text>
+
+      <!-- Opex Bar (Purple) -->
+      <rect x="${opexX}" y="${opexY}" width="${barW}" height="${opexH}" fill="#10b981" rx="4">
+        <title>${d.monthLabel} Biaya Operasional: ${opexPct.toFixed(2)}% (${formatRupiah(d.biayaOperasional)})</title>
+      </rect>
+      <text x="${opexX + barW / 2}" y="${opexY - 6}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="#10b981" text-anchor="middle">
+        ${opexPct.toFixed(2).replace('.', ',')}%
+      </text>
+
+      <!-- Month Label -->
+      <text x="${groupCenter}" y="${h - 18}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${d.monthLabel}
+      </text>
+    `;
+
+    if (isJulyHpp) {
+      barsSvg += `
+        <rect x="${hppX - 12}" y="${hppY - 26}" width="${barW + 24}" height="18" rx="4" fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" stroke-width="1.2" />
+        <text x="${hppX + barW / 2}" y="${hppY - 13}" font-family="var(--font-sans)" font-size="9.5" font-weight="800" fill="#ef4444" text-anchor="middle">🚨 99,5%</text>
+      `;
+    }
+
+    if (isJuneSalary) {
+      barsSvg += `
+        <text x="${salaryX + barW / 2}" y="${salaryY - 18}" font-family="var(--font-sans)" font-size="9" font-weight="800" fill="#f59e0b" text-anchor="middle">THR</text>
+      `;
+    }
+  });
+
+  // Chart Legend at Top
+  const legendSvg = `
+    <g transform="translate(${padLeft + 10}, 16)">
+      <rect x="0" y="0" width="14" height="10" rx="2" fill="#0284c7" />
+      <text x="18" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">HPP / Omzet</text>
+
+      <rect x="110" y="0" width="14" height="10" rx="2" fill="#f59e0b" />
+      <text x="128" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">Gaji / Omzet</text>
+
+      <rect x="220" y="0" width="14" height="10" rx="2" fill="#10b981" />
+      <text x="238" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">Beban Opex / Omzet</text>
+    </g>
+  `;
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="hppGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#0284c7"/>
+        </linearGradient>
+        <linearGradient id="hppDangerGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f87171"/>
+          <stop offset="100%" stop-color="#dc2626"/>
+        </linearGradient>
+      </defs>
+      ${gridSvg}
+      ${barsSvg}
+      ${legendSvg}
+    </svg>
+  `;
+}
+
+function renderTableHealthFinancials() {
+  const container = document.getElementById('tableHealthFinancials');
+  if (!container) return;
+
+  const months = ['2026-05', '2026-06', '2026-07'];
+  const mData = months.map(k => HEALTH_FINANCIAL_DATA[k]);
+
+  let rows = [
+    { label: 'Pendapatan Penjualan Kotor', key: 'pendapatanKotor', format: 'rp' },
+    { label: 'Potongan Penjualan (Diskon)', key: 'potonganPenjualan', format: 'rp_neg' },
+    { label: 'Pendapatan Bersih (Net Omzet)', key: 'pendapatanBersih', format: 'rp_bold' },
+    { label: 'Harga Pokok Penjualan (HPP)', key: 'hpp', format: 'rp' },
+    { label: '👉 Persentase HPP terhadap Omzet', key: 'hpp_pct', format: 'pct_hpp', highlight: true },
+    { label: 'Laba Kotor Perusahaan', key: 'labaKotor', format: 'rp' },
+    { label: '👉 Margin Laba Kotor (%)', key: 'gross_margin_pct', format: 'pct_margin' },
+    { label: 'Biaya Gaji Pegawai (Akun 5201)', key: 'gajiPegawai', format: 'rp' },
+    { label: '👉 Persentase Gaji terhadap Omzet', key: 'gaji_pct', format: 'pct_gaji', highlight: true },
+    { label: 'Total Biaya Staff (Gaji+BPJS+Makan)', key: 'totalBiayaStaff', format: 'rp' },
+    { label: 'Total Biaya Operasional (Opex)', key: 'biayaOperasional', format: 'rp' },
+    { label: '👉 Persentase Opex terhadap Omzet', key: 'opex_pct', format: 'pct_opex', highlight: true },
+    { label: 'Laba (Rugi) Operasional', key: 'labaOperasional', format: 'rp_colored' },
+    { label: 'Laba (Rugi) Bersih Periode', key: 'labaBersih', format: 'rp_colored_bold', highlight: true }
+  ];
+
+  let headerHtml = `
+    <tr>
+      <th class="col-sticky-freeze">Komponen Keuangan</th>
+      <th style="text-align:right;">Mei 2026 (Monthly)</th>
+      <th style="text-align:right;">Mei 2026 (Yearly)</th>
+      <th style="text-align:right;">Juni 2026 (Monthly)</th>
+      <th style="text-align:right;">Juni 2026 (Yearly)</th>
+      <th style="text-align:right;">Juli 2026 (Monthly)</th>
+      <th style="text-align:right;">Juli 2026 (Yearly)</th>
+      <th style="text-align:center;">Evaluasi &amp; Catatan Median</th>
+    </tr>
+  `;
+
+  let bodyHtml = rows.map(r => {
+    let cellsHtml = '';
+
+    mData.forEach(d => {
+      let mVal = '';
+      let yVal = '';
+
+      if (r.key === 'hpp_pct') {
+        const mPct = (d.hpp / d.pendapatanBersih) * 100;
+        const yPct = (d.yearly.hpp / d.yearly.pendapatanBersih) * 100;
+        const isSpike = mPct > 98;
+        mVal = `<span style="font-weight:800; color:${isSpike ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
+        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+      } else if (r.key === 'gross_margin_pct') {
+        const mPct = (d.labaKotor / d.pendapatanBersih) * 100;
+        const yPct = (d.yearly.labaKotor / d.yearly.pendapatanBersih) * 100;
+        mVal = `<span style="font-weight:800; color:${mPct < 1.0 ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
+        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+      } else if (r.key === 'gaji_pct') {
+        const mPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
+        const yPct = (d.yearly.gajiPegawai / d.yearly.pendapatanBersih) * 100;
+        const isHigh = mPct > 2.0;
+        mVal = `<span style="font-weight:800; color:${isHigh ? '#f59e0b' : 'inherit'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
+        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+      } else if (r.key === 'opex_pct') {
+        const mPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
+        const yPct = (d.yearly.biayaOperasional / d.yearly.pendapatanBersih) * 100;
+        mVal = `<span style="font-weight:800; color:#10b981;">${mPct.toFixed(2).replace('.', ',')}%</span>`;
+        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+      } else {
+        const mRaw = d[r.key];
+        const yRaw = d.yearly ? d.yearly[r.key] : 0;
+
+        if (r.format === 'rp_colored' || r.format === 'rp_colored_bold') {
+          const mColor = mRaw >= 0 ? '#10b981' : '#ef4444';
+          const yColor = yRaw >= 0 ? '#10b981' : '#ef4444';
+          mVal = `<span style="color:${mColor}; font-weight:700;">${formatRupiah(mRaw)}</span>`;
+          yVal = `<span style="color:${yColor};">${formatRupiah(yRaw)}</span>`;
+        } else if (r.format === 'rp_neg') {
+          mVal = `<span style="color:#ef4444;">- ${formatRupiah(mRaw)}</span>`;
+          yVal = `<span style="color:#ef4444;">- ${formatRupiah(yRaw)}</span>`;
+        } else {
+          mVal = formatRupiah(mRaw);
+          yVal = formatRupiah(yRaw);
+        }
+      }
+
+      cellsHtml += `
+        <td style="text-align:right;">${mVal}</td>
+        <td style="text-align:right; color:var(--text-muted);">${yVal}</td>
+      `;
+    });
+
+    let evalCol = '';
+    if (r.key === 'hpp_pct') {
+      evalCol = `<span style="color:#ef4444; font-weight:800;">🚨 Juli 99,5% (+3,1% di atas tahunan)</span>`;
+    } else if (r.key === 'gaji_pct') {
+      evalCol = `<span style="color:#f59e0b; font-weight:800;">⚠️ Juni 2,33% (+0,6% ada THR)</span>`;
+    } else if (r.key === 'opex_pct') {
+      evalCol = `<span style="color:#10b981; font-weight:800;">✅ Konsisten &lt; 3,5% (Efisien)</span>`;
+    } else if (r.key === 'labaBersih') {
+      evalCol = `<span style="color:#ef4444; font-weight:800;">🚨 Juni &amp; Juli Defisit</span>`;
+    } else {
+      evalCol = `<span style="color:var(--text-muted);">-</span>`;
+    }
+
+    const rowClass = r.highlight ? 'style="background: rgba(56, 189, 248, 0.04);"' : '';
+
+    return `
+      <tr ${rowClass}>
+        <td class="col-label col-sticky-freeze">${r.label}</td>
+        ${cellsHtml}
+        <td style="text-align:center; font-size:0.8rem;">${evalCol}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="chart-data-table">
+      <thead>${headerHtml}</thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+}
+
+function renderHealthSunkDashboard() {
+  const container = document.getElementById('healthSunkDashboard');
+  if (!container) return;
+
+  const mMay = HEALTH_FINANCIAL_DATA['2026-05'];
+  const mJun = HEALTH_FINANCIAL_DATA['2026-06'];
+  const mJul = HEALTH_FINANCIAL_DATA['2026-07'];
+
+  container.innerHTML = `
+    <div class="chart-header">
+      <div>
+        <h3 class="chart-title">⚓ 3. Dashboard Sunk Cost (Biaya Tenggelam &amp; Pengeluaran Non-Recoverable)</h3>
+        <p class="chart-subtitle">Pemantauan biaya yang sudah keluar dan tidak dapat ditarik kembali terlepas dari keputusan masa depan</p>
+      </div>
+    </div>
+
+    <!-- Sunk Cost Key Highlights Grid -->
+    <div class="health-sunk-grid">
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🏢 Akumulasi Penyusutan Aset</span>
+        <div class="sunk-item-val">Rp 1.616.848.376</div>
+        <span class="sunk-item-desc">Rutin Rp 3.201.053/bulan (Bangunan &amp; Inventaris Kantor)</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🏷️ Potongan Penjualan (Diskon) Juli</span>
+        <div class="sunk-item-val">Rp 189.554.134</div>
+        <span class="sunk-item-desc">Naik dari Rp 9,2 Rb (Mei) ➔ Rp 57,4 Jt (Juni) ➔ Rp 189,5 Jt (Juli)</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🎉 THR Galungan &amp; Kuningan</span>
+        <div class="sunk-item-val">Rp 41.310.000</div>
+        <span class="sunk-item-desc">Beban payroll keagamaan dibayarkan 10 Juni 2026</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🏛️ Pajak PBB Tahun 2026 Lunas</span>
+        <div class="sunk-item-val">Rp 12.550.720</div>
+        <span class="sunk-item-desc">Beban pajak properti dibayarkan penuh pada bulan Juni</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🍽️ Puncak Entertainment Tamu</span>
+        <div class="sunk-item-val">Rp 16.324.138</div>
+        <span class="sunk-item-desc">Kunjungan tamu Mr. Sena &amp; Ko Andre di bulan Juni (Juli Rp 0)</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">⚖️ Titipan Bunga Pinjaman Mihardjo</span>
+        <div class="sunk-item-val">Rp 2.288.034.822</div>
+        <span class="sunk-item-desc">Beban bunga titipan akumulatif (Juni Rp 11,9 Jt, Juli Rp 20,2 Jt)</span>
+      </div>
+    </div>
+
+    <!-- Sunk Cost Monthly Comparison Table -->
+    <div class="chart-table-wrap" style="margin-top: 10px;">
+      <h4 class="table-title">📊 Rincian Komponen Sunk Cost per Bulan (Mei, Juni, Juli 2026):</h4>
+      <div class="table-responsive">
+        <table class="chart-data-table">
+          <thead>
+            <tr>
+              <th class="col-sticky-freeze">Kategori Sunk Cost</th>
+              <th style="text-align:right;">Mei 2026</th>
+              <th style="text-align:right;">Juni 2026</th>
+              <th style="text-align:right;">Juli 2026</th>
+              <th style="text-align:left;">Sifat Biaya &amp; Dampak Likuiditas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-label col-sticky-freeze">Penyusutan Aktiva Tetap (Depresiasi)</td>
+              <td style="text-align:right;">Rp 3.201.053</td>
+              <td style="text-align:right;">Rp 3.201.053</td>
+              <td style="text-align:right;">Rp 3.201.053</td>
+              <td>Non-cash sunk cost rutin fasilitas gedung &amp; inventaris</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Pajak Penghasilan (PPh 25 Setoran Kas)</td>
+              <td style="text-align:right;">Rp 39.758.179</td>
+              <td style="text-align:right;">Rp 39.756.859</td>
+              <td style="text-align:right;">Rp 39.763.879</td>
+              <td>Kewajiban negara tidak dapat ditarik kembali (Rp ~39,7 Jt/bln)</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Pajak Bumi &amp; Bangunan (PBB)</td>
+              <td style="text-align:right;">Rp 0</td>
+              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 12.550.720</td>
+              <td style="text-align:right;">Rp 0</td>
+              <td>Biaya tahunan dibayar lunas pada tanggal 3 Juni 2026</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">THR Karyawan (Galungan &amp; Kuningan)</td>
+              <td style="text-align:right;">Rp 0</td>
+              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 41.310.000</td>
+              <td style="text-align:right;">Rp 0</td>
+              <td>Beban musiman keagamaan staf lokal Bali</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Biaya Jamuan Tamu &amp; Entertainment</td>
+              <td style="text-align:right;">Rp 3.619.926</td>
+              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 16.324.138</td>
+              <td style="text-align:right;">Rp 0</td>
+              <td>Kunjungan tamu Mr. Sena, jamuan makan, bandara &amp; cinderamata</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Sumbangan Upacara, Canang &amp; Daksina</td>
+              <td style="text-align:right;">Rp 2.051.250</td>
+              <td style="text-align:right;">Rp 675.000</td>
+              <td style="text-align:right;">Rp 1.700.500</td>
+              <td>Beban ritual dan seremonial bulanan</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Potongan Penjualan (Diskon / Margin Concession)</td>
+              <td style="text-align:right;">Rp 9.259</td>
+              <td style="text-align:right;">Rp 57.397.271</td>
+              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 189.554.134</td>
+              <td>🚨 Margin kotor yang dikorbankan demi penjualan kredit</td>
+            </tr>
+            <tr class="row-total">
+              <td class="col-label col-sticky-freeze">Total Sunk Cost Teridentifikasi</td>
+              <td style="text-align:right; font-weight:800;">Rp 48.639.667</td>
+              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 171.215.041</td>
+              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 234.219.566</td>
+              <td style="font-weight:700;">Melonjak drastis pada Juni dan Juli 2026</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderHealthExecutiveNotes() {
+  const container = document.getElementById('healthExecutiveNotes');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="chart-header">
+      <div>
+        <h3 class="chart-title">💡 4. Papan Catatan Audit &amp; Peringatan Anomali Keuangan</h3>
+        <p class="chart-subtitle">Indikasi deviasi rasio bulanan terhadap median tahunan serta temuan kunci keuangan</p>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
+      <!-- Alert 1: HPP Spike -->
+      <div class="health-note-callout note-danger">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #ef4444;">
+          🚨 ALARM KRITIS: Rasio HPP Bulan Juli 2026 Mencapai 99,53% (Jauh di Atas Median)
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
+          Pada bulan Juli 2026, persentase HPP melonjak tajam ke <strong>99,53%</strong>, berada <strong>+3,13% di atas benchmark tahunan (96,40%)</strong> dan +2,17% di atas median bulanan (97,36%).
+          Laba kotor perusahaan tersisa hanya <strong>Rp 23.963.274 (0,47%)</strong> dari total omzet bersih Rp 5,15 Miliar.
+          Penyebab utamanya adalah lonjakan <strong>potongan penjualan (diskon) sebesar Rp 189.554.134 (3,68%)</strong>. Diskon agresif ini menghabiskan marjin laba dan gagal mendongkrak penjualan (omzet bersih justru turun 9,5% dari Juni).
+        </div>
+      </div>
+
+      <!-- Alert 2: Gaji Juni Spike -->
+      <div class="health-note-callout note-warning">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #f59e0b;">
+          ⚠️ ANOMALI GAJI: Beban Gaji Bulan Juni 2026 Naik Menjadi 2,33% (+34% di Atas Rata-rata)
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
+          Beban gaji melonjak dari Rp 91,4 Jt (1,61%) di Mei menjadi <strong>Rp 132.624.000 (2,33%)</strong> di Juni, berada <strong>+0,59% di atas benchmark tahunan (1,74%)</strong>.
+          Kenaikan ini merupakan beban musiman akibat pembayaran <strong>THR Galungan &amp; Kuningan sebesar Rp 41.310.000</strong> pada tanggal 10 Juni 2026. Pada bulan Juli beban gaji telah kembali normal ke <strong>1,77% (Rp 91,37 Jt)</strong>.
+        </div>
+      </div>
+
+      <!-- Alert 3: Beban Operasional Juni -->
+      <div class="health-note-callout note-warning">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #f59e0b;">
+          ⚠️ LONJAKAN OPEX JUNI: Akumulasi PBB Setahun Penuh &amp; Jamuan Entertainment
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
+          Total biaya operasional bulan Juni melonjak <strong>+58,2%</strong> menjadi Rp 194.363.975 (3,41%) dibandingkan Mei yang hanya Rp 122,8 Jt (2,17%).
+          Penyebab lonjakan: pelunasan <strong>Pajak Bumi &amp; Bangunan (PBB) tahun 2026 sebesar Rp 12.550.720</strong> dan pengeluaran <strong>entertainment tamu supplier sebesar Rp 16.324.138</strong> (kunjungan Mr. Sena &amp; Ko Andre, cinderamata papan nama ukir Rp 1,25 Jt, dan jamuan makan).
+        </div>
+      </div>
+
+      <!-- Alert 4: Mei Benchmark -->
+      <div class="health-note-callout note-success">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">
+          💡 TOLOK UKUR IDEAL: Bulan Mei 2026 Mencapai Laba Bersih Positif Rp 99 Juta
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
+          Bulan Mei 2026 membuktikan struktur operasional yang sangat sehat: rasio HPP terkendali di <strong>95,64%</strong>, potongan penjualan hampir nol (Rp 9.259), beban operasional ditekan efisien di <strong>2,17%</strong>, dan menghasilkan <strong>laba bersih Rp 99.025.287</strong> (+1,75%).
+        </div>
+      </div>
+
+      <!-- Alert 5: Likuiditas & Arus Kas Pemilik -->
+      <div class="health-note-callout note-info">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #38bdf8;">
+          🏦 ARUS KAS &amp; PINJAMAN PEMILIK: Ketergantungan Modal Kerja pada Bpk. Mihardjo
+        </div>
+        <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
+          Rekening BCA Kredit 1122 menunjukkan pinjaman dan pengembalian dana Bpk. Mihardjo dalam miliaran rupiah setiap bulan untuk menjembatani pelunasan tagihan Sumi Rubber Indonesia (SRI) saat piutang toko belum cair.
+          Beban titipan bunga pinjaman Mihardjo mencapai <strong>Rp 11.955.188 di Juni</strong> dan <strong>Rp 20.215.143 di Juli</strong>, dengan akumulasi titipan mencapai <strong>Rp 2.288.034.822</strong> di neraca.
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ==========================================================================
@@ -3423,6 +4624,9 @@ if (typeof window !== 'undefined') {
   window.sortCategoryStores = sortCategoryStores;
   window.filterBLStores = filterBLStores;
   window.sortBLStores = sortBLStores;
+  window.handleBlThresholdChange = handleBlThresholdChange;
+  window.toggleStoreBucketAccordion = toggleStoreBucketAccordion;
+  window.toggleAllStoreBuckets = toggleAllStoreBuckets;
   window.filterPayments = filterPayments;
   window.filterPaymentsByStatus = filterPaymentsByStatus;
   window.togglePaymentStoreAccordion = togglePaymentStoreAccordion;
@@ -3441,4 +4645,6 @@ if (typeof window !== 'undefined') {
   window.parseRawOcrTextarea = parseRawOcrTextarea;
   window.downloadCurrentJson = downloadCurrentJson;
   window.restoreOriginalData = restoreOriginalData;
+  window.openHealthDashboard = openHealthDashboard;
+  window.setHealthPeriod = setHealthPeriod;
 }

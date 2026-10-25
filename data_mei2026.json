@@ -1560,12 +1560,21 @@
         }
       ]
     },
-    "gt120": {
-      "id": "gt120",
-      "label": "> 120 Hari",
-      "total": 1290183537,
-      "invoiceCount": 130,
+    "121_365": {
+      "id": "121_365",
+      "label": "121 - 365 Hari",
+      "sublabel": "Usia 121 - 365 hari (4 - 12 Bulan)",
+      "total": 959319976,
+      "invoiceCount": 110,
       "stores": [
+        {
+          "kode": "113560",
+          "namaToko": "OSCAR SANUR",
+          "total": 378704220,
+          "invoiceCount": 75,
+          "minAge": 122,
+          "maxAge": 365
+        },
         {
           "kode": "113512",
           "namaToko": "DUTA BAN",
@@ -1575,12 +1584,12 @@
           "maxAge": 206
         },
         {
-          "kode": "113560",
-          "namaToko": "OSCAR SANUR",
-          "total": 390063869,
-          "invoiceCount": 77,
-          "minAge": 122,
-          "maxAge": 369
+          "kode": "113556",
+          "namaToko": "CAHAYA BAN",
+          "total": 140438483,
+          "invoiceCount": 2,
+          "minAge": 136,
+          "maxAge": 137
         },
         {
           "kode": "113100",
@@ -1607,13 +1616,22 @@
           "maxAge": 125
         },
         {
-          "kode": "113556",
-          "namaToko": "CAHAYA BAN",
-          "total": 140438483,
-          "invoiceCount": 2,
-          "minAge": 136,
-          "maxAge": 137
-        },
+          "kode": "113673",
+          "namaToko": "MORA BAN",
+          "total": 5488920,
+          "invoiceCount": 1,
+          "minAge": 138,
+          "maxAge": 138
+        }
+      ]
+    },
+    "gt365": {
+      "id": "gt365",
+      "label": "> 365 Hari",
+      "sublabel": "Usia lebih dari 1 tahun (> 365 Hari)",
+      "total": 330863561,
+      "invoiceCount": 20,
+      "stores": [
         {
           "kode": "113663",
           "namaToko": "FAHRI GUNAWAN",
@@ -1655,12 +1673,12 @@
           "maxAge": 606
         },
         {
-          "kode": "113673",
-          "namaToko": "MORA BAN",
-          "total": 5488920,
-          "invoiceCount": 1,
-          "minAge": 138,
-          "maxAge": 138
+          "kode": "113560",
+          "namaToko": "OSCAR SANUR",
+          "total": 11359649,
+          "invoiceCount": 2,
+          "minAge": 368,
+          "maxAge": 369
         },
         {
           "kode": "113010",
@@ -1679,6 +1697,13 @@
           "maxAge": 2285
         }
       ]
+    },
+    "gt120": {
+      "id": "gt120",
+      "label": "> 120 Hari (Total)",
+      "total": 1290183537,
+      "invoiceCount": 130,
+      "stores": []
     }
   },
   "stores": [
@@ -2831,6 +2856,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -4545,6 +4586,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -6341,6 +6398,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -9032,6 +9105,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -12604,6 +12693,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -17233,6 +17338,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -20006,6 +20127,87 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 252909430,
+          "minAge": 137,
+          "maxAge": 206,
+          "invoices": [
+            {
+              "kode": "113512",
+              "namaToko": "DUTA BAN",
+              "noNota": "00254",
+              "tanggalNota": "14/01/26",
+              "umurHari": 137,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 42750000,
+              "jumlah": 42750000,
+              "ket": "137hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113512",
+              "namaToko": "DUTA BAN",
+              "noNota": "04977",
+              "tanggalNota": "22/12/25",
+              "umurHari": 160,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 39664800,
+              "jumlah": 39664800,
+              "ket": "160hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113512",
+              "namaToko": "DUTA BAN",
+              "noNota": "04167",
+              "tanggalNota": "07/11/25",
+              "umurHari": 205,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 30680750,
+              "jumlah": 30680750,
+              "ket": "205hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113512",
+              "namaToko": "DUTA BAN",
+              "noNota": "04149",
+              "tanggalNota": "06/11/25",
+              "umurHari": 206,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 139813880,
+              "jumlah": 139813880,
+              "ket": "206hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -20182,8 +20384,8 @@
           "bOver120": 42750000,
           "jumlah": 42750000,
           "ket": "137hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113512",
@@ -20198,8 +20400,8 @@
           "bOver120": 39664800,
           "jumlah": 39664800,
           "ket": "160hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113512",
@@ -20214,8 +20416,8 @@
           "bOver120": 30680750,
           "jumlah": 30680750,
           "ket": "205hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113512",
@@ -20230,8 +20432,8 @@
           "bOver120": 139813880,
           "jumlah": 139813880,
           "ket": "206hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -22329,6 +22531,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -26367,6 +26585,1256 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 378704220,
+          "minAge": 122,
+          "maxAge": 365,
+          "invoices": [
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00541",
+              "tanggalNota": "29/01/26",
+              "umurHari": 122,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 806400,
+              "jumlah": 806400,
+              "ket": "122hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00342",
+              "tanggalNota": "19/01/26",
+              "umurHari": 132,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 869440,
+              "jumlah": 869440,
+              "ket": "132hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00259",
+              "tanggalNota": "14/01/26",
+              "umurHari": 137,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2515610,
+              "jumlah": 2515610,
+              "ket": "137hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00211",
+              "tanggalNota": "12/01/26",
+              "umurHari": 139,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2599200,
+              "jumlah": 2599200,
+              "ket": "139hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00177",
+              "tanggalNota": "10/01/26",
+              "umurHari": 141,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2435800,
+              "jumlah": 2435800,
+              "ket": "141hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00030",
+              "tanggalNota": "03/01/26",
+              "umurHari": 148,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 15359740,
+              "jumlah": 15359740,
+              "ket": "148hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "00009",
+              "tanggalNota": "02/01/26",
+              "umurHari": 149,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2302500,
+              "jumlah": 2302500,
+              "ket": "149hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "05101",
+              "tanggalNota": "30/12/25",
+              "umurHari": 152,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3249000,
+              "jumlah": 3249000,
+              "ket": "152hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04988",
+              "tanggalNota": "23/12/25",
+              "umurHari": 159,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2988100,
+              "jumlah": 2988100,
+              "ket": "159hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04948",
+              "tanggalNota": "22/12/25",
+              "umurHari": 160,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2171840,
+              "jumlah": 2171840,
+              "ket": "160hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04918",
+              "tanggalNota": "19/12/25",
+              "umurHari": 163,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2902890,
+              "jumlah": 2902890,
+              "ket": "163hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04843",
+              "tanggalNota": "15/12/25",
+              "umurHari": 167,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 498750,
+              "jumlah": 498750,
+              "ket": "167hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04732",
+              "tanggalNota": "09/12/25",
+              "umurHari": 173,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1350900,
+              "jumlah": 1350900,
+              "ket": "173hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04724",
+              "tanggalNota": "09/12/25",
+              "umurHari": 173,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2599200,
+              "jumlah": 2599200,
+              "ket": "173hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04721",
+              "tanggalNota": "09/12/25",
+              "umurHari": 173,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2599200,
+              "jumlah": 2599200,
+              "ket": "173hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04647",
+              "tanggalNota": "05/12/25",
+              "umurHari": 177,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3274450,
+              "jumlah": 3274450,
+              "ket": "177hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04555",
+              "tanggalNota": "02/12/25",
+              "umurHari": 180,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 21645180,
+              "jumlah": 21645180,
+              "ket": "180hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04503",
+              "tanggalNota": "27/11/25",
+              "umurHari": 185,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2171840,
+              "jumlah": 2171840,
+              "ket": "185hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04298",
+              "tanggalNota": "13/11/25",
+              "umurHari": 199,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4631260,
+              "jumlah": 4631260,
+              "ket": "199hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04236",
+              "tanggalNota": "11/11/25",
+              "umurHari": 201,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2171840,
+              "jumlah": 2171840,
+              "ket": "201hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04105",
+              "tanggalNota": "04/11/25",
+              "umurHari": 208,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 16072900,
+              "jumlah": 16072900,
+              "ket": "208hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04101",
+              "tanggalNota": "04/11/25",
+              "umurHari": 208,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5054000,
+              "jumlah": 5054000,
+              "ket": "208hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04037",
+              "tanggalNota": "01/11/25",
+              "umurHari": 211,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 15065100,
+              "jumlah": 15065100,
+              "ket": "211hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04036",
+              "tanggalNota": "01/11/25",
+              "umurHari": 211,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 16804880,
+              "jumlah": 16804880,
+              "ket": "211hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "04001",
+              "tanggalNota": "30/10/25",
+              "umurHari": 213,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5054000,
+              "jumlah": 5054000,
+              "ket": "213hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03953",
+              "tanggalNota": "27/10/25",
+              "umurHari": 216,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3001120,
+              "jumlah": 3001120,
+              "ket": "216hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03916",
+              "tanggalNota": "25/10/25",
+              "umurHari": 218,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5684800,
+              "jumlah": 5684800,
+              "ket": "218hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03903",
+              "tanggalNota": "24/10/25",
+              "umurHari": 219,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4377600,
+              "jumlah": 4377600,
+              "ket": "219hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03892",
+              "tanggalNota": "23/10/25",
+              "umurHari": 220,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 948100,
+              "jumlah": 948100,
+              "ket": "220hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03886",
+              "tanggalNota": "23/10/25",
+              "umurHari": 220,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2372480,
+              "jumlah": 2372480,
+              "ket": "220hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03793",
+              "tanggalNota": "18/10/25",
+              "umurHari": 225,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2334150,
+              "jumlah": 2334150,
+              "ket": "225hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03730",
+              "tanggalNota": "15/10/25",
+              "umurHari": 228,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3431400,
+              "jumlah": 3431400,
+              "ket": "228hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03711",
+              "tanggalNota": "14/10/25",
+              "umurHari": 229,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3657500,
+              "jumlah": 3657500,
+              "ket": "229hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03532",
+              "tanggalNota": "04/10/25",
+              "umurHari": 239,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 11614700,
+              "jumlah": 11614700,
+              "ket": "239hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03479",
+              "tanggalNota": "01/10/25",
+              "umurHari": 242,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2929800,
+              "jumlah": 2929800,
+              "ket": "242hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03404",
+              "tanggalNota": "27/09/25",
+              "umurHari": 246,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2160300,
+              "jumlah": 2160300,
+              "ket": "246hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03300",
+              "tanggalNota": "22/09/25",
+              "umurHari": 251,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2561200,
+              "jumlah": 2561200,
+              "ket": "251hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03292",
+              "tanggalNota": "22/09/25",
+              "umurHari": 251,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 8530200,
+              "jumlah": 8530200,
+              "ket": "251hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03255",
+              "tanggalNota": "19/09/25",
+              "umurHari": 254,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1280600,
+              "jumlah": 1280600,
+              "ket": "254hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03254",
+              "tanggalNota": "19/09/25",
+              "umurHari": 254,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2561200,
+              "jumlah": 2561200,
+              "ket": "254hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03231",
+              "tanggalNota": "18/09/25",
+              "umurHari": 255,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2929800,
+              "jumlah": 2929800,
+              "ket": "255hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03133",
+              "tanggalNota": "13/09/25",
+              "umurHari": 260,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2344600,
+              "jumlah": 2344600,
+              "ket": "260hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03125",
+              "tanggalNota": "12/09/25",
+              "umurHari": 261,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2561200,
+              "jumlah": 2561200,
+              "ket": "261hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "03123",
+              "tanggalNota": "12/09/25",
+              "umurHari": 261,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 7497400,
+              "jumlah": 7497400,
+              "ket": "261hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02965",
+              "tanggalNota": "02/09/25",
+              "umurHari": 271,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1688400,
+              "jumlah": 1688400,
+              "ket": "271hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02946",
+              "tanggalNota": "02/09/25",
+              "umurHari": 271,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3442800,
+              "jumlah": 3442800,
+              "ket": "271hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02938",
+              "tanggalNota": "01/09/25",
+              "umurHari": 272,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 10166350,
+              "jumlah": 10166350,
+              "ket": "272hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02937",
+              "tanggalNota": "01/09/25",
+              "umurHari": 272,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 7800450,
+              "jumlah": 7800450,
+              "ket": "272hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02875",
+              "tanggalNota": "28/08/25",
+              "umurHari": 276,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1939900,
+              "jumlah": 1939900,
+              "ket": "276hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02862",
+              "tanggalNota": "27/08/25",
+              "umurHari": 277,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3442800,
+              "jumlah": 3442800,
+              "ket": "277hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02700",
+              "tanggalNota": "19/08/25",
+              "umurHari": 285,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3323100,
+              "jumlah": 3323100,
+              "ket": "285hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02690",
+              "tanggalNota": "18/08/25",
+              "umurHari": 286,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 16267800,
+              "jumlah": 16267800,
+              "ket": "286hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02661",
+              "tanggalNota": "16/08/25",
+              "umurHari": 288,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4377600,
+              "jumlah": 4377600,
+              "ket": "288hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02554",
+              "tanggalNota": "11/08/25",
+              "umurHari": 293,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2390200,
+              "jumlah": 2390200,
+              "ket": "293hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02384",
+              "tanggalNota": "01/08/25",
+              "umurHari": 303,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 21802500,
+              "jumlah": 21802500,
+              "ket": "303hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02375",
+              "tanggalNota": "01/08/25",
+              "umurHari": 303,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3808550,
+              "jumlah": 3808550,
+              "ket": "303hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02352",
+              "tanggalNota": "31/07/25",
+              "umurHari": 304,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2599200,
+              "jumlah": 2599200,
+              "ket": "304hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02347",
+              "tanggalNota": "31/07/25",
+              "umurHari": 304,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2929800,
+              "jumlah": 2929800,
+              "ket": "304hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02263",
+              "tanggalNota": "26/07/25",
+              "umurHari": 309,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3678400,
+              "jumlah": 3678400,
+              "ket": "309hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02230",
+              "tanggalNota": "24/07/25",
+              "umurHari": 311,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3321200,
+              "jumlah": 3321200,
+              "ket": "311hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02202",
+              "tanggalNota": "22/07/25",
+              "umurHari": 313,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 919600,
+              "jumlah": 919600,
+              "ket": "313hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02091",
+              "tanggalNota": "16/07/25",
+              "umurHari": 319,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3294600,
+              "jumlah": 3294600,
+              "ket": "319hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "02052",
+              "tanggalNota": "15/07/25",
+              "umurHari": 320,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6923600,
+              "jumlah": 6923600,
+              "ket": "320hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01787",
+              "tanggalNota": "02/07/25",
+              "umurHari": 333,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 14397250,
+              "jumlah": 14397250,
+              "ket": "333hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01785",
+              "tanggalNota": "02/07/25",
+              "umurHari": 333,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1624500,
+              "jumlah": 1624500,
+              "ket": "333hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01754",
+              "tanggalNota": "01/07/25",
+              "umurHari": 334,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2929800,
+              "jumlah": 2929800,
+              "ket": "334hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01732",
+              "tanggalNota": "30/06/25",
+              "umurHari": 335,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2517500,
+              "jumlah": 2517500,
+              "ket": "335hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01698",
+              "tanggalNota": "28/06/25",
+              "umurHari": 337,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4404200,
+              "jumlah": 4404200,
+              "ket": "337hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01573",
+              "tanggalNota": "20/06/25",
+              "umurHari": 345,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3051400,
+              "jumlah": 3051400,
+              "ket": "345hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01564",
+              "tanggalNota": "20/06/25",
+              "umurHari": 345,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 10002550,
+              "jumlah": 10002550,
+              "ket": "345hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01466",
+              "tanggalNota": "14/06/25",
+              "umurHari": 351,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 11122600,
+              "jumlah": 11122600,
+              "ket": "351hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01465",
+              "tanggalNota": "14/06/25",
+              "umurHari": 351,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2561200,
+              "jumlah": 2561200,
+              "ket": "351hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01418",
+              "tanggalNota": "11/06/25",
+              "umurHari": 354,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3678400,
+              "jumlah": 3678400,
+              "ket": "354hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01386",
+              "tanggalNota": "10/06/25",
+              "umurHari": 355,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3895000,
+              "jumlah": 3895000,
+              "ket": "355hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01217",
+              "tanggalNota": "31/05/25",
+              "umurHari": 365,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4430800,
+              "jumlah": 4430800,
+              "ket": "365hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 11359649,
+          "minAge": 368,
+          "maxAge": 369,
+          "invoices": [
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01165",
+              "tanggalNota": "28/05/25",
+              "umurHari": 368,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3024800,
+              "jumlah": 3024800,
+              "ket": "368hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113560",
+              "namaToko": "OSCAR SANUR",
+              "noNota": "01137",
+              "tanggalNota": "27/05/25",
+              "umurHari": 369,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 8334849,
+              "jumlah": 8334849,
+              "ket": "369hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -27087,8 +28555,8 @@
           "bOver120": 806400,
           "jumlah": 806400,
           "ket": "122hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27103,8 +28571,8 @@
           "bOver120": 869440,
           "jumlah": 869440,
           "ket": "132hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27119,8 +28587,8 @@
           "bOver120": 2515610,
           "jumlah": 2515610,
           "ket": "137hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27135,8 +28603,8 @@
           "bOver120": 2599200,
           "jumlah": 2599200,
           "ket": "139hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27151,8 +28619,8 @@
           "bOver120": 2435800,
           "jumlah": 2435800,
           "ket": "141hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27167,8 +28635,8 @@
           "bOver120": 15359740,
           "jumlah": 15359740,
           "ket": "148hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27183,8 +28651,8 @@
           "bOver120": 2302500,
           "jumlah": 2302500,
           "ket": "149hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27199,8 +28667,8 @@
           "bOver120": 3249000,
           "jumlah": 3249000,
           "ket": "152hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27215,8 +28683,8 @@
           "bOver120": 2988100,
           "jumlah": 2988100,
           "ket": "159hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27231,8 +28699,8 @@
           "bOver120": 2171840,
           "jumlah": 2171840,
           "ket": "160hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27247,8 +28715,8 @@
           "bOver120": 2902890,
           "jumlah": 2902890,
           "ket": "163hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27263,8 +28731,8 @@
           "bOver120": 498750,
           "jumlah": 498750,
           "ket": "167hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27279,8 +28747,8 @@
           "bOver120": 1350900,
           "jumlah": 1350900,
           "ket": "173hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27295,8 +28763,8 @@
           "bOver120": 2599200,
           "jumlah": 2599200,
           "ket": "173hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27311,8 +28779,8 @@
           "bOver120": 2599200,
           "jumlah": 2599200,
           "ket": "173hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27327,8 +28795,8 @@
           "bOver120": 3274450,
           "jumlah": 3274450,
           "ket": "177hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27343,8 +28811,8 @@
           "bOver120": 21645180,
           "jumlah": 21645180,
           "ket": "180hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27359,8 +28827,8 @@
           "bOver120": 2171840,
           "jumlah": 2171840,
           "ket": "185hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27375,8 +28843,8 @@
           "bOver120": 4631260,
           "jumlah": 4631260,
           "ket": "199hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27391,8 +28859,8 @@
           "bOver120": 2171840,
           "jumlah": 2171840,
           "ket": "201hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27407,8 +28875,8 @@
           "bOver120": 16072900,
           "jumlah": 16072900,
           "ket": "208hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27423,8 +28891,8 @@
           "bOver120": 5054000,
           "jumlah": 5054000,
           "ket": "208hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27439,8 +28907,8 @@
           "bOver120": 15065100,
           "jumlah": 15065100,
           "ket": "211hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27455,8 +28923,8 @@
           "bOver120": 16804880,
           "jumlah": 16804880,
           "ket": "211hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27471,8 +28939,8 @@
           "bOver120": 5054000,
           "jumlah": 5054000,
           "ket": "213hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27487,8 +28955,8 @@
           "bOver120": 3001120,
           "jumlah": 3001120,
           "ket": "216hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27503,8 +28971,8 @@
           "bOver120": 5684800,
           "jumlah": 5684800,
           "ket": "218hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27519,8 +28987,8 @@
           "bOver120": 4377600,
           "jumlah": 4377600,
           "ket": "219hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27535,8 +29003,8 @@
           "bOver120": 948100,
           "jumlah": 948100,
           "ket": "220hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27551,8 +29019,8 @@
           "bOver120": 2372480,
           "jumlah": 2372480,
           "ket": "220hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27567,8 +29035,8 @@
           "bOver120": 2334150,
           "jumlah": 2334150,
           "ket": "225hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27583,8 +29051,8 @@
           "bOver120": 3431400,
           "jumlah": 3431400,
           "ket": "228hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27599,8 +29067,8 @@
           "bOver120": 3657500,
           "jumlah": 3657500,
           "ket": "229hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27615,8 +29083,8 @@
           "bOver120": 11614700,
           "jumlah": 11614700,
           "ket": "239hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27631,8 +29099,8 @@
           "bOver120": 2929800,
           "jumlah": 2929800,
           "ket": "242hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27647,8 +29115,8 @@
           "bOver120": 2160300,
           "jumlah": 2160300,
           "ket": "246hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27663,8 +29131,8 @@
           "bOver120": 2561200,
           "jumlah": 2561200,
           "ket": "251hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27679,8 +29147,8 @@
           "bOver120": 8530200,
           "jumlah": 8530200,
           "ket": "251hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27695,8 +29163,8 @@
           "bOver120": 1280600,
           "jumlah": 1280600,
           "ket": "254hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27711,8 +29179,8 @@
           "bOver120": 2561200,
           "jumlah": 2561200,
           "ket": "254hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27727,8 +29195,8 @@
           "bOver120": 2929800,
           "jumlah": 2929800,
           "ket": "255hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27743,8 +29211,8 @@
           "bOver120": 2344600,
           "jumlah": 2344600,
           "ket": "260hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27759,8 +29227,8 @@
           "bOver120": 2561200,
           "jumlah": 2561200,
           "ket": "261hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27775,8 +29243,8 @@
           "bOver120": 7497400,
           "jumlah": 7497400,
           "ket": "261hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27791,8 +29259,8 @@
           "bOver120": 1688400,
           "jumlah": 1688400,
           "ket": "271hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27807,8 +29275,8 @@
           "bOver120": 3442800,
           "jumlah": 3442800,
           "ket": "271hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27823,8 +29291,8 @@
           "bOver120": 10166350,
           "jumlah": 10166350,
           "ket": "272hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27839,8 +29307,8 @@
           "bOver120": 7800450,
           "jumlah": 7800450,
           "ket": "272hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27855,8 +29323,8 @@
           "bOver120": 1939900,
           "jumlah": 1939900,
           "ket": "276hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27871,8 +29339,8 @@
           "bOver120": 3442800,
           "jumlah": 3442800,
           "ket": "277hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27887,8 +29355,8 @@
           "bOver120": 3323100,
           "jumlah": 3323100,
           "ket": "285hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27903,8 +29371,8 @@
           "bOver120": 16267800,
           "jumlah": 16267800,
           "ket": "286hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27919,8 +29387,8 @@
           "bOver120": 4377600,
           "jumlah": 4377600,
           "ket": "288hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27935,8 +29403,8 @@
           "bOver120": 2390200,
           "jumlah": 2390200,
           "ket": "293hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27951,8 +29419,8 @@
           "bOver120": 21802500,
           "jumlah": 21802500,
           "ket": "303hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27967,8 +29435,8 @@
           "bOver120": 3808550,
           "jumlah": 3808550,
           "ket": "303hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27983,8 +29451,8 @@
           "bOver120": 2599200,
           "jumlah": 2599200,
           "ket": "304hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -27999,8 +29467,8 @@
           "bOver120": 2929800,
           "jumlah": 2929800,
           "ket": "304hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28015,8 +29483,8 @@
           "bOver120": 3678400,
           "jumlah": 3678400,
           "ket": "309hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28031,8 +29499,8 @@
           "bOver120": 3321200,
           "jumlah": 3321200,
           "ket": "311hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28047,8 +29515,8 @@
           "bOver120": 919600,
           "jumlah": 919600,
           "ket": "313hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28063,8 +29531,8 @@
           "bOver120": 3294600,
           "jumlah": 3294600,
           "ket": "319hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28079,8 +29547,8 @@
           "bOver120": 6923600,
           "jumlah": 6923600,
           "ket": "320hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28095,8 +29563,8 @@
           "bOver120": 14397250,
           "jumlah": 14397250,
           "ket": "333hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28111,8 +29579,8 @@
           "bOver120": 1624500,
           "jumlah": 1624500,
           "ket": "333hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28127,8 +29595,8 @@
           "bOver120": 2929800,
           "jumlah": 2929800,
           "ket": "334hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28143,8 +29611,8 @@
           "bOver120": 2517500,
           "jumlah": 2517500,
           "ket": "335hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28159,8 +29627,8 @@
           "bOver120": 4404200,
           "jumlah": 4404200,
           "ket": "337hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28175,8 +29643,8 @@
           "bOver120": 3051400,
           "jumlah": 3051400,
           "ket": "345hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28191,8 +29659,8 @@
           "bOver120": 10002550,
           "jumlah": 10002550,
           "ket": "345hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28207,8 +29675,8 @@
           "bOver120": 11122600,
           "jumlah": 11122600,
           "ket": "351hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28223,8 +29691,8 @@
           "bOver120": 2561200,
           "jumlah": 2561200,
           "ket": "351hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28239,8 +29707,8 @@
           "bOver120": 3678400,
           "jumlah": 3678400,
           "ket": "354hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28255,8 +29723,8 @@
           "bOver120": 3895000,
           "jumlah": 3895000,
           "ket": "355hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28271,8 +29739,8 @@
           "bOver120": 4430800,
           "jumlah": 4430800,
           "ket": "365hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113560",
@@ -28287,8 +29755,8 @@
           "bOver120": 3024800,
           "jumlah": 3024800,
           "ket": "368hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113560",
@@ -28303,8 +29771,8 @@
           "bOver120": 8334849,
           "jumlah": 8334849,
           "ket": "369hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -28900,6 +30368,119 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 91253920,
+          "minAge": 131,
+          "maxAge": 149,
+          "invoices": [
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00360",
+              "tanggalNota": "20/01/26",
+              "umurHari": 131,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6182200,
+              "jumlah": 6182200,
+              "ket": "131hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00345",
+              "tanggalNota": "20/01/26",
+              "umurHari": 131,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4155240,
+              "jumlah": 4155240,
+              "ket": "131hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00340",
+              "tanggalNota": "19/01/26",
+              "umurHari": 132,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 8700150,
+              "jumlah": 8700150,
+              "ket": "132hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00243",
+              "tanggalNota": "13/01/26",
+              "umurHari": 138,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 21558250,
+              "jumlah": 21558250,
+              "ket": "138hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00129",
+              "tanggalNota": "08/01/26",
+              "umurHari": 143,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 7908720,
+              "jumlah": 7908720,
+              "ket": "143hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113100",
+              "namaToko": "BARU MOTOR",
+              "noNota": "00013",
+              "tanggalNota": "02/01/26",
+              "umurHari": 149,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 42749360,
+              "jumlah": 42749360,
+              "ket": "149hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -29380,8 +30961,8 @@
           "bOver120": 6182200,
           "jumlah": 6182200,
           "ket": "131hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113100",
@@ -29396,8 +30977,8 @@
           "bOver120": 4155240,
           "jumlah": 4155240,
           "ket": "131hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113100",
@@ -29412,8 +30993,8 @@
           "bOver120": 8700150,
           "jumlah": 8700150,
           "ket": "132hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113100",
@@ -29428,8 +31009,8 @@
           "bOver120": 21558250,
           "jumlah": 21558250,
           "ket": "138hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113100",
@@ -29444,8 +31025,8 @@
           "bOver120": 7908720,
           "jumlah": 7908720,
           "ket": "143hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113100",
@@ -29460,8 +31041,8 @@
           "bOver120": 42749360,
           "jumlah": 42749360,
           "ket": "149hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -30983,6 +32564,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -33532,6 +35129,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -35663,6 +37276,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -38307,6 +39936,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -41065,6 +42710,327 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 81201015,
+          "minAge": 125,
+          "maxAge": 162,
+          "invoices": [
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00478",
+              "tanggalNota": "26/01/26",
+              "umurHari": 125,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5711400,
+              "jumlah": 5711400,
+              "ket": "125hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00453",
+              "tanggalNota": "26/01/26",
+              "umurHari": 125,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6243400,
+              "jumlah": 6243400,
+              "ket": "125hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00435",
+              "tanggalNota": "24/01/26",
+              "umurHari": 127,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6287810,
+              "jumlah": 6287810,
+              "ket": "127hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00396",
+              "tanggalNota": "22/01/26",
+              "umurHari": 129,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1252100,
+              "jumlah": 1252100,
+              "ket": "129hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00335",
+              "tanggalNota": "19/01/26",
+              "umurHari": 132,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3976710,
+              "jumlah": 3976710,
+              "ket": "132hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00305",
+              "tanggalNota": "17/01/26",
+              "umurHari": 134,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1349000,
+              "jumlah": 1349000,
+              "ket": "134hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00300",
+              "tanggalNota": "16/01/26",
+              "umurHari": 135,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2608320,
+              "jumlah": 2608320,
+              "ket": "135hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00223",
+              "tanggalNota": "13/01/26",
+              "umurHari": 138,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4697750,
+              "jumlah": 4697750,
+              "ket": "138hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00202",
+              "tanggalNota": "12/01/26",
+              "umurHari": 139,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 7748250,
+              "jumlah": 7748250,
+              "ket": "139hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00143",
+              "tanggalNota": "08/01/26",
+              "umurHari": 143,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3283900,
+              "jumlah": 3283900,
+              "ket": "143hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00103",
+              "tanggalNota": "06/01/26",
+              "umurHari": 145,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4787900,
+              "jumlah": 4787900,
+              "ket": "145hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00032",
+              "tanggalNota": "03/01/26",
+              "umurHari": 148,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3252800,
+              "jumlah": 3252800,
+              "ket": "148hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00023",
+              "tanggalNota": "02/01/26",
+              "umurHari": 149,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6142700,
+              "jumlah": 6142700,
+              "ket": "149hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00010",
+              "tanggalNota": "02/01/26",
+              "umurHari": 149,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2599200,
+              "jumlah": 2599200,
+              "ket": "149hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "00001",
+              "tanggalNota": "02/01/26",
+              "umurHari": 149,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4652800,
+              "jumlah": 4652800,
+              "ket": "149hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "05083",
+              "tanggalNota": "29/12/25",
+              "umurHari": 153,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2557400,
+              "jumlah": 2557400,
+              "ket": "153hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "05040",
+              "tanggalNota": "26/12/25",
+              "umurHari": 156,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 11340200,
+              "jumlah": 11340200,
+              "ket": "156hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "04994",
+              "tanggalNota": "24/12/25",
+              "umurHari": 158,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1424900,
+              "jumlah": 1424900,
+              "ket": "158hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113020",
+              "namaToko": "TIMBUL UD",
+              "noNota": "04936",
+              "tanggalNota": "20/12/25",
+              "umurHari": 162,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 1284475,
+              "jumlah": 1284475,
+              "ket": "162hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -41961,8 +43927,8 @@
           "bOver120": 5711400,
           "jumlah": 5711400,
           "ket": "125hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -41977,8 +43943,8 @@
           "bOver120": 6243400,
           "jumlah": 6243400,
           "ket": "125hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -41993,8 +43959,8 @@
           "bOver120": 6287810,
           "jumlah": 6287810,
           "ket": "127hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42009,8 +43975,8 @@
           "bOver120": 1252100,
           "jumlah": 1252100,
           "ket": "129hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42025,8 +43991,8 @@
           "bOver120": 3976710,
           "jumlah": 3976710,
           "ket": "132hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42041,8 +44007,8 @@
           "bOver120": 1349000,
           "jumlah": 1349000,
           "ket": "134hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42057,8 +44023,8 @@
           "bOver120": 2608320,
           "jumlah": 2608320,
           "ket": "135hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42073,8 +44039,8 @@
           "bOver120": 4697750,
           "jumlah": 4697750,
           "ket": "138hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42089,8 +44055,8 @@
           "bOver120": 7748250,
           "jumlah": 7748250,
           "ket": "139hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42105,8 +44071,8 @@
           "bOver120": 3283900,
           "jumlah": 3283900,
           "ket": "143hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42121,8 +44087,8 @@
           "bOver120": 4787900,
           "jumlah": 4787900,
           "ket": "145hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42137,8 +44103,8 @@
           "bOver120": 3252800,
           "jumlah": 3252800,
           "ket": "148hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42153,8 +44119,8 @@
           "bOver120": 6142700,
           "jumlah": 6142700,
           "ket": "149hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42169,8 +44135,8 @@
           "bOver120": 2599200,
           "jumlah": 2599200,
           "ket": "149hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42185,8 +44151,8 @@
           "bOver120": 4652800,
           "jumlah": 4652800,
           "ket": "149hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42201,8 +44167,8 @@
           "bOver120": 2557400,
           "jumlah": 2557400,
           "ket": "153hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42217,8 +44183,8 @@
           "bOver120": 11340200,
           "jumlah": 11340200,
           "ket": "156hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42233,8 +44199,8 @@
           "bOver120": 1424900,
           "jumlah": 1424900,
           "ket": "158hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113020",
@@ -42249,8 +44215,8 @@
           "bOver120": 1284475,
           "jumlah": 1284475,
           "ket": "162hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -42475,6 +44441,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -43679,6 +45661,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -46197,6 +48195,71 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 9323988,
+          "minAge": 125,
+          "maxAge": 125,
+          "invoices": [
+            {
+              "kode": "113052",
+              "namaToko": "SUMBER RAYA",
+              "noNota": "00482",
+              "tanggalNota": "26/01/26",
+              "umurHari": 125,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3372500,
+              "jumlah": 3372500,
+              "ket": "125hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113052",
+              "namaToko": "SUMBER RAYA",
+              "noNota": "00475",
+              "tanggalNota": "26/01/26",
+              "umurHari": 125,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5054000,
+              "jumlah": 5054000,
+              "ket": "125hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113052",
+              "namaToko": "SUMBER RAYA",
+              "noNota": "00448",
+              "tanggalNota": "26/01/26",
+              "umurHari": 125,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 897488,
+              "jumlah": 897488,
+              "ket": "125hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -47669,8 +49732,8 @@
           "bOver120": 3372500,
           "jumlah": 3372500,
           "ket": "125hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113052",
@@ -47685,8 +49748,8 @@
           "bOver120": 5054000,
           "jumlah": 5054000,
           "ket": "125hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113052",
@@ -47701,8 +49764,8 @@
           "bOver120": 897488,
           "jumlah": 897488,
           "ket": "125hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -48390,6 +50453,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -49322,6 +51401,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -49661,6 +51756,55 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 140438483,
+          "minAge": 136,
+          "maxAge": 137,
+          "invoices": [
+            {
+              "kode": "113556",
+              "namaToko": "CAHAYA BAN",
+              "noNota": "00282",
+              "tanggalNota": "15/01/26",
+              "umurHari": 136,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 89208600,
+              "jumlah": 89208600,
+              "ket": "136hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            },
+            {
+              "kode": "113556",
+              "namaToko": "CAHAYA BAN",
+              "noNota": "00258",
+              "tanggalNota": "14/01/26",
+              "umurHari": 137,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 51229883,
+              "jumlah": 51229883,
+              "ket": "137hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -49709,8 +51853,8 @@
           "bOver120": 89208600,
           "jumlah": 89208600,
           "ket": "136hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         },
         {
           "kode": "113556",
@@ -49725,8 +51869,8 @@
           "bOver120": 51229883,
           "jumlah": 51229883,
           "ket": "137hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -50592,6 +52736,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -51508,6 +53668,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -51685,6 +53861,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -51943,6 +54135,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -52136,6 +54344,55 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 125574200,
+          "minAge": 1065,
+          "maxAge": 1067,
+          "invoices": [
+            {
+              "kode": "113663",
+              "namaToko": "FAHRI GUNAWAN",
+              "noNota": "66247",
+              "tanggalNota": "01/07/23",
+              "umurHari": 1065,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 69740500,
+              "jumlah": 69740500,
+              "ket": "1065hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113663",
+              "namaToko": "FAHRI GUNAWAN",
+              "noNota": "66226",
+              "tanggalNota": "29/06/23",
+              "umurHari": 1067,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 55833700,
+              "jumlah": 55833700,
+              "ket": "1067hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -52152,8 +54409,8 @@
           "bOver120": 69740500,
           "jumlah": 69740500,
           "ket": "1065hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113663",
@@ -52168,8 +54425,8 @@
           "bOver120": 55833700,
           "jumlah": 55833700,
           "ket": "1067hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -52491,6 +54748,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -52928,6 +55201,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -53155,6 +55444,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -53300,6 +55605,55 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 86250000,
+          "minAge": 3113,
+          "maxAge": 3191,
+          "invoices": [
+            {
+              "kode": "113097",
+              "namaToko": "DEWAJI MOTOR",
+              "noNota": "94385",
+              "tanggalNota": "21/11/17",
+              "umurHari": 3113,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 57500000,
+              "jumlah": 57500000,
+              "ket": "3113hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113097",
+              "namaToko": "DEWAJI MOTOR",
+              "noNota": "75012",
+              "tanggalNota": "04/09/17",
+              "umurHari": 3191,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 28750000,
+              "jumlah": 28750000,
+              "ket": "3191hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -53316,8 +55670,8 @@
           "bOver120": 57500000,
           "jumlah": 57500000,
           "ket": "3113hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113097",
@@ -53332,8 +55686,8 @@
           "bOver120": 28750000,
           "jumlah": 28750000,
           "ket": "3191hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -53413,6 +55767,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -53528,6 +55898,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -53626,6 +56012,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -53706,6 +56108,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -53869,6 +56287,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -54080,6 +56514,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -54225,6 +56675,71 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 56237280,
+          "minAge": 1273,
+          "maxAge": 1333,
+          "invoices": [
+            {
+              "kode": "113495",
+              "namaToko": "DUTA SELEKTA",
+              "noNota": "20803",
+              "tanggalNota": "05/12/22",
+              "umurHari": 1273,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 21750000,
+              "jumlah": 21750000,
+              "ket": "1273hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113495",
+              "namaToko": "DUTA SELEKTA",
+              "noNota": "20562",
+              "tanggalNota": "19/11/22",
+              "umurHari": 1289,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 12737280,
+              "jumlah": 12737280,
+              "ket": "1289hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113495",
+              "namaToko": "DUTA SELEKTA",
+              "noNota": "19836",
+              "tanggalNota": "06/10/22",
+              "umurHari": 1333,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 21750000,
+              "jumlah": 21750000,
+              "ket": "1333hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -54241,8 +56756,8 @@
           "bOver120": 21750000,
           "jumlah": 21750000,
           "ket": "1273hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113495",
@@ -54257,8 +56772,8 @@
           "bOver120": 12737280,
           "jumlah": 12737280,
           "ket": "1289hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113495",
@@ -54273,8 +56788,8 @@
           "bOver120": 21750000,
           "jumlah": 21750000,
           "ket": "1333hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -54337,6 +56852,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -54678,6 +57209,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -55016,6 +57563,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -55177,6 +57740,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -55404,6 +57983,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -55564,6 +58159,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -55727,6 +58338,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -56034,6 +58661,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -56374,6 +59017,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -56568,6 +59227,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -56697,6 +59372,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -56891,6 +59582,119 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 31601787,
+          "minAge": 2458,
+          "maxAge": 2509,
+          "invoices": [
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "74147",
+              "tanggalNota": "07/09/19",
+              "umurHari": 2458,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 4642840,
+              "jumlah": 4642840,
+              "ket": "2458hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "74034",
+              "tanggalNota": "02/09/19",
+              "umurHari": 2463,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5677552,
+              "jumlah": 5677552,
+              "ket": "2463hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "73933",
+              "tanggalNota": "26/08/19",
+              "umurHari": 2470,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5576323,
+              "jumlah": 5576323,
+              "ket": "2470hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "73730",
+              "tanggalNota": "10/08/19",
+              "umurHari": 2486,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3690000,
+              "jumlah": 3690000,
+              "ket": "2486hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "73460",
+              "tanggalNota": "18/07/19",
+              "umurHari": 2509,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5700000,
+              "jumlah": 5700000,
+              "ket": "2509hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113562",
+              "namaToko": "SUKMA JAYA",
+              "noNota": "73458",
+              "tanggalNota": "18/07/19",
+              "umurHari": 2509,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 6315072,
+              "jumlah": 6315072,
+              "ket": "2509hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -56907,8 +59711,8 @@
           "bOver120": 4642840,
           "jumlah": 4642840,
           "ket": "2458hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113562",
@@ -56923,8 +59727,8 @@
           "bOver120": 5677552,
           "jumlah": 5677552,
           "ket": "2463hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113562",
@@ -56939,8 +59743,8 @@
           "bOver120": 5576323,
           "jumlah": 5576323,
           "ket": "2470hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113562",
@@ -56955,8 +59759,8 @@
           "bOver120": 3690000,
           "jumlah": 3690000,
           "ket": "2486hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113562",
@@ -56971,8 +59775,8 @@
           "bOver120": 5700000,
           "jumlah": 5700000,
           "ket": "2509hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113562",
@@ -56987,8 +59791,8 @@
           "bOver120": 6315072,
           "jumlah": 6315072,
           "ket": "2509hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -57212,6 +60016,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -57454,6 +60274,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -57534,6 +60370,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -57631,6 +60483,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -57745,6 +60613,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -58147,6 +61031,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -58581,6 +61481,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -58903,6 +61819,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -59227,6 +62159,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -59422,6 +62370,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -59600,6 +62564,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -59957,6 +62937,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -60262,6 +63258,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -60358,6 +63370,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -60471,6 +63499,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -60714,6 +63758,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -61006,6 +64066,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -61152,6 +64228,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -61233,6 +64325,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -61297,6 +64405,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -61378,6 +64502,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -61492,6 +64632,71 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 13444980,
+          "minAge": 587,
+          "maxAge": 606,
+          "invoices": [
+            {
+              "kode": "113684",
+              "namaToko": "BAGUS MOTOR",
+              "noNota": "35576",
+              "tanggalNota": "21/10/24",
+              "umurHari": 587,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3275460,
+              "jumlah": 3275460,
+              "ket": "587hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113684",
+              "namaToko": "BAGUS MOTOR",
+              "noNota": "35231",
+              "tanggalNota": "02/10/24",
+              "umurHari": 606,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 2533320,
+              "jumlah": 2533320,
+              "ket": "606hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            },
+            {
+              "kode": "113684",
+              "namaToko": "BAGUS MOTOR",
+              "noNota": "35227",
+              "tanggalNota": "02/10/24",
+              "umurHari": 606,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 7636200,
+              "jumlah": 7636200,
+              "ket": "606hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -61508,8 +64713,8 @@
           "bOver120": 3275460,
           "jumlah": 3275460,
           "ket": "587hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113684",
@@ -61524,8 +64729,8 @@
           "bOver120": 2533320,
           "jumlah": 2533320,
           "ket": "606hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         },
         {
           "kode": "113684",
@@ -61540,8 +64745,8 @@
           "bOver120": 7636200,
           "jumlah": 7636200,
           "ket": "606hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -61620,6 +64825,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -61767,6 +64988,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -61880,6 +65117,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -61944,6 +65197,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -62010,6 +65279,39 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 5488920,
+          "minAge": 138,
+          "maxAge": 138,
+          "invoices": [
+            {
+              "kode": "113673",
+              "namaToko": "MORA BAN",
+              "noNota": "00245",
+              "tanggalNota": "13/01/26",
+              "umurHari": 138,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 5488920,
+              "jumlah": 5488920,
+              "ket": "138hari",
+              "catId": "121_365",
+              "catLabel": "121 - 365 Hari"
+            }
+          ]
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62026,8 +65328,8 @@
           "bOver120": 5488920,
           "jumlah": 5488920,
           "ket": "138hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "121_365",
+          "catLabel": "121 - 365 Hari"
         }
       ]
     },
@@ -62074,6 +65376,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -62140,6 +65458,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62204,6 +65538,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -62286,6 +65636,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62367,6 +65733,39 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 3391665,
+          "minAge": 3095,
+          "maxAge": 3095,
+          "invoices": [
+            {
+              "kode": "113010",
+              "namaToko": "GAJAH TUNGGAL",
+              "noNota": "94671",
+              "tanggalNota": "09/12/17",
+              "umurHari": 3095,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3391665,
+              "jumlah": 3391665,
+              "ket": "3095hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -62383,8 +65782,8 @@
           "bOver120": 3391665,
           "jumlah": 3391665,
           "ket": "3095hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -62432,6 +65831,39 @@
               "catLabel": "> 120 Hari"
             }
           ]
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 3004000,
+          "minAge": 2285,
+          "maxAge": 2285,
+          "invoices": [
+            {
+              "kode": "113511",
+              "namaToko": "DUTA SELEKTA",
+              "noNota": "96011",
+              "tanggalNota": "27/02/20",
+              "umurHari": 2285,
+              "b30": 0,
+              "b60": 0,
+              "b90": 0,
+              "b120": 0,
+              "bOver120": 3004000,
+              "jumlah": 3004000,
+              "ket": "2285hari",
+              "catId": "gt365",
+              "catLabel": "> 365 Hari"
+            }
+          ]
         }
       },
       "invoices": [
@@ -62448,8 +65880,8 @@
           "bOver120": 3004000,
           "jumlah": 3004000,
           "ket": "2285hari",
-          "catId": "gt120",
-          "catLabel": "> 120 Hari"
+          "catId": "gt365",
+          "catLabel": "> 365 Hari"
         }
       ]
     },
@@ -62512,6 +65944,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -62628,6 +66076,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62725,6 +66189,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62789,6 +66269,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
@@ -62855,6 +66351,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62920,6 +66432,22 @@
         "gt120": {
           "total": 0,
           "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
         }
       },
       "invoices": [
@@ -62984,6 +66512,22 @@
         },
         "gt120": {
           "total": 0,
+          "invoices": []
+        },
+        "121_365": {
+          "id": "121_365",
+          "label": "121 - 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
+          "invoices": []
+        },
+        "gt365": {
+          "id": "gt365",
+          "label": "> 365 Hari",
+          "total": 0,
+          "minAge": 0,
+          "maxAge": 0,
           "invoices": []
         }
       },
