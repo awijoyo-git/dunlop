@@ -2508,9 +2508,18 @@ body.theme-soft-dark .login-error-box {
 .pay-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.pay-card-header:hover {
+  background-color: rgba(56, 189, 248, 0.05);
 }
 
 .pay-store-name {
@@ -2527,9 +2536,16 @@ body.theme-soft-dark .login-error-box {
 }
 
 .pay-invoices-sublist {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 8px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.pay-invoices-sublist.is-open {
+  display: flex;
 }
 
 .pay-inv-item {
@@ -3045,7 +3061,8 @@ body.theme-soft-light .text-purple {
 
 .chart-data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: calc(0.85rem * var(--font-scale-factor));
   text-align: left;
 }
@@ -3073,6 +3090,45 @@ body.theme-soft-light .text-purple {
 .chart-data-table td.col-label {
   font-family: var(--font-sans);
   font-weight: 700;
+}
+
+/* Sticky frozen first column */
+.chart-data-table th.col-sticky-freeze {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--bg-card-secondary);
+  border-right: 2px solid var(--border-color);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.chart-data-table td.col-sticky-freeze {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-card);
+  border-right: 2px solid var(--border-color);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.chart-data-table tr.row-total td.col-sticky-freeze {
+  background: #162544;
+}
+
+body.theme-soft-light .chart-data-table th.col-sticky-freeze {
+  background: var(--bg-card-secondary);
+  border-right: 2px solid var(--border-color);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-soft-light .chart-data-table td.col-sticky-freeze {
+  background: var(--bg-card);
+  border-right: 2px solid var(--border-color);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-soft-light .chart-data-table tr.row-total td.col-sticky-freeze {
+  background: #e0f2fe;
 }
 
 .chart-data-table tr:last-child td {

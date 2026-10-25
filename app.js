@@ -1330,7 +1330,13 @@ function renderStoreBucketGroups(store) {
 
             const cicilan = getInvoiceCicilanInfo(store.kode, inv);
             let cicilanHtml = '';
+            let cicilanSubText = '';
             if (cicilan) {
+              cicilanSubText = `
+                <div class="invoice-cicilan-subtext" style="font-size: 0.82em; color: #10b981; font-weight: 700; margin-top: 3px; font-family: var(--font-mono);">
+                  ${formatRupiah(cicilan.totalAwal)} dicicil ${formatRupiah(cicilan.sudahDicicil)}
+                </div>
+              `;
               cicilanHtml = `
                 <div class="invoice-cicilan-card">
                   <div class="cicilan-card-header">
@@ -1358,6 +1364,10 @@ function renderStoreBucketGroups(store) {
               `;
             }
 
+            // Suppress duplicate day count in ket if it matches days (e.g. "123hari" or "123 hari")
+            const isKetDays = inv.ket && /^\d+\s*hari$/i.test(inv.ket.trim());
+            const showKet = inv.ket && !isKetDays;
+
             return `
               <div class="invoice-item">
                 <div class="invoice-row-main">
@@ -1366,8 +1376,9 @@ function renderStoreBucketGroups(store) {
                 </div>
                 <div class="invoice-row-sub">
                   <span class="invoice-meta-date">Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
-                  ${inv.ket ? `<span class="invoice-ket">${inv.ket}</span>` : ''}
+                  ${showKet ? `<span class="invoice-ket">${inv.ket}</span>` : ''}
                 </div>
+                ${cicilanSubText}
                 ${invFlag ? `<div style="margin-top:4px;">${invFlag}</div>` : ''}
                 ${cicilanHtml}
               </div>
@@ -1874,6 +1885,11 @@ function applyBLFilterAndSort() {
               <div class="bl-invoice-row">
                 <div class="bl-inv-left">
                   <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  ${cicilan ? `
+                    <div style="font-size: 0.82em; color: #10b981; font-weight: 700; margin-top: 2px; font-family: var(--font-mono);">
+                      ${formatRupiah(cicilan.totalAwal)} dicicil ${formatRupiah(cicilan.sudahDicicil)}
+                    </div>
+                  ` : ''}
                   <span class="bl-inv-date">Kategori: ${inv.catLabel} (Usia ${inv.umurHari} hari)</span>
                   ${cicilan ? `
                     <div class="bl-inv-cicilan-badge">
@@ -1896,11 +1912,18 @@ function applyBLFilterAndSort() {
           <div class="bl-invoices-subgrid">
             ${s.macetInvoices.map(inv => {
               const cicilan = getInvoiceCicilanInfo(s.kode, inv);
+              const isKetDays = inv.ket && /^\d+\s*hari$/i.test(inv.ket.trim());
+              const ketSuffix = (inv.ket && !isKetDays) ? ' • ' + inv.ket : '';
               return `
               <div class="bl-invoice-row">
                 <div class="bl-inv-left">
                   <span class="bl-inv-no">#${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
-                  <span class="bl-inv-date">Usia ${inv.umurHari} hari ${inv.ket ? '• ' + inv.ket : ''}</span>
+                  ${cicilan ? `
+                    <div style="font-size: 0.82em; color: #10b981; font-weight: 700; margin-top: 2px; font-family: var(--font-mono);">
+                      ${formatRupiah(cicilan.totalAwal)} dicicil ${formatRupiah(cicilan.sudahDicicil)}
+                    </div>
+                  ` : ''}
+                  <span class="bl-inv-date">Usia ${inv.umurHari} hari${ketSuffix}</span>
                   ${cicilan ? `
                     <div class="bl-inv-cicilan-badge">
                       💳 Dicicil: <strong class="text-success">+ ${formatRupiah(cicilan.sudahDicicil)}</strong> dari awal <strong>${formatRupiah(cicilan.totalAwal)}</strong> (${cicilan.persen}%) • Sisa: <strong>${formatRupiah(inv.jumlah)}</strong>
@@ -2222,24 +2245,40 @@ function applyPaymentFilter() {
     return;
   }
 
+  const metaEl = document.getElementById('payStoresCountMeta');
+  if (metaEl) {
+    metaEl.textContent = `${filteredStores.length} Toko • Default Collapsed (Klik untuk Buka/Tutup)`;
+  }
+
   container.innerHTML = filteredStores.map((s, index) => {
+    // If active search text, open by default so search matches are visible, otherwise collapsed
+    const isAutoOpen = Boolean(activePaymentFilterText && activePaymentFilterText.trim().length > 0);
+    const openClass = isAutoOpen ? 'is-open' : '';
+    const chevronChar = isAutoOpen ? '▲' : '▼';
+    const indicatorText = isAutoOpen ? 'Sembunyikan Nota' : `Tampilkan ${s.invoices.length} Nota`;
+
     return `
       <article class="payment-store-card">
-        <div class="pay-card-header" onclick="openStoreDetail('${s.kode}', 'payment')" style="cursor: pointer;" title="Ketuk untuk buka rincian penuh toko">
-          <div>
+        <div class="pay-card-header" onclick="togglePaymentStoreAccordion('${s.kode}')" style="cursor: pointer;" title="Ketuk untuk buka/tutup rincian nota">
+          <div style="flex: 1; min-width: 200px;">
             <div class="pay-store-name">${index + 1}. ${s.namaToko}</div>
             <div style="font-size: 0.85em; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
               Kode Toko: ${s.kode} • ${s.invoices.length} Nota Terbayar
             </div>
-            <div class="card-click-hint" style="font-size: 0.78em; margin-top: 4px;">Lihat Rincian Toko →</div>
+            <button type="button" class="btn-subtle-link" onclick="event.stopPropagation(); openStoreDetail('${s.kode}', 'payment')" style="font-size: 0.8em; color: var(--color-cyan); background: none; border: none; padding: 0; margin-top: 4px; cursor: pointer; text-decoration: underline;" title="Lihat kartu rincian penuh toko">
+              Lihat Rincian Toko →
+            </button>
           </div>
-          <div style="text-align: right;">
+          <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; justify-content: center;">
             <div style="font-size: 0.8em; color: var(--text-muted); font-weight: 700;">TOTAL DIBAYAR:</div>
             <div class="pay-store-total">+ ${formatRupiah(s.totalPaid)}</div>
+            <div class="pay-accordion-indicator" id="payIndicator_${s.kode}" style="font-size: 0.8em; color: var(--color-cyan); font-weight: 700; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
+              <span id="payChevron_${s.kode}">${chevronChar}</span> ${indicatorText}
+            </div>
           </div>
         </div>
 
-        <div class="pay-invoices-sublist">
+        <div class="pay-invoices-sublist ${openClass}" id="payDrawer_${s.kode}" data-count="${s.invoices.length}">
           ${s.invoices.map(inv => {
             const badgeClass = inv.status === 'Lunas' ? 'badge-lunas' : 'badge-sebagian';
             const cicilan = getInvoiceCicilanInfo(s.kode, { noNota: inv.noNota, tanggalNota: inv.tanggalNota, jumlah: inv.currAmount });
@@ -2247,8 +2286,14 @@ function applyPaymentFilter() {
             const sudahDicicilTotal = totalAwal - inv.currAmount;
             const persenTotal = totalAwal > 0 ? ((sudahDicicilTotal / totalAwal) * 100).toFixed(1) : '0.0';
 
+            let cicilanSmallText = '';
             let cicilanExtra = '';
             if (inv.status !== 'Lunas' && totalAwal > 0) {
+              cicilanSmallText = `
+                <div style="font-size: 0.82em; color: #10b981; font-weight: 700; margin-top: 2px; font-family: var(--font-mono);">
+                  ${formatRupiah(totalAwal)} dicicil ${formatRupiah(sudahDicicilTotal)}
+                </div>
+              `;
               cicilanExtra = `
                 <div style="font-size:0.85em; color:var(--text-main); margin-top:3px; font-weight:700;">
                   💳 Sudah dicicil: <span class="text-success">+ ${formatRupiah(sudahDicicilTotal)}</span> (${persenTotal}%) dari total nota awal <span style="text-decoration:line-through; opacity:0.85;">${formatRupiah(totalAwal)}</span>
@@ -2260,6 +2305,7 @@ function applyPaymentFilter() {
               <div class="pay-inv-item">
                 <div class="pay-inv-meta">
                   <span class="pay-inv-number">📄 Nota #${inv.noNota} • Tgl: ${inv.tanggalNota}</span>
+                  ${cicilanSmallText}
                   <span class="pay-inv-balances">
                     Saldo Bulan Lalu: ${formatRupiah(inv.prevAmount)} ➔ Sisa Saldo Bulan Ini: ${formatRupiah(inv.currAmount)}
                   </span>
@@ -2276,6 +2322,42 @@ function applyPaymentFilter() {
       </article>
     `;
   }).join('');
+}
+
+function togglePaymentStoreAccordion(kode) {
+  const drawer = document.getElementById(`payDrawer_${kode}`);
+  const chevron = document.getElementById(`payChevron_${kode}`);
+  const indicator = document.getElementById(`payIndicator_${kode}`);
+  if (!drawer) return;
+
+  const isOpen = drawer.classList.contains('is-open');
+  drawer.classList.toggle('is-open', !isOpen);
+  const count = drawer.dataset.count || '';
+  if (chevron) {
+    chevron.textContent = isOpen ? '▼' : '▲';
+  }
+  if (indicator) {
+    indicator.innerHTML = isOpen
+      ? `<span id="payChevron_${kode}">▼</span> Tampilkan ${count} Nota`
+      : `<span id="payChevron_${kode}">▲</span> Sembunyikan Nota`;
+  }
+}
+
+function toggleAllPaymentStores(expand) {
+  const drawers = document.querySelectorAll('.pay-invoices-sublist');
+  drawers.forEach(drawer => {
+    drawer.classList.toggle('is-open', expand);
+    const kode = drawer.id.replace('payDrawer_', '');
+    const chevron = document.getElementById(`payChevron_${kode}`);
+    const indicator = document.getElementById(`payIndicator_${kode}`);
+    const count = drawer.dataset.count || '';
+    if (chevron) chevron.textContent = expand ? '▲' : '▼';
+    if (indicator) {
+      indicator.innerHTML = expand
+        ? `<span id="payChevron_${kode}">▲</span> Sembunyikan Nota`
+        : `<span id="payChevron_${kode}">▼</span> Tampilkan ${count} Nota`;
+    }
+  });
 }
 
 // ==========================================================================
@@ -2922,7 +3004,7 @@ function renderSvgMonthlyOmzet(dataList) {
   const h = 330;
   const padLeft = 80;
   const padRight = 30;
-  const padTop = 40;
+  const padTop = 55;
   const padBottom = 45;
   const plotW = w - padLeft - padRight;
   const plotH = h - padTop - padBottom;
@@ -2931,7 +3013,7 @@ function renderSvgMonthlyOmzet(dataList) {
   const colSlotW = plotW / n;
   const colW = Math.max(20, Math.min(60, colSlotW * 0.55));
 
-  const maxVal = Math.max(1000000, Math.max(...dataList.map(d => d.omzet || 0)) * 1.25);
+  const maxVal = Math.max(1000000, Math.max(...dataList.map(d => d.omzet || 0)) * 1.35);
 
   let gridSvg = '';
   const steps = 4;
@@ -2955,11 +3037,16 @@ function renderSvgMonthlyOmzet(dataList) {
 
     points.push({ x: xCenter, y: barY });
 
+    // Place nominal value inside top of bar if tall enough, else right above bar
+    const labelInside = barH >= 30;
+    const valY = labelInside ? (barY + 18) : (barY - 8);
+    const valColor = labelInside ? '#ffffff' : 'var(--text-main)';
+
     barsSvg += `
       <rect x="${barX}" y="${barY}" width="${colW}" height="${barH}" fill="url(#omzetGrad)" rx="6" ry="6">
         <title>${d.fullLabel}: Omzet ${formatRupiah(d.omzet)} (${d.invoiceCount} Nota)</title>
       </rect>
-      <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+      <text x="${xCenter}" y="${valY}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${valColor}" text-anchor="middle">
         ${formatShortRupiah(d.omzet)}
       </text>
     `;
@@ -2969,11 +3056,12 @@ function renderSvgMonthlyOmzet(dataList) {
       const sign = isPos ? '+' : '';
       const badgeText = `${sign}${d.momGrowth.toFixed(1).replace('.', ',')}%`;
       const badgeColor = isPos ? '#10b981' : '#ef4444';
-      const badgeBg = isPos ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      const badgeBg = isPos ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+      const badgeY = labelInside ? (barY - 26) : (barY - 32);
 
       barsSvg += `
-        <rect x="${xCenter - 28}" y="${barY - 28}" width="56" height="17" rx="4" fill="${badgeBg}" stroke="${badgeColor}" stroke-width="1" />
-        <text x="${xCenter}" y="${barY - 16}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="${badgeColor}" text-anchor="middle">${badgeText}</text>
+        <rect x="${xCenter - 27}" y="${badgeY}" width="54" height="18" rx="5" fill="${badgeBg}" stroke="${badgeColor}" stroke-width="1.2" />
+        <text x="${xCenter}" y="${badgeY + 13}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="${badgeColor}" text-anchor="middle">${badgeText}</text>
       `;
     }
 
@@ -2998,7 +3086,7 @@ function renderSvgMonthlyOmzet(dataList) {
       <defs>
         <linearGradient id="omzetGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.75"/>
+          <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.85"/>
         </linearGradient>
       </defs>
       ${gridSvg}
@@ -3016,7 +3104,7 @@ function renderSvgActiveStores(dataList) {
   const h = 330;
   const padLeft = 70;
   const padRight = 85;
-  const padTop = 35;
+  const padTop = 50;
   const padBottom = 45;
   const plotW = w - padLeft - padRight;
   const plotH = h - padTop - padBottom;
@@ -3025,8 +3113,8 @@ function renderSvgActiveStores(dataList) {
   const colSlotW = plotW / n;
   const colW = Math.max(20, Math.min(56, colSlotW * 0.55));
 
-  const maxStores = Math.max(10, Math.ceil(Math.max(...dataList.map(d => d.activeStoresCount || 0)) * 1.3));
-  const maxAvgOrder = Math.max(1, Math.max(...dataList.map(d => (d.activeStoresCount > 0 ? d.omzet / d.activeStoresCount : 0)))) * 1.25;
+  const maxStores = Math.max(10, Math.ceil(Math.max(...dataList.map(d => d.activeStoresCount || 0)) * 1.35));
+  const maxAvgOrder = Math.max(1, Math.max(...dataList.map(d => (d.activeStoresCount > 0 ? d.omzet / d.activeStoresCount : 0)))) * 1.35;
 
   let gridSvg = '';
   const steps = 4;
@@ -3054,11 +3142,15 @@ function renderSvgActiveStores(dataList) {
     const avgY = padTop + plotH - (avgVal / maxAvgOrder) * plotH;
     avgPoints.push({ x: xCenter, y: avgY, avgVal });
 
+    const labelInside = barH >= 26;
+    const valY = labelInside ? (barY + 18) : (barY - 8);
+    const valColor = labelInside ? '#ffffff' : '#c084fc';
+
     barsSvg += `
-      <rect x="${barX}" y="${barY}" width="${colW}" height="${barH}" fill="#a855f7" opacity="0.85" rx="5" ry="5">
+      <rect x="${barX}" y="${barY}" width="${colW}" height="${barH}" fill="#a855f7" opacity="0.88" rx="5" ry="5">
         <title>${d.fullLabel}: ${d.activeStoresCount} Toko Bertransaksi</title>
       </rect>
-      <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="#c084fc" text-anchor="middle">
+      <text x="${xCenter}" y="${valY}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${valColor}" text-anchor="middle">
         ${d.activeStoresCount}
       </text>
     `;
@@ -3079,6 +3171,9 @@ function renderSvgActiveStores(dataList) {
         <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#10b981" stroke-width="3">
           <title>Rata-rata Pembelian/Toko: ${formatRupiah(p.avgVal)}</title>
         </circle>
+        <text x="${p.x}" y="${p.y - 9}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="#10b981" text-anchor="middle">
+          ${formatShortRupiah(p.avgVal)}
+        </text>
       `).join('')}
     `;
   }
@@ -3092,6 +3187,15 @@ function renderSvgActiveStores(dataList) {
   `;
 }
 
+function formatTableMilyar(val) {
+  if (isNaN(val) || val === null || val === undefined || val === 0) return '0M';
+  const num = Number(val);
+  const sign = num < 0 ? '-' : '';
+  const abs = Math.abs(num);
+  const inM = (Math.floor(abs / 1e6) / 1000).toLocaleString('id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + 'M';
+  return sign + inM;
+}
+
 function renderTableAgingValue(dataList) {
   const container = document.getElementById('tableAgingValue');
   if (!container || !dataList || dataList.length === 0) return;
@@ -3101,27 +3205,27 @@ function renderTableAgingValue(dataList) {
     { key: '31_60', label: '31 - 60 Hari' },
     { key: '61_90', label: '61 - 90 Hari' },
     { key: '91_120', label: '91 - 120 Hari' },
-    { key: 'gt120', label: '> 120 Hari (Macet)' }
+    { key: 'gt120', label: '> 120 Hari' }
   ];
 
-  let headerHtml = '<th>Kelompok Usia</th>';
+  let headerHtml = '<th class="col-sticky-freeze">Kelompok Usia</th>';
   dataList.forEach(d => {
     headerHtml += `<th style="text-align:right;">${d.shortLabel}</th>`;
   });
 
   let bodyHtml = '';
   cats.forEach(c => {
-    bodyHtml += `<tr><td class="col-label">${c.label}</td>`;
+    bodyHtml += `<tr><td class="col-label col-sticky-freeze">${c.label}</td>`;
     dataList.forEach(d => {
       const val = d.agingValues[c.key] || 0;
-      bodyHtml += `<td style="text-align:right;">${formatRupiah(val)}</td>`;
+      bodyHtml += `<td style="text-align:right;" title="${formatRupiah(val)}">${formatTableMilyar(val)}</td>`;
     });
     bodyHtml += `</tr>`;
   });
 
-  bodyHtml += `<tr class="row-total"><td class="col-label">Total Piutang</td>`;
+  bodyHtml += `<tr class="row-total"><td class="col-label col-sticky-freeze">Total Piutang</td>`;
   dataList.forEach(d => {
-    bodyHtml += `<td style="text-align:right;">${formatRupiah(d.agingValues.total)}</td>`;
+    bodyHtml += `<td style="text-align:right;" title="${formatRupiah(d.agingValues.total)}">${formatTableMilyar(d.agingValues.total)}</td>`;
   });
   bodyHtml += `</tr>`;
 
@@ -3138,21 +3242,21 @@ function renderTableAgingStores(dataList) {
   if (!container || !dataList || dataList.length === 0) return;
 
   const cats = [
-    { key: 'lt30', label: '< 30 Hari (Toko)' },
-    { key: '31_60', label: '31 - 60 Hari (Toko)' },
-    { key: '61_90', label: '61 - 90 Hari (Toko)' },
-    { key: '91_120', label: '91 - 120 Hari (Toko)' },
-    { key: 'gt120', label: '> 120 Hari (Macet Toko)' }
+    { key: 'lt30', label: '< 30 Hari' },
+    { key: '31_60', label: '31 - 60 Hari' },
+    { key: '61_90', label: '61 - 90 Hari' },
+    { key: '91_120', label: '91 - 120 Hari' },
+    { key: 'gt120', label: '> 120 Hari' }
   ];
 
-  let headerHtml = '<th>Kelompok Usia</th>';
+  let headerHtml = '<th class="col-sticky-freeze">Kelompok Usia</th>';
   dataList.forEach(d => {
     headerHtml += `<th style="text-align:right;">${d.shortLabel}</th>`;
   });
 
   let bodyHtml = '';
   cats.forEach(c => {
-    bodyHtml += `<tr><td class="col-label">${c.label}</td>`;
+    bodyHtml += `<tr><td class="col-label col-sticky-freeze">${c.label}</td>`;
     dataList.forEach(d => {
       const count = d.agingStores[c.key] || 0;
       bodyHtml += `<td style="text-align:right;">${count} Toko</td>`;
@@ -3321,6 +3425,8 @@ if (typeof window !== 'undefined') {
   window.sortBLStores = sortBLStores;
   window.filterPayments = filterPayments;
   window.filterPaymentsByStatus = filterPaymentsByStatus;
+  window.togglePaymentStoreAccordion = togglePaymentStoreAccordion;
+  window.toggleAllPaymentStores = toggleAllPaymentStores;
   window.setOwnerPeriodPreset = setOwnerPeriodPreset;
   window.handleOwnerCustomRangeChange = handleOwnerCustomRangeChange;
   window.openOwnerPeriodModal = openOwnerPeriodModal;

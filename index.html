@@ -584,6 +584,16 @@
         </div>
       </div>
 
+      <!-- Accordion Batch Controls -->
+      <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 12px; gap: 8px;">
+        <button type="button" class="btn-secondary" onclick="toggleAllPaymentStores(true)" style="padding: 6px 14px; font-size: 0.82em; font-weight: 700;">
+          ▼ Buka Semua
+        </button>
+        <button type="button" class="btn-secondary" onclick="toggleAllPaymentStores(false)" style="padding: 6px 14px; font-size: 0.82em; font-weight: 700;">
+          ▲ Tutup Semua
+        </button>
+      </div>
+
       <!-- Payments Stores List -->
       <div class="payments-list" id="paymentStoresList">
         <!-- Rendered by JS -->
@@ -832,7 +842,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="inputPeriodGt120">&gt; 120 Hari (Macet):</label>
+            <label class="form-label" for="inputPeriodGt120">&gt; 120 Hari:</label>
             <input type="number" id="inputPeriodGt120" class="input-password" placeholder="Nominal" required>
           </div>
 
