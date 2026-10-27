@@ -17,6 +17,8 @@
   
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Health Module Inventory Dataset (Extracted from Mei, Juni, Juli 2026 reports) -->
+  <script src="health_inventory_data.js"></script>
   <!-- Core Application Engine (Loaded first so all handlers are available immediately) -->
   <script src="app.js"></script>
 </head>
@@ -899,11 +901,36 @@
         </div>
       </div>
 
+      <!-- VISUAL FINANCIAL TRENDS & COMPARISONS: OMZET, LABA KOTOR, LABA BERSIH -->
+      <div class="owner-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title" id="healthFinancialChartTitle">📊 1. Grafik Tren &amp; Komparasi: Omzet, Laba Kotor &amp; Laba Bersih</h3>
+            <p class="chart-subtitle" id="healthFinancialChartSubtitle">Evaluasi perkembangan omzet penjualan, erosi laba kotor, dan dinamika laba/rugi bersih (Mei, Juni, Juli 2026)</p>
+          </div>
+          <div class="chart-mode-toggle" id="healthFinancialChartModeToggle">
+            <button type="button" class="btn-chart-mode active" id="btnHealthModeAll" onclick="setHealthChartMode('all')">📊 Ringkasan 3 Metrik</button>
+            <button type="button" class="btn-chart-mode" id="btnHealthModeOmzet" onclick="setHealthChartMode('omzet')">💰 Tren Omzet</button>
+            <button type="button" class="btn-chart-mode" id="btnHealthModeGross" onclick="setHealthChartMode('gross')">📦 Tren Laba Kotor</button>
+            <button type="button" class="btn-chart-mode" id="btnHealthModeNet" onclick="setHealthChartMode('net')">📈 Tren Laba Bersih</button>
+          </div>
+        </div>
+
+        <!-- 3 Quick KPI summary chips inside chart card -->
+        <div class="health-chart-chips-row" id="healthChartChipsRow">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="chart-svg-container" id="svgHealthFinancialContainer">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
       <!-- VISUAL COMPARISON CHART: HPP, GAJI, OPERASIONAL (MONTHLY VS YEARLY) -->
       <div class="owner-chart-card">
         <div class="chart-header">
           <div>
-            <h3 class="chart-title">📈 1. Grafik Tren Rasio: HPP, Gaji, dan Biaya Operasional terhadap Omzet</h3>
+            <h3 class="chart-title">📈 2. Grafik Tren Rasio: HPP, Gaji, dan Biaya Operasional terhadap Omzet</h3>
             <p class="chart-subtitle">Perbandingan persentase bulanan (*Monthly*) dengan data akumulasi tahunan (*Yearly Benchmark*)</p>
           </div>
         </div>
@@ -916,12 +943,72 @@
       <div class="owner-chart-card">
         <div class="chart-header">
           <div>
-            <h3 class="chart-title">📋 2. Tabel Rincian Keuangan &amp; Rasio (Monthly vs Yearly)</h3>
+            <h3 class="chart-title">📋 3. Tabel Rincian Keuangan &amp; Rasio (Monthly vs Yearly)</h3>
             <p class="chart-subtitle">Ringkasan Laporan Laba/Rugi, Rasio HPP, Gaji, dan Beban Operasional per periode</p>
           </div>
         </div>
         <div class="chart-table-wrap">
           <div class="table-responsive" id="tableHealthFinancials">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. VISUAL INVENTORY MOVEMENT & COMPARATIVE STOCK FLOW -->
+      <div class="owner-chart-card" id="healthInventoryMovementCard">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">📦 4. Komparasi Mutasi Persediaan (Stok Awal, Pembelian, Penjualan, Stok Akhir)</h3>
+            <p class="chart-subtitle">Analisa arus kuantitas (Qty) &amp; nilai rupiah persediaan ban, dinamika restock, serta evaluasi komparatif antar bulan</p>
+          </div>
+          <div class="chart-mode-toggle" id="healthInvMovementToggle">
+            <button type="button" class="btn-chart-mode active" id="btnInvModeQty" onclick="setHealthInventoryMovementMode('qty')">🔢 Volume (Qty Ban)</button>
+            <button type="button" class="btn-chart-mode" id="btnInvModeVal" onclick="setHealthInventoryMovementMode('val')">💰 Nilai (Rupiah)</button>
+          </div>
+        </div>
+
+        <!-- 4 Stock Movement KPI Cards -->
+        <div class="health-metrics-grid" id="healthStockMetricsGrid" style="margin-bottom: 16px;">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- SVG Stock Movement Chart -->
+        <div class="chart-svg-container" id="svgHealthStockContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Comparative Analysis Insights Box -->
+        <div class="health-inv-analysis-box" id="healthInvComparativeAnalysis" style="margin-top: 16px;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- 5. PRODUCT PROFITABILITY & PROFIT PER PCS TABLE -->
+      <div class="owner-chart-card" id="healthInventoryProductCard">
+        <div class="chart-header" style="flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 class="chart-title">🏷️ 5. Kinerja Penjualan &amp; Laba Rugi per Pcs Tiap Tipe Barang</h3>
+            <p class="chart-subtitle">Detail historical beli &amp; jual per tipe ban: Penjualan - Harga Pokok = Laba Rugi Total dibagi Qty Penjualan menjadi Laba Rugi per Pcs</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="healthInvSearchInput" placeholder="🔍 Cari tipe ban / ukuran..." class="health-search-input" oninput="onHealthInvSearchChange(this.value)">
+            <select id="healthInvFilterSelect" class="health-filter-select" onchange="onHealthInvFilterChange(this.value)">
+              <option value="all">Semua Tipe Barang</option>
+              <option value="sold">Hanya Ban Terjual (Qty &gt; 0)</option>
+              <option value="profit_high">⭐ Untung Tinggi (Laba &ge; Rp 45.000/pcs)</option>
+              <option value="loss">⚠️ Margin Minus / Dijual Rugi</option>
+              <option value="slow">💤 Slow-Moving (Stok Ada, 0 Jual)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick Summary Chips for Products -->
+        <div class="health-chart-chips-row" id="healthInvProductChipsRow">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="chart-table-wrap">
+          <div class="table-responsive" id="tableHealthInventoryProducts">
             <!-- Rendered by JS -->
           </div>
         </div>

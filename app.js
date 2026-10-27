@@ -3861,6 +3861,12 @@ const HEALTH_FINANCIAL_DATA = {
 };
 
 let activeHealthPeriod = 'all'; // '2026-05', '2026-06', '2026-07', or 'all'
+let activeHealthChartMode = 'all'; // 'all', 'omzet', 'gross', 'net'
+let activeHealthInvMovementMode = 'qty'; // 'qty' or 'val'
+let healthInvSearchText = '';
+let healthInvFilter = 'all'; // 'all', 'sold', 'profit_high', 'loss', 'slow'
+let healthInvSortCol = 'labaRugiTotal';
+let healthInvSortAsc = false;
 
 function openHealthDashboard(updateUrl = true) {
   showHealthView(updateUrl);
@@ -3894,6 +3900,37 @@ function setHealthPeriod(periodKey) {
   renderHealthDashboard();
 }
 
+function setHealthChartMode(mode) {
+  activeHealthChartMode = mode;
+  ['all', 'omzet', 'gross', 'net'].forEach(m => {
+    const btn = document.getElementById(`btnHealthMode${m.charAt(0).toUpperCase() + m.slice(1)}`);
+    if (btn) {
+      if (m === mode) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  const titleEl = document.getElementById('healthFinancialChartTitle');
+  const subEl = document.getElementById('healthFinancialChartSubtitle');
+  if (titleEl && subEl) {
+    if (mode === 'all') {
+      titleEl.innerHTML = '📊 1. Grafik Tren &amp; Komparasi: Omzet, Laba Kotor &amp; Laba Bersih';
+      subEl.textContent = 'Evaluasi komparatif 3 pilar kinerja finansial secara berdampingan (Mei, Juni, Juli 2026)';
+    } else if (mode === 'omzet') {
+      titleEl.innerHTML = '💰 1. Grafik Tren Penjualan: Omzet Bersih &amp; Potongan Diskon';
+      subEl.textContent = 'Perkembangan realisasi omzet bersih bulanan dan lonjakan diskon/potongan penjualan';
+    } else if (mode === 'gross') {
+      titleEl.innerHTML = '📦 1. Grafik Tren Laba Kotor (Gross Profit) &amp; Margin %';
+      subEl.textContent = 'Penurunan margin laba kotor akibat lonjakan HPP (Juli 99,53%) dan potongan harga';
+    } else if (mode === 'net') {
+      titleEl.innerHTML = '📈 1. Grafik Tren Laba / (Rugi) Bersih &amp; Net Margin %';
+      subEl.textContent = 'Dinamika surplus dan defisit bulanan terhadap garis impas (Zero-Line)';
+    }
+  }
+
+  renderSvgHealthFinancials();
+}
+
 function renderHealthDashboard() {
   // 1. Update Period Selector Pills
   const pills = ['2026-05', '2026-06', '2026-07', 'all'];
@@ -3918,19 +3955,28 @@ function renderHealthDashboard() {
     }
   }
 
-  // 2. Render Top 4 Summary Cards
+  // 2. Render Top 4 Summary Cards (Omzet, Laba Kotor, Laba Bersih, Rasio Biaya)
   renderHealthTopMetrics();
 
-  // 3. Render SVG Ratios Chart
+  // 3. Render Financial Trends & Comparisons Chart
+  renderSvgHealthFinancials();
+
+  // 4. Render SVG Ratios Chart
   renderSvgHealthRatios();
 
-  // 4. Render Financial P&L and Ratios Table
+  // 5. Render Financial P&L and Ratios Table
   renderTableHealthFinancials();
 
-  // 5. Render Sunk Cost Dashboard
+  // 6. Render Inventory Movement (Stok Awal, Beli, Jual, Stok Akhir)
+  renderHealthInventoryMovement();
+
+  // 7. Render Product Profitability & Laba per Pcs Table
+  renderHealthInventoryProductTable();
+
+  // 8. Render Sunk Cost Dashboard
   renderHealthSunkDashboard();
 
-  // 6. Render Executive Notes & Anomaly Alerts
+  // 9. Render Executive Notes & Anomaly Alerts
   renderHealthExecutiveNotes();
 }
 
@@ -3940,95 +3986,89 @@ function renderHealthTopMetrics() {
 
   if (activeHealthPeriod !== 'all' && HEALTH_FINANCIAL_DATA[activeHealthPeriod]) {
     const d = HEALTH_FINANCIAL_DATA[activeHealthPeriod];
+    const grossMarginPct = (d.labaKotor / d.pendapatanBersih) * 100;
+    const netMarginPct = (d.labaBersih / d.pendapatanBersih) * 100;
     const hppPct = (d.hpp / d.pendapatanBersih) * 100;
-    const hppYearlyPct = (d.yearly.hpp / d.yearly.pendapatanBersih) * 100;
-    const hppDiff = hppPct - hppYearlyPct;
-
     const salaryPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
-    const salaryYearlyPct = (d.yearly.gajiPegawai / d.yearly.pendapatanBersih) * 100;
-    const salaryDiff = salaryPct - salaryYearlyPct;
-
     const opexPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
-    const opexYearlyPct = (d.yearly.biayaOperasional / d.yearly.pendapatanBersih) * 100;
-    const opexDiff = opexPct - opexYearlyPct;
 
-    // Status classes
-    const hppStatus = hppPct > 98 ? 'status-danger' : hppPct > 96.5 ? 'status-warning' : 'status-safe';
-    const hppBadgeClass = hppPct > 98 ? 'badge-status-danger' : hppPct > 96.5 ? 'badge-status-warning' : 'badge-status-safe';
-    const hppBadgeText = hppPct > 98 ? '🚨 KRITIS' : hppPct > 96.5 ? '⚠️ WASPADA' : '✅ SEHAT';
+    // MoM comparison logic
+    let omzetMomBadge = '✅ BULAN BASIS';
+    let omzetMomText = 'Titik awal pembanding 3 bulan';
+    let grossMomText = 'Gross margin normal';
+    let netMomText = 'Mencatat surplus bersih positif';
 
-    const salaryStatus = salaryPct > 2.0 ? 'status-warning' : 'status-safe';
-    const salaryBadgeClass = salaryPct > 2.0 ? 'badge-status-warning' : 'badge-status-safe';
-    const salaryBadgeText = salaryPct > 2.0 ? '⚠️ ADA THR' : '✅ NORMAL';
+    if (d.monthKey === '2026-06') {
+      omzetMomBadge = '📈 NAIK +0,35%';
+      omzetMomText = '+Rp 19,8 Jt dibanding Mei 2026';
+      grossMomText = 'Turun -Rp 97,0 Jt (-39,2%) vs Mei';
+      netMomText = 'Balik rugi -Rp 171,4 Jt vs Mei (+99M)';
+    } else if (d.monthKey === '2026-07') {
+      omzetMomBadge = '🔻 TURUN -9,49%';
+      omzetMomText = '-Rp 540,4 Jt dibanding Juni 2026';
+      grossMomText = '🚨 Erosi -84,0% (-Rp 126,2 Jt) vs Juni';
+      netMomText = '🚨 Defisit terdalam (-Rp 116,0 Jt)';
+    }
 
-    const opexStatus = 'status-safe'; // all months are under yearly 3.92%
-    const opexBadgeClass = 'badge-status-safe';
-    const opexBadgeText = '✅ EFISIEN';
+    const grossStatus = grossMarginPct < 1.0 ? 'status-danger' : grossMarginPct < 3.0 ? 'status-warning' : 'status-safe';
+    const grossBadgeClass = grossMarginPct < 1.0 ? 'badge-status-danger' : grossMarginPct < 3.0 ? 'badge-status-warning' : 'badge-status-safe';
+    const grossBadgeText = grossMarginPct < 1.0 ? '🚨 KRITIS (0,47%)' : grossMarginPct < 3.0 ? '⚠️ WASPADA' : '✅ NORMAL';
 
     const netStatus = d.labaBersih >= 0 ? 'status-safe' : 'status-danger';
     const netBadgeClass = d.labaBersih >= 0 ? 'badge-status-safe' : 'badge-status-danger';
-    const netBadgeText = d.labaBersih >= 0 ? '✅ SURPLUS' : '🚨 DEFISIT';
+    const netBadgeText = d.labaBersih >= 0 ? '✅ SURPLUS' : d.monthKey === '2026-07' ? '🚨 DEFISIT TERDALAM' : '🚨 DEFISIT';
+
+    const ratioStatus = hppPct > 98 ? 'status-danger' : (salaryPct > 2.0 || hppPct > 96.5) ? 'status-warning' : 'status-safe';
+    const ratioBadgeClass = hppPct > 98 ? 'badge-status-danger' : (salaryPct > 2.0 || hppPct > 96.5) ? 'badge-status-warning' : 'badge-status-safe';
+    const ratioBadgeText = hppPct > 98 ? '🚨 HPP 99,5%' : salaryPct > 2.0 ? '⚠️ THR JUNI' : '✅ EFISIEN';
 
     container.innerHTML = `
-      <div class="health-metric-card ${hppStatus}">
+      <!-- Card 1: Omzet Penjualan -->
+      <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">1. Rasio HPP / Omzet</span>
-          <span class="health-metric-badge ${hppBadgeClass}">${hppBadgeText}</span>
+          <span class="health-metric-title">💰 1. Omzet Bersih Bulan Ini</span>
+          <span class="health-metric-badge badge-status-safe">${omzetMomBadge}</span>
         </div>
-        <div class="health-metric-main-value ${hppPct > 98 ? 'text-danger' : hppPct > 96.5 ? 'text-warning' : 'text-success'}">
-          ${hppPct.toFixed(2).replace('.', ',')}%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Tahun Berjalan (Yearly):</span>
-          <span class="health-metric-nominal">${hppYearlyPct.toFixed(2).replace('.', ',')}%</span>
+        <div class="health-metric-main-value" style="color: #0284c7;">
+          ${formatRupiah(d.pendapatanBersih)}
         </div>
         <div class="health-metric-subrow">
-          <span>Selisih vs Yearly:</span>
-          <strong style="color: ${hppDiff > 0 ? '#ef4444' : '#10b981'};">
-            ${hppDiff > 0 ? '+' : ''}${hppDiff.toFixed(2).replace('.', ',')}%
+          <span>Penjualan Kotor:</span>
+          <span class="health-metric-nominal">${formatRupiah(d.pendapatanKotor)}</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Potongan/Diskon:</span>
+          <strong style="color: ${d.potonganPenjualan > 50000000 ? '#ef4444' : 'var(--text-main)'};">
+            ${formatRupiah(d.potonganPenjualan)} (${((d.potonganPenjualan / d.pendapatanKotor) * 100).toFixed(2).replace('.', ',')}%)
           </strong>
         </div>
       </div>
 
-      <div class="health-metric-card ${salaryStatus}">
+      <!-- Card 2: Laba Kotor -->
+      <div class="health-metric-card ${grossStatus}">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">2. Rasio Gaji / Omzet</span>
-          <span class="health-metric-badge ${salaryBadgeClass}">${salaryBadgeText}</span>
+          <span class="health-metric-title">📦 2. Laba Kotor &amp; Margin</span>
+          <span class="health-metric-badge ${grossBadgeClass}">${grossBadgeText}</span>
         </div>
-        <div class="health-metric-main-value ${salaryPct > 2.0 ? 'text-warning' : 'text-main'}">
-          ${salaryPct.toFixed(2).replace('.', ',')}%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Gaji Bulanan:</span>
-          <span class="health-metric-nominal">${formatRupiah(d.gajiPegawai)}</span>
+        <div class="health-metric-main-value ${grossMarginPct < 1.0 ? 'text-danger' : grossMarginPct < 3.0 ? 'text-warning' : 'text-success'}">
+          ${formatRupiah(d.labaKotor)}
         </div>
         <div class="health-metric-subrow">
-          <span>Yearly Benchmark:</span>
-          <span>${salaryYearlyPct.toFixed(2).replace('.', ',')}% (${salaryDiff > 0 ? '+' : ''}${salaryDiff.toFixed(2).replace('.', ',')}%)</span>
+          <span>Gross Margin:</span>
+          <strong class="health-metric-nominal" style="color: ${grossMarginPct < 1.0 ? '#ef4444' : grossMarginPct < 3.0 ? '#f59e0b' : '#10b981'};">
+            ${grossMarginPct.toFixed(2).replace('.', ',')}%
+          </strong>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Dinamika MoM:</span>
+          <span style="font-weight: 600;">${grossMomText}</span>
         </div>
       </div>
 
-      <div class="health-metric-card ${opexStatus}">
-        <div class="health-metric-card-header">
-          <span class="health-metric-title">3. Rasio Biaya Opex</span>
-          <span class="health-metric-badge ${opexBadgeClass}">${opexBadgeText}</span>
-        </div>
-        <div class="health-metric-main-value text-success">
-          ${opexPct.toFixed(2).replace('.', ',')}%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Total Beban Operasional:</span>
-          <span class="health-metric-nominal">${formatRupiah(d.biayaOperasional)}</span>
-        </div>
-        <div class="health-metric-subrow">
-          <span>Yearly Opex Rate:</span>
-          <span>${opexYearlyPct.toFixed(2).replace('.', ',')}% (${opexDiff > 0 ? '+' : ''}${opexDiff.toFixed(2).replace('.', ',')}%)</span>
-        </div>
-      </div>
-
+      <!-- Card 3: Laba / (Rugi) Bersih -->
       <div class="health-metric-card ${netStatus}">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">4. Laba Bersih Bulan Ini</span>
+          <span class="health-metric-title">📈 3. Laba / (Rugi) Bersih</span>
           <span class="health-metric-badge ${netBadgeClass}">${netBadgeText}</span>
         </div>
         <div class="health-metric-main-value ${d.labaBersih >= 0 ? 'text-success' : 'text-danger'}">
@@ -4037,91 +4077,605 @@ function renderHealthTopMetrics() {
         <div class="health-metric-subrow">
           <span>Net Profit Margin:</span>
           <strong style="color: ${d.labaBersih >= 0 ? '#10b981' : '#ef4444'};">
-            ${((d.labaBersih / d.pendapatanBersih) * 100).toFixed(2).replace('.', ',')}%
+            ${netMarginPct >= 0 ? '+' : ''}${netMarginPct.toFixed(2).replace('.', ',')}%
           </strong>
         </div>
         <div class="health-metric-subrow">
-          <span>Total Sunk Cost Bulan Ini:</span>
-          <span class="health-metric-nominal text-danger">${formatRupiah(d.sunkCost.totalSunk)}</span>
+          <span>Hasil Akhir:</span>
+          <span style="font-weight: 600;">${netMomText}</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Rasio Biaya Kunci -->
+      <div class="health-metric-card ${ratioStatus}">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">🩺 4. Rasio Biaya Utama</span>
+          <span class="health-metric-badge ${ratioBadgeClass}">${ratioBadgeText}</span>
+        </div>
+        <div class="health-metric-main-value ${hppPct > 98 ? 'text-danger' : hppPct > 96.5 ? 'text-warning' : 'text-success'}">
+          HPP ${hppPct.toFixed(1).replace('.', ',')}%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Gaji Pegawai (Akun 5201):</span>
+          <span class="health-metric-nominal">${salaryPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.gajiPegawai)})</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Biaya Operasional:</span>
+          <span class="health-metric-nominal">${opexPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.biayaOperasional)})</span>
         </div>
       </div>
     `;
   } else {
     // Mode Komparasi 3 Bulan (All)
     container.innerHTML = `
-      <div class="health-metric-card status-danger">
-        <div class="health-metric-card-header">
-          <span class="health-metric-title">1. Rentang HPP 3 Bulan</span>
-          <span class="health-metric-badge badge-status-danger">🚨 ANOMALI JULI</span>
-        </div>
-        <div class="health-metric-main-value text-danger">
-          95,6% ➔ 99,5%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Median Bulanan:</span>
-          <span class="health-metric-nominal">97,36% (Juni)</span>
-        </div>
-        <div class="health-metric-subrow">
-          <span>Yearly Benchmark:</span>
-          <span class="health-metric-nominal">95,93% - 96,40%</span>
-        </div>
-      </div>
-
-      <div class="health-metric-card status-warning">
-        <div class="health-metric-card-header">
-          <span class="health-metric-title">2. Rasio Gaji 3 Bulan</span>
-          <span class="health-metric-badge badge-status-warning">⚠️ THR JUNI</span>
-        </div>
-        <div class="health-metric-main-value text-warning">
-          1,6% ➔ 2,3% ➔ 1,8%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Median Bulanan:</span>
-          <span class="health-metric-nominal">1,77% (Juli)</span>
-        </div>
-        <div class="health-metric-subrow">
-          <span>Puncak Beban:</span>
-          <span class="health-metric-nominal text-warning">Juni (2,33% - THR Rp 41,3M)</span>
-        </div>
-      </div>
-
+      <!-- Card 1: Total Omzet 3 Bulan -->
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">3. Rasio Beban Opex</span>
-          <span class="health-metric-badge badge-status-safe">✅ DI BAWAH TAHUNAN</span>
+          <span class="health-metric-title">💰 1. Omzet Penjualan 3 Bulan</span>
+          <span class="health-metric-badge badge-status-safe">📊 3 BULAN</span>
         </div>
-        <div class="health-metric-main-value text-success">
-          2,2% - 3,4%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Median Bulanan:</span>
-          <span class="health-metric-nominal">2,33% (Juli)</span>
+        <div class="health-metric-main-value" style="color: #0284c7;">
+          Rp 16,519 M
         </div>
         <div class="health-metric-subrow">
-          <span>Yearly Benchmark:</span>
-          <span class="health-metric-nominal">3,71% - 4,02%</span>
+          <span>Rata-rata Bulanan:</span>
+          <span class="health-metric-nominal">Rp 5.506.495.753 / bln</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Tren Omzet:</span>
+          <span class="health-metric-nominal">Mei 5,67M ➔ Jun 5,69M ➔ Jul 5,15M</span>
         </div>
       </div>
 
+      <!-- Card 2: Akumulasi Laba Kotor -->
+      <div class="health-metric-card status-warning">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">📦 2. Akumulasi Laba Kotor</span>
+          <span class="health-metric-badge badge-status-danger">🚨 EROSI PARAH</span>
+        </div>
+        <div class="health-metric-main-value text-warning">
+          Rp 421,29 Jt
+        </div>
+        <div class="health-metric-subrow">
+          <span>Margin Rata-rata:</span>
+          <span class="health-metric-nominal text-warning">2,55% (Normal &gt; 4%)</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Tren Margin:</span>
+          <strong style="color: #ef4444;">Mei 4,36% ➔ Jun 2,64% ➔ Jul 0,47%</strong>
+        </div>
+      </div>
+
+      <!-- Card 3: Akumulasi Laba/Rugi Bersih -->
       <div class="health-metric-card status-danger">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">4. Akumulasi 3 Bulan</span>
-          <span class="health-metric-badge badge-status-danger">🚨 TOTAL RUGI</span>
+          <span class="health-metric-title">📈 3. Akumulasi Laba / Rugi</span>
+          <span class="health-metric-badge badge-status-danger">🚨 TOTAL DEFISIT</span>
         </div>
         <div class="health-metric-main-value text-danger">
-          -Rp 89,4 Jt
+          -Rp 89,42 Jt
         </div>
         <div class="health-metric-subrow">
           <span>Performa Mei:</span>
-          <strong class="text-success">+ Rp 99.025.287</strong>
+          <strong class="text-success">+ Rp 99.025.287 (Surplus)</strong>
         </div>
         <div class="health-metric-subrow">
-          <span>Performa Juni & Juli:</span>
-          <strong class="text-danger">- Rp 188.445.831</strong>
+          <span>Defisit Juni &amp; Juli:</span>
+          <strong class="text-danger">- Rp 188.445.831 (Rugi Bersih)</strong>
+        </div>
+      </div>
+
+      <!-- Card 4: Rasio Biaya Utama 3 Bulan -->
+      <div class="health-metric-card status-danger">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">🩺 4. Rasio Biaya 3 Bulan</span>
+          <span class="health-metric-badge badge-status-danger">🚨 ANOMALI JULI</span>
+        </div>
+        <div class="health-metric-main-value text-danger">
+          HPP 95,6% ➔ 99,5%
+        </div>
+        <div class="health-metric-subrow">
+          <span>Beban Gaji Staf:</span>
+          <span class="health-metric-nominal">1,6% ➔ 2,3% (THR) ➔ 1,8%</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Biaya Operasional:</span>
+          <span class="health-metric-nominal text-success">2,2% - 3,4% (Efisien)</span>
         </div>
       </div>
     `;
   }
+}
+
+function renderSvgHealthFinancials() {
+  const container = document.getElementById('svgHealthFinancialContainer');
+  const chipsContainer = document.getElementById('healthChartChipsRow');
+  if (!container) return;
+
+  const months = ['2026-05', '2026-06', '2026-07'];
+  const data = months.map(k => HEALTH_FINANCIAL_DATA[k]);
+  const curr = (activeHealthPeriod !== 'all' && HEALTH_FINANCIAL_DATA[activeHealthPeriod]) ? HEALTH_FINANCIAL_DATA[activeHealthPeriod] : null;
+
+  // Render 3 Interactive Quick Chips
+  if (chipsContainer) {
+    const totalOmzet3M = data.reduce((sum, d) => sum + d.pendapatanBersih, 0);
+    const totalGross3M = data.reduce((sum, d) => sum + d.labaKotor, 0);
+    const totalNet3M = data.reduce((sum, d) => sum + d.labaBersih, 0);
+
+    const omzetChipVal = curr ? formatRupiah(curr.pendapatanBersih) : formatRupiah(totalOmzet3M);
+    const omzetChipDesc = curr ? `Penjualan bersih (${curr.monthLabel})` : 'Total 3 bulan • Rata-rata Rp 5,506 M/bln';
+
+    const grossChipVal = curr ? formatRupiah(curr.labaKotor) : formatRupiah(totalGross3M);
+    const grossMargin = curr ? ((curr.labaKotor / curr.pendapatanBersih) * 100).toFixed(2).replace('.', ',') + '%' : '2,55% (Rata-rata)';
+    const grossChipDesc = curr ? `Gross Margin: ${grossMargin}` : 'Margin: 4,4% ➔ 2,6% ➔ 0,5% (Erosi -84%)';
+
+    const netChipVal = curr ? formatRupiah(curr.labaBersih) : formatRupiah(totalNet3M);
+    const netChipDesc = curr ? (curr.labaBersih >= 0 ? 'Surplus laba bersih periode' : 'Defisit operasional periode') : 'Mei +Rp 99M | Jun-Jul -Rp 188M Defisit';
+
+    chipsContainer.innerHTML = `
+      <div class="health-chip-card ${activeHealthChartMode === 'omzet' ? 'active' : ''}" onclick="setHealthChartMode('omzet')" title="Ketuk untuk melihat grafik tren omzet penjualan">
+        <div class="health-chip-header">
+          <span>💰 OMZET PENJUALAN</span>
+          <span style="color:#0284c7;">➔ Lihat Tren</span>
+        </div>
+        <div class="health-chip-val" style="color:#0284c7;">${omzetChipVal}</div>
+        <div class="health-chip-desc">
+          <span>${omzetChipDesc}</span>
+          <span style="font-weight:800; color:${curr && curr.monthKey === '2026-07' ? '#ef4444' : '#10b981'};">
+            ${curr ? (curr.monthKey === '2026-07' ? '🔻 -9,5% MoM' : curr.monthKey === '2026-06' ? '📈 +0,35%' : 'Basis') : '3 Bulan'}
+          </span>
+        </div>
+      </div>
+
+      <div class="health-chip-card ${activeHealthChartMode === 'gross' ? 'active' : ''}" onclick="setHealthChartMode('gross')" title="Ketuk untuk melihat grafik tren laba kotor & margin">
+        <div class="health-chip-header">
+          <span>📦 LABA KOTOR &amp; MARGIN</span>
+          <span style="color:#f59e0b;">➔ Lihat Tren</span>
+        </div>
+        <div class="health-chip-val" style="color:#f59e0b;">${grossChipVal}</div>
+        <div class="health-chip-desc">
+          <span>${grossChipDesc}</span>
+          <span style="font-weight:800; color:#ef4444;">Erosi Juli 0,47%</span>
+        </div>
+      </div>
+
+      <div class="health-chip-card ${activeHealthChartMode === 'net' ? 'active' : ''}" onclick="setHealthChartMode('net')" title="Ketuk untuk melihat grafik tren laba bersih & surplus/defisit">
+        <div class="health-chip-header">
+          <span>📈 LABA / (RUGI) BERSIH</span>
+          <span style="color:#ef4444;">➔ Lihat Tren</span>
+        </div>
+        <div class="health-chip-val" style="color:${(curr ? curr.labaBersih : totalNet3M) >= 0 ? '#10b981' : '#ef4444'};">${netChipVal}</div>
+        <div class="health-chip-desc">
+          <span>${netChipDesc}</span>
+          <span style="font-weight:800; color:${(curr ? curr.labaBersih : totalNet3M) >= 0 ? '#10b981' : '#ef4444'};">
+            ${(curr ? curr.labaBersih : totalNet3M) >= 0 ? 'Surplus' : 'Defisit'}
+          </span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render SVG Chart based on activeHealthChartMode
+  const w = 880;
+  const h = 350;
+  const padLeft = 70;
+  const padRight = 40;
+  const padTop = 45;
+  const padBottom = 55;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  let svgHtml = '';
+
+  if (activeHealthChartMode === 'all') {
+    // Mode all: 3 Grouped Bars per month (Omzet, Laba Kotor, Laba Bersih)
+    const slotW = plotW / 3;
+    const barW = 26;
+
+    let gridLines = '';
+    for (let s = 0; s <= 4; s++) {
+      const yPos = padTop + (s / 4) * plotH;
+      gridLines += `
+        <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="3,3" />
+      `;
+    }
+
+    // Zero-axis for Net Profit (at 72% height)
+    const zeroY = padTop + plotH * 0.72;
+    gridLines += `
+      <line x1="${padLeft}" y1="${zeroY}" x2="${w - padRight}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.25" stroke-width="1.2" />
+      <text x="${padLeft - 8}" y="${zeroY + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="var(--text-muted)" text-anchor="end">Rp 0</text>
+    `;
+
+    let groupsSvg = '';
+    data.forEach((d, i) => {
+      const groupCenter = padLeft + (i + 0.5) * slotW;
+      const isSelected = (activeHealthPeriod === d.monthKey);
+
+      // 1. Omzet Bar (scale against 6.5M)
+      const omzetH = Math.max(10, (d.pendapatanBersih / 6500000000) * (plotH * 0.92));
+      const omzetY = padTop + plotH - omzetH;
+      const omzetX = groupCenter - barW * 1.55;
+
+      // 2. Laba Kotor Bar (scale against 300M)
+      const grossMarginPct = (d.labaKotor / d.pendapatanBersih) * 100;
+      const grossH = Math.max(10, (d.labaKotor / 300000000) * (plotH * 0.75));
+      const grossY = padTop + plotH - grossH;
+      const grossX = groupCenter - barW * 0.5;
+      const grossColor = grossMarginPct < 1.0 ? '#ef4444' : grossMarginPct < 3.0 ? '#f59e0b' : '#10b981';
+
+      // 3. Laba Bersih Bar (around zero line)
+      const netMarginPct = (d.labaBersih / d.pendapatanBersih) * 100;
+      let netY = zeroY;
+      let netH = 0;
+      let netColor = '#10b981';
+      if (d.labaBersih >= 0) {
+        netH = Math.max(12, (d.labaBersih / 150000000) * (plotH * 0.42));
+        netY = zeroY - netH;
+        netColor = '#10b981';
+      } else {
+        netH = Math.max(12, (Math.abs(d.labaBersih) / 150000000) * (plotH * 0.25));
+        netY = zeroY;
+        netColor = d.monthKey === '2026-07' ? '#dc2626' : '#ef4444';
+      }
+      const netX = groupCenter + barW * 0.55;
+
+      let auraBg = '';
+      if (isSelected) {
+        auraBg = `
+          <rect x="${groupCenter - slotW * 0.46}" y="${padTop - 8}" width="${slotW * 0.92}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />
+          <text x="${groupCenter}" y="${padTop + 4}" font-family="var(--font-sans)" font-size="9" font-weight="800" fill="#38bdf8" text-anchor="middle">★ BULAN TERPILIH</text>
+        `;
+      }
+
+      groupsSvg += `
+        ${auraBg}
+        <!-- Bar Omzet -->
+        <rect x="${omzetX}" y="${omzetY}" width="${barW}" height="${omzetH}" fill="url(#finBlueGrad)" rx="3">
+          <title>${d.monthLabel} Omzet Bersih: ${formatRupiah(d.pendapatanBersih)}</title>
+        </rect>
+        <text x="${omzetX + barW / 2}" y="${omzetY - 5}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#0284c7" text-anchor="middle">
+          ${formatShortRupiah(d.pendapatanBersih)}
+        </text>
+
+        <!-- Bar Laba Kotor -->
+        <rect x="${grossX}" y="${grossY}" width="${barW}" height="${grossH}" fill="${grossColor}" rx="3">
+          <title>${d.monthLabel} Laba Kotor: ${formatRupiah(d.labaKotor)} (${grossMarginPct.toFixed(2)}%)</title>
+        </rect>
+        <text x="${grossX + barW / 2}" y="${grossY - 5}" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="${grossColor}" text-anchor="middle">
+          ${formatShortRupiah(d.labaKotor)}
+        </text>
+
+        <!-- Bar Laba Bersih -->
+        <rect x="${netX}" y="${netY}" width="${barW}" height="${netH}" fill="${netColor}" rx="3">
+          <title>${d.monthLabel} Laba Bersih: ${formatRupiah(d.labaBersih)} (${netMarginPct.toFixed(2)}%)</title>
+        </rect>
+        <text x="${netX + barW / 2}" y="${d.labaBersih >= 0 ? netY - 5 : netY + netH + 12}" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="${netColor}" text-anchor="middle">
+          ${formatShortRupiah(d.labaBersih)}
+        </text>
+
+        <!-- Month Label -->
+        <text x="${groupCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${d.monthLabel}
+        </text>
+      `;
+    });
+
+    // Delta badges between months
+    const xMid1 = padLeft + slotW;
+    const xMid2 = padLeft + slotW * 2;
+    const deltaBadges = `
+      <g transform="translate(${xMid1}, ${padTop + 25})">
+        <rect x="-48" y="-12" width="96" height="24" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
+        <text x="0" y="4" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="#10b981" text-anchor="middle">Omzet +0,35%</text>
+      </g>
+      <g transform="translate(${xMid2}, ${padTop + 25})">
+        <rect x="-48" y="-12" width="96" height="24" rx="12" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1" />
+        <text x="0" y="4" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="#ef4444" text-anchor="middle">Omzet -9,49%</text>
+      </g>
+    `;
+
+    // Legend
+    const legend = `
+      <g transform="translate(${padLeft + 10}, 16)">
+        <rect x="0" y="0" width="14" height="10" rx="2" fill="#0284c7" />
+        <text x="18" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">Omzet Bersih</text>
+
+        <rect x="120" y="0" width="14" height="10" rx="2" fill="#10b981" />
+        <text x="138" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">Laba Kotor</text>
+
+        <rect x="235" y="0" width="14" height="10" rx="2" fill="#ef4444" />
+        <text x="253" y="9" font-family="var(--font-sans)" font-size="11" font-weight="700" fill="var(--text-main)">Laba / Rugi Bersih</text>
+      </g>
+    `;
+
+    svgHtml = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="finBlueGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        ${groupsSvg}
+        ${deltaBadges}
+        ${legend}
+      </svg>
+    `;
+  } else if (activeHealthChartMode === 'omzet') {
+    // Mode omzet: Dedicated Trendline & Comparison for Net Omzet
+    const slotW = plotW / 3;
+    const barW = 50;
+    const maxOmzet = 6200000000;
+
+    let gridLines = '';
+    const steps = 4;
+    for (let s = 0; s <= steps; s++) {
+      const val = (maxOmzet / steps) * s;
+      const yPos = padTop + plotH - (s / steps) * plotH;
+      gridLines += `
+        <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
+      `;
+    }
+
+    const points = [];
+    let barsSvg = '';
+
+    data.forEach((d, i) => {
+      const xCenter = padLeft + (i + 0.5) * slotW;
+      const barH = (d.pendapatanBersih / maxOmzet) * plotH;
+      const barY = padTop + plotH - barH;
+      const barX = xCenter - barW / 2;
+
+      points.push({ x: xCenter, y: barY, val: d.pendapatanBersih, label: d.monthLabel });
+
+      const diskonH = Math.max(3, (d.potonganPenjualan / maxOmzet) * plotH);
+      const diskonY = barY - diskonH;
+      const isSelected = (activeHealthPeriod === d.monthKey);
+
+      barsSvg += `
+        ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
+
+        <!-- Omzet Bar -->
+        <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="url(#finOmzetGrad)" rx="4">
+          <title>${d.monthLabel} Omzet Bersih: ${formatRupiah(d.pendapatanBersih)}</title>
+        </rect>
+
+        ${d.potonganPenjualan > 100000 ? `
+          <!-- Diskon Segment -->
+          <rect x="${barX}" y="${diskonY}" width="${barW}" height="${diskonH}" fill="#f97316" rx="2">
+            <title>Diskon/Potongan Penjualan: ${formatRupiah(d.potonganPenjualan)}</title>
+          </rect>
+          <text x="${xCenter}" y="${diskonY - 6}" font-family="var(--font-sans)" font-size="9.5" font-weight="800" fill="#f97316" text-anchor="middle">Diskon: ${formatShortRupiah(d.potonganPenjualan)}</text>
+        ` : ''}
+
+        <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="#0284c7" text-anchor="middle">
+          ${formatRupiah(d.pendapatanBersih)}
+        </text>
+
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${d.monthLabel}
+        </text>
+      `;
+    });
+
+    let pathD = `M ${points[0].x} ${points[0].y}`;
+    for (let p = 1; p < points.length; p++) {
+      pathD += ` L ${points[p].x} ${points[p].y}`;
+    }
+
+    const trendlineSvg = `
+      <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      ${points.map(pt => `
+        <circle cx="${pt.x}" cy="${pt.y}" r="6" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
+      `).join('')}
+    `;
+
+    const xMid1 = padLeft + slotW;
+    const xMid2 = padLeft + slotW * 2;
+    const deltas = `
+      <g transform="translate(${xMid1}, ${padTop + 20})">
+        <rect x="-55" y="-12" width="110" height="24" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1.2" />
+        <text x="0" y="4" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#10b981" text-anchor="middle">📈 +0,35% (+19,8M)</text>
+      </g>
+      <g transform="translate(${xMid2}, ${padTop + 20})">
+        <rect x="-55" y="-12" width="110" height="24" rx="12" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.2" />
+        <text x="0" y="4" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="middle">📉 -9,49% (-540M)</text>
+      </g>
+    `;
+
+    svgHtml = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="finOmzetGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+          </linearGradient>
+        </defs>
+        ${gridLines}
+        ${barsSvg}
+        ${trendlineSvg}
+        ${deltas}
+      </svg>
+    `;
+  } else if (activeHealthChartMode === 'gross') {
+    // Mode gross: Dedicated Gross Profit & Margin % Trend
+    const slotW = plotW / 3;
+    const barW = 50;
+    const maxGross = 300000000;
+
+    let gridLines = '';
+    const steps = 4;
+    for (let s = 0; s <= steps; s++) {
+      const val = (maxGross / steps) * s;
+      const yPos = padTop + plotH - (s / steps) * plotH;
+      gridLines += `
+        <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
+      `;
+    }
+
+    const points = [];
+    let barsSvg = '';
+
+    data.forEach((d, i) => {
+      const xCenter = padLeft + (i + 0.5) * slotW;
+      const barH = Math.max(12, (d.labaKotor / maxGross) * plotH);
+      const barY = padTop + plotH - barH;
+      const barX = xCenter - barW / 2;
+
+      const grossMarginPct = (d.labaKotor / d.pendapatanBersih) * 100;
+      const isCritical = (grossMarginPct < 1.0);
+      const isWarning = (grossMarginPct < 3.0);
+      const barColor = isCritical ? '#ef4444' : isWarning ? '#f59e0b' : '#10b981';
+
+      points.push({ x: xCenter, y: barY, margin: grossMarginPct });
+      const isSelected = (activeHealthPeriod === d.monthKey);
+
+      barsSvg += `
+        ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
+
+        <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="${barColor}" rx="4">
+          <title>${d.monthLabel} Laba Kotor: ${formatRupiah(d.labaKotor)} (Margin: ${grossMarginPct.toFixed(2)}%)</title>
+        </rect>
+
+        <text x="${xCenter}" y="${barY - 24}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${barColor}" text-anchor="middle">
+          ${formatRupiah(d.labaKotor)}
+        </text>
+
+        <!-- Margin Badge -->
+        <rect x="${xCenter - 42}" y="${barY - 18}" width="84" height="16" rx="4" fill="${isCritical ? '#fee2e2' : isWarning ? '#ffedd5' : '#dcfce7'}" />
+        <text x="${xCenter}" y="${barY - 6}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="${barColor}" text-anchor="middle">
+          Margin: ${grossMarginPct.toFixed(2).replace('.', ',')}%
+        </text>
+
+        ${isCritical ? `
+          <rect x="${xCenter - 65}" y="${padTop + 20}" width="130" height="22" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="1.2" />
+          <text x="${xCenter}" y="${padTop + 35}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="middle">🚨 Erosi Margin -84%</text>
+        ` : ''}
+
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${d.monthLabel}
+        </text>
+      `;
+    });
+
+    let pathD = `M ${points[0].x} ${points[0].y}`;
+    for (let p = 1; p < points.length; p++) {
+      pathD += ` L ${points[p].x} ${points[p].y}`;
+    }
+
+    const trendlineSvg = `
+      <path d="${pathD}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4,4" />
+      ${points.map(pt => `
+        <circle cx="${pt.x}" cy="${pt.y}" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
+      `).join('')}
+    `;
+
+    svgHtml = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+        ${gridLines}
+        ${barsSvg}
+        ${trendlineSvg}
+      </svg>
+    `;
+  } else if (activeHealthChartMode === 'net') {
+    // Mode net: Dedicated Net Profit/Loss with Zero-Line
+    const slotW = plotW / 3;
+    const barW = 50;
+    const maxNet = 150000000;
+    const zeroY = padTop + plotH * 0.55;
+
+    let gridLines = '';
+    // Positive grid
+    gridLines += `
+      <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${padTop + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#10b981" text-anchor="end">+Rp 150Jt</text>
+      
+      <line x1="${padLeft}" y1="${(padTop + zeroY) / 2}" x2="${w - padRight}" y2="${(padTop + zeroY) / 2}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${((padTop + zeroY) / 2) + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#10b981" text-anchor="end">+Rp 75Jt</text>
+    `;
+    // Zero line
+    gridLines += `
+      <line x1="${padLeft}" y1="${zeroY}" x2="${w - padRight}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.4" stroke-width="2" />
+      <text x="${padLeft - 10}" y="${zeroY + 4}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="var(--text-main)" text-anchor="end">Rp 0 (Titik Impas)</text>
+    `;
+    // Negative grid
+    gridLines += `
+      <line x1="${padLeft}" y1="${zeroY + (padTop + plotH - zeroY) * 0.5}" x2="${w - padRight}" y2="${zeroY + (padTop + plotH - zeroY) * 0.5}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${zeroY + (padTop + plotH - zeroY) * 0.5 + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#ef4444" text-anchor="end">-Rp 75Jt</text>
+      
+      <line x1="${padLeft}" y1="${padTop + plotH}" x2="${w - padRight}" y2="${padTop + plotH}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
+      <text x="${padLeft - 10}" y="${padTop + plotH + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#ef4444" text-anchor="end">-Rp 150Jt</text>
+    `;
+
+    const points = [];
+    let barsSvg = '';
+
+    data.forEach((d, i) => {
+      const xCenter = padLeft + (i + 0.5) * slotW;
+      const barX = xCenter - barW / 2;
+
+      let barY = zeroY;
+      let barH = 0;
+      let barColor = '#10b981';
+
+      if (d.labaBersih >= 0) {
+        barH = Math.max(12, (d.labaBersih / maxNet) * (zeroY - padTop));
+        barY = zeroY - barH;
+        barColor = '#10b981';
+      } else {
+        barH = Math.max(12, (Math.abs(d.labaBersih) / maxNet) * (padTop + plotH - zeroY));
+        barY = zeroY;
+        barColor = d.monthKey === '2026-07' ? '#dc2626' : '#ef4444';
+      }
+
+      points.push({ x: xCenter, y: d.labaBersih >= 0 ? barY : barY + barH });
+
+      const netMarginPct = (d.labaBersih / d.pendapatanBersih) * 100;
+      const isSelected = (activeHealthPeriod === d.monthKey);
+
+      barsSvg += `
+        ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
+
+        <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="${barColor}" rx="4">
+          <title>${d.monthLabel} Laba Bersih: ${formatRupiah(d.labaBersih)} (Net Margin: ${netMarginPct.toFixed(2)}%)</title>
+        </rect>
+
+        <text x="${xCenter}" y="${d.labaBersih >= 0 ? barY - 8 : barY + barH + 16}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${barColor}" text-anchor="middle">
+          ${formatRupiah(d.labaBersih)}
+        </text>
+
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${d.monthLabel} (${netMarginPct >= 0 ? '+' : ''}${netMarginPct.toFixed(2).replace('.', ',')}%)
+        </text>
+      `;
+    });
+
+    let pathD = `M ${points[0].x} ${points[0].y}`;
+    for (let p = 1; p < points.length; p++) {
+      pathD += ` L ${points[p].x} ${points[p].y}`;
+    }
+
+    const trendlineSvg = `
+      <path d="${pathD}" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      ${points.map(pt => `
+        <circle cx="${pt.x}" cy="${pt.y}" r="5.5" fill="#dc2626" stroke="#ffffff" stroke-width="2" />
+      `).join('')}
+    `;
+
+    svgHtml = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
+        ${gridLines}
+        ${barsSvg}
+        ${trendlineSvg}
+      </svg>
+    `;
+  }
+
+  container.innerHTML = svgHtml;
 }
 
 function renderSvgHealthRatios() {
@@ -4396,6 +4950,536 @@ function renderTableHealthFinancials() {
   `;
 }
 
+/* ==========================================================================
+   MODUL KESEHATAN PERUSAHAAN: MUTASI PERSEDIAAN & LABA RUGI PER PCS TIAP BARANG
+   ========================================================================== */
+
+function setHealthInventoryMovementMode(mode) {
+  activeHealthInvMovementMode = mode;
+  const btnQty = document.getElementById('btnInvModeQty');
+  const btnVal = document.getElementById('btnInvModeVal');
+  if (btnQty && btnVal) {
+    if (mode === 'qty') {
+      btnQty.classList.add('active');
+      btnVal.classList.remove('active');
+    } else {
+      btnVal.classList.add('active');
+      btnQty.classList.remove('active');
+    }
+  }
+  renderHealthInventoryMovement();
+}
+
+function onHealthInvSearchChange(val) {
+  healthInvSearchText = val || '';
+  renderHealthInventoryProductTable();
+}
+
+function onHealthInvFilterChange(val) {
+  healthInvFilter = val || 'all';
+  const filterSelect = document.getElementById('healthInvFilterSelect');
+  if (filterSelect && filterSelect.value !== healthInvFilter) {
+    filterSelect.value = healthInvFilter;
+  }
+  renderHealthInventoryProductTable();
+}
+
+function sortHealthInventoryProducts(col) {
+  if (healthInvSortCol === col) {
+    healthInvSortAsc = !healthInvSortAsc;
+  } else {
+    healthInvSortCol = col;
+    healthInvSortAsc = col === 'nama';
+  }
+  renderHealthInventoryProductTable();
+}
+
+function renderHealthInventoryMovement() {
+  if (typeof HEALTH_INVENTORY_DATA === 'undefined') return;
+  const periodData = HEALTH_INVENTORY_DATA[activeHealthPeriod];
+  if (!periodData) return;
+
+  // 1. Render 4 Stock Movement KPI Cards
+  const stockGrid = document.getElementById('healthStockMetricsGrid');
+  if (stockGrid) {
+    const s = periodData.summary;
+    const isAll = activeHealthPeriod === 'all';
+    const periodLabel = isAll ? 'Komparasi 3 Bulan' : (activeHealthPeriod === '2026-05' ? 'Mei 2026' : (activeHealthPeriod === '2026-06' ? 'Juni 2026' : 'Juli 2026'));
+
+    stockGrid.innerHTML = `
+      <div class="health-metric-card status-safe">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">📦 STOK AWAL</span>
+          <span class="health-metric-badge badge-safe">${isAll ? '1 Mei 2026' : periodLabel}</span>
+        </div>
+        <div class="health-metric-main-value" style="color: #3b82f6;">${s.stokAwalQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
+        <div class="health-metric-subrow">
+          <span>Nilai Aset:</span>
+          <span class="health-metric-nominal">Rp ${s.stokAwalNilai.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-safe">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">🛒 PEMBELIAN (RESTOCK)</span>
+          <span class="health-metric-badge badge-info">${periodLabel}</span>
+        </div>
+        <div class="health-metric-main-value" style="color: #06b6d4;">${s.beliQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
+        <div class="health-metric-subrow">
+          <span>Total Pembelian:</span>
+          <span class="health-metric-nominal">Rp ${s.beliNilai.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-safe">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">💰 PENJUALAN (OMZET)</span>
+          <span class="health-metric-badge badge-safe">${periodLabel}</span>
+        </div>
+        <div class="health-metric-main-value" style="color: #10b981;">${s.jualQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
+        <div class="health-metric-subrow">
+          <span>Total Omzet:</span>
+          <span class="health-metric-nominal">Rp ${s.jualNilai.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+
+      <div class="health-metric-card status-safe">
+        <div class="health-metric-card-header">
+          <span class="health-metric-title">🏁 STOK AKHIR</span>
+          <span class="health-metric-badge badge-purple">${isAll ? '31 Juli 2026' : periodLabel}</span>
+        </div>
+        <div class="health-metric-main-value" style="color: #a855f7;">${s.stokAkhirQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
+        <div class="health-metric-subrow">
+          <span>Nilai Akhir:</span>
+          <span class="health-metric-nominal">Rp ${s.stokAkhirNilai.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // 2. Render SVG Stock Movement Chart
+  const svgContainer = document.getElementById('svgHealthStockContainer');
+  if (svgContainer) {
+    svgContainer.innerHTML = renderSvgHealthStockMovement();
+  }
+
+  // 3. Render Comparative Analysis Box
+  const analysisContainer = document.getElementById('healthInvComparativeAnalysis');
+  if (analysisContainer) {
+    analysisContainer.innerHTML = renderHealthInvComparativeAnalysis();
+  }
+}
+
+function renderSvgHealthStockMovement() {
+  const isQty = activeHealthInvMovementMode === 'qty';
+  const months = ['2026-05', '2026-06', '2026-07'];
+  const monthLabels = ['Mei 2026', 'Juni 2026', 'Juli 2026'];
+
+  const seriesData = months.map(m => {
+    const s = HEALTH_INVENTORY_DATA[m].summary;
+    return {
+      monthKey: m,
+      stokAwal: isQty ? s.stokAwalQty : s.stokAwalNilai,
+      beli: isQty ? s.beliQty : s.beliNilai,
+      jual: isQty ? s.jualQty : s.jualNilai,
+      stokAkhir: isQty ? s.stokAkhirQty : s.stokAkhirNilai,
+      s
+    };
+  });
+
+  const maxVal = Math.max(
+    ...seriesData.flatMap(d => [d.stokAwal, d.beli, d.jual, d.stokAkhir])
+  ) * 1.15;
+
+  const width = 860;
+  const height = 300;
+  const padLeft = 85;
+  const padRight = 35;
+  const padTop = 30;
+  const padBottom = 50;
+
+  const chartW = width - padLeft - padRight;
+  const chartH = height - padTop - padBottom;
+
+  let gridSvg = '';
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const yVal = (maxVal / steps) * i;
+    const yPos = padTop + chartH - (yVal / maxVal) * chartH;
+    const label = isQty ? Math.round(yVal).toLocaleString('id-ID') : formatShortRupiah(yVal);
+    gridSvg += `
+      <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="var(--border-color)" stroke-dasharray="3,3" opacity="0.6" />
+      <text x="${padLeft - 10}" y="${yPos + 4}" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono, monospace" text-anchor="end">${label}</text>
+    `;
+  }
+
+  const groupW = chartW / months.length;
+  const barW = Math.min(32, (groupW * 0.7) / 4);
+  const barGap = 4;
+  const colors = {
+    stokAwal: '#3b82f6',
+    beli: '#06b6d4',
+    jual: '#10b981',
+    stokAkhir: '#a855f7'
+  };
+
+  let barsSvg = '';
+  const trendPoints = [];
+
+  seriesData.forEach((d, gIdx) => {
+    const groupCenter = padLeft + gIdx * groupW + groupW / 2;
+    const startX = groupCenter - (4 * barW + 3 * barGap) / 2;
+
+    const bars = [
+      { key: 'stokAwal', val: d.stokAwal, label: 'Stok Awal', color: colors.stokAwal },
+      { key: 'beli', val: d.beli, label: 'Pembelian', color: colors.beli },
+      { key: 'jual', val: d.jual, label: 'Penjualan', color: colors.jual },
+      { key: 'stokAkhir', val: d.stokAkhir, label: 'Stok Akhir', color: colors.stokAkhir }
+    ];
+
+    bars.forEach((b, bIdx) => {
+      const bx = startX + bIdx * (barW + barGap);
+      const bH = (b.val / maxVal) * chartH;
+      const by = padTop + chartH - bH;
+      const valFmt = isQty ? b.val.toLocaleString('id-ID') : formatShortRupiah(b.val);
+
+      if (b.key === 'stokAkhir') {
+        trendPoints.push({ x: bx + barW / 2, y: by, valFmt });
+      }
+
+      barsSvg += `
+        <rect x="${bx}" y="${by}" width="${barW}" height="${Math.max(2, bH)}" rx="4" fill="${b.color}" opacity="0.9">
+          <title>${monthLabels[gIdx]} - ${b.label}: ${valFmt}</title>
+        </rect>
+        <text x="${bx + barW / 2}" y="${by - 5}" fill="${b.color}" font-size="9" font-weight="700" font-family="JetBrains Mono, monospace" text-anchor="middle">${valFmt}</text>
+      `;
+    });
+
+    barsSvg += `
+      <text x="${groupCenter}" y="${height - padBottom + 22}" fill="var(--text-main)" font-size="12" font-weight="800" text-anchor="middle">${monthLabels[gIdx]}</text>
+    `;
+  });
+
+  let trendSvg = '';
+  if (trendPoints.length >= 2) {
+    const pathD = trendPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    trendSvg = `
+      <path d="${pathD}" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="4,4" opacity="0.8" />
+      ${trendPoints.map(p => `
+        <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#a855f7" stroke-width="2" />
+      `).join('')}
+    `;
+  }
+
+  return `
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.82rem; font-weight: 700;">
+      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.stokAwal};"></span> Stok Awal</span>
+      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.beli};"></span> Pembelian</span>
+      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.jual};"></span> Penjualan</span>
+      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.stokAkhir};"></span> Stok Akhir (Trend)</span>
+    </div>
+    <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; overflow: visible;">
+      ${gridSvg}
+      ${barsSvg}
+      ${trendSvg}
+    </svg>
+  `;
+}
+
+function renderHealthInvComparativeAnalysis() {
+  const isAll = activeHealthPeriod === 'all';
+  const data = HEALTH_INVENTORY_DATA[activeHealthPeriod];
+  if (!data) return '';
+
+  if (isAll) {
+    return `
+      <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        <span>🔍 Analisa Komparatif Mutasi Persediaan 3 Bulan (Mei, Juni, Juli 2026)</span>
+        <span class="badge-purple" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;">Cross-Month Audit</span>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
+        Evaluasi korelasi antara siklus restock pembelian, kecepatan penjualan (turnover), serta komparasi laba kotor per pcs antar periode.
+      </p>
+
+      <div class="health-inv-analysis-grid">
+        <!-- Card 1: Dinamika Arus & Restock Masif -->
+        <div class="health-inv-analysis-card theme-warning">
+          <div class="health-inv-card-title">
+            <span>📦 Restock Masif &amp; Penumpukan Stok Juli 2026</span>
+          </div>
+          <p class="health-inv-card-text">
+            Persediaan sempat melandai dari <strong>14.432 pcs (Rp 11,26 M)</strong> di awal Mei menjadi <strong>10.298 pcs (Rp 8,33 M)</strong> di akhir Juni berkat turnover yang sehat.
+            Namun pada bulan <strong>Juli 2026</strong>, terjadi pembelian/restock sangat agresif sebesar <strong>7.838 pcs (Rp 6,33 Miliar, +65% vs Juni)</strong>. Karena penjualan Juli melambat (-4,3% ke 6.480 pcs), stok akhir Juli membengkak kembali ke <strong>11.656 pcs (Rp 9,53 Miliar)</strong>, mengikat likuiditas kas sekitar Rp 1,2 Miliar.
+          </p>
+        </div>
+
+        <!-- Card 2: Tren Laba Rugi per Pcs -->
+        <div class="health-inv-analysis-card theme-danger">
+          <div class="health-inv-card-title">
+            <span>📉 Erosi Laba Rata-rata per Pcs</span>
+          </div>
+          <p class="health-inv-card-text">
+            Laba kotor rata-rata per ban tertinggi terjadi pada <strong>Mei 2026 sebesar Rp 38.020/pcs (Margin 4,36%)</strong>.
+            Pada <strong>Juni 2026</strong> laba per pcs anjlok <strong>-19,4% menjadi Rp 30.654/pcs (Margin 3,61%)</strong> akibat diskon tajam dan penjualan 22 SKU di bawah harga perolehan (rugi total Rp 41,5 Jt).
+            Bulan Juli sedikit pulih menjadi <strong>Rp 32.950/pcs (Margin 4,00%)</strong>, namun tetap di bawah kinerja Mei.
+          </p>
+        </div>
+
+        <!-- Card 3: Top Profit Contributor -->
+        <div class="health-inv-analysis-card theme-success">
+          <div class="health-inv-card-title">
+            <span>⭐ Top 3 Ban Penyumbang Laba Terbesar (3 Bulan)</span>
+          </div>
+          <p class="health-inv-card-text">
+            Tiga SKU motor penggerak profit utama selama 3 bulan:
+            <br>1. <strong>185/65R15 88S EC</strong>: Total laba <strong>Rp 51.523.513</strong> (1.189 pcs, avg Rp 43.333/pcs, margin 6,2%).
+            <br>2. <strong>7.50-16 14PR DR2</strong>: Total laba <strong>Rp 45.454.490</strong> (1.916 pcs, avg Rp 23.724/pcs).
+            <br>3. <strong>205/65R16 95H EC</strong>: Total laba <strong>Rp 38.932.610</strong> (692 pcs, avg Rp 56.261/pcs, margin 6,7%).
+          </p>
+        </div>
+
+        <!-- Card 4: Bleeding & Loss-Making Warning -->
+        <div class="health-inv-analysis-card theme-danger">
+          <div class="health-inv-card-title">
+            <span>⚠️ Alarm Kerugian SKU Margin Minus</span>
+          </div>
+          <p class="health-inv-card-text">
+            Terdapat tipe ban premium yang dijual jauh di bawah HPP (margin minus):
+            <br>• <strong>235/50R18 97W SP</strong>: Rugi akumulasi <strong>Rp -31.996.555</strong> (84 pcs terjual, rata-rata <strong>rugi Rp -380.911/pcs</strong>).
+            <br>• <strong>235 55*18 AT5</strong>: Rugi <strong>Rp -7.945.253</strong> (12 pcs, rugi Rp -662.104/pcs).
+            <br>• <strong>265/60R18 110H A</strong>: Rugi <strong>Rp -7.937.505</strong> (20 pcs, rugi Rp -396.875/pcs).
+            <br>• <strong>225 50 18 SPMAX0</strong>: Rugi <strong>Rp -5.803.677</strong> (7 pcs, rugi Rp -829.097/pcs).
+          </p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Single Month View
+  const s = data.summary;
+  const periodLabel = activeHealthPeriod === '2026-05' ? 'Mei 2026' : (activeHealthPeriod === '2026-06' ? 'Juni 2026' : 'Juli 2026');
+  const lossItems = data.items.filter(it => it.jualQty > 0 && it.labaRugiTotal < 0);
+  const totalLoss = lossItems.reduce((a, b) => a + b.labaRugiTotal, 0);
+
+  return `
+    <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+      <span>🔍 Evaluasi Mutasi Persediaan Periode ${periodLabel}</span>
+      <span class="badge-safe" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;">Laba Rata-rata: Rp ${s.labaRugiPerPcsAvg.toLocaleString('id-ID')}/pcs (${s.marginPctAvg}%)</span>
+    </div>
+    <div class="health-inv-analysis-grid">
+      <div class="health-inv-analysis-card theme-purple">
+        <div class="health-inv-card-title">Arus Stok &amp; Likuiditas ${periodLabel}</div>
+        <p class="health-inv-card-text">
+          Stok awal <strong>${s.stokAwalQty.toLocaleString('id-ID')} pcs (Rp ${formatShortRupiah(s.stokAwalNilai)})</strong>, pembelian masuk <strong>${s.beliQty.toLocaleString('id-ID')} pcs (Rp ${formatShortRupiah(s.beliNilai)})</strong>, penjualan keluar <strong>${s.jualQty.toLocaleString('id-ID')} pcs (Rp ${formatShortRupiah(s.jualNilai)})</strong>, menyisakan persediaan akhir <strong>${s.stokAkhirQty.toLocaleString('id-ID')} pcs (Rp ${formatShortRupiah(s.stokAkhirNilai)})</strong>.
+        </p>
+      </div>
+      <div class="health-inv-analysis-card ${lossItems.length > 0 ? 'theme-danger' : 'theme-success'}">
+        <div class="health-inv-card-title">Audit SKU Margin Minus (${lossItems.length} Tipe)</div>
+        <p class="health-inv-card-text">
+          ${lossItems.length > 0 ? `Terdapat <strong>${lossItems.length} SKU</strong> yang dijual di bawah HPP dengan kerugian total <strong>Rp ${Math.abs(totalLoss).toLocaleString('id-ID')}</strong>. Tipe ban yang paling menekan profit: <strong>${lossItems[0].nama}</strong> (rugi Rp ${lossItems[0].labaRugiTotal.toLocaleString('id-ID')}, rugi Rp ${lossItems[0].labaRugiPerPcs.toLocaleString('id-ID')}/pcs).` : 'Seluruh SKU yang terjual menghasilkan laba kotor positif di atas HPP.'}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function renderHealthInventoryProductTable() {
+  if (typeof HEALTH_INVENTORY_DATA === 'undefined') return;
+  const data = HEALTH_INVENTORY_DATA[activeHealthPeriod];
+  if (!data || !data.items) return;
+
+  const chipsContainer = document.getElementById('healthInvProductChipsRow');
+  const tableContainer = document.getElementById('tableHealthInventoryProducts');
+  if (!chipsContainer || !tableContainer) return;
+
+  let filtered = [...data.items];
+
+  // Search filter
+  if (healthInvSearchText.trim()) {
+    const q = healthInvSearchText.toLowerCase().trim();
+    filtered = filtered.filter(it => it.nama.toLowerCase().includes(q));
+  }
+
+  // Quick filter
+  if (healthInvFilter === 'sold') {
+    filtered = filtered.filter(it => it.jualQty > 0);
+  } else if (healthInvFilter === 'profit_high') {
+    filtered = filtered.filter(it => it.jualQty > 0 && it.labaRugiPerPcs >= 45000);
+  } else if (healthInvFilter === 'loss') {
+    filtered = filtered.filter(it => it.jualQty > 0 && it.labaRugiTotal < 0);
+  } else if (healthInvFilter === 'slow') {
+    filtered = filtered.filter(it => it.jualQty === 0 && it.stokAkhirQty > 0);
+  }
+
+  // Sorting
+  filtered.sort((a, b) => {
+    let vA = a[healthInvSortCol];
+    let vB = b[healthInvSortCol];
+    if (typeof vA === 'string') {
+      return healthInvSortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    }
+    return healthInvSortAsc ? vA - vB : vB - vA;
+  });
+
+  // Calculate chip counts
+  const totalSku = data.items.length;
+  const soldSku = data.items.filter(it => it.jualQty > 0).length;
+  const highProfitSku = data.items.filter(it => it.jualQty > 0 && it.labaRugiPerPcs >= 45000).length;
+  const lossSku = data.items.filter(it => it.jualQty > 0 && it.labaRugiTotal < 0).length;
+  const slowSku = data.items.filter(it => it.jualQty === 0 && it.stokAkhirQty > 0).length;
+
+  chipsContainer.innerHTML = `
+    <div class="health-chip-card ${healthInvFilter === 'all' ? 'active' : ''}" onclick="onHealthInvFilterChange('all')">
+      <div class="health-chip-header">📦 TOTAL TIPE BAN</div>
+      <div class="health-chip-val" style="color: var(--text-main);">${totalSku}</div>
+      <div class="health-chip-desc">Semua varian SKU</div>
+    </div>
+    <div class="health-chip-card ${healthInvFilter === 'sold' ? 'active' : ''}" onclick="onHealthInvFilterChange('sold')">
+      <div class="health-chip-header">🛒 BAN TERJUAL</div>
+      <div class="health-chip-val" style="color: #10b981;">${soldSku}</div>
+      <div class="health-chip-desc">Ada transaksi jual</div>
+    </div>
+    <div class="health-chip-card ${healthInvFilter === 'profit_high' ? 'active' : ''}" onclick="onHealthInvFilterChange('profit_high')">
+      <div class="health-chip-header">⭐ UNTUNG TINGGI</div>
+      <div class="health-chip-val" style="color: #3b82f6;">${highProfitSku}</div>
+      <div class="health-chip-desc">&ge; Rp 45.000 / pcs</div>
+    </div>
+    <div class="health-chip-card ${healthInvFilter === 'loss' ? 'active' : ''}" onclick="onHealthInvFilterChange('loss')">
+      <div class="health-chip-header">⚠️ MARGIN MINUS / RUGI</div>
+      <div class="health-chip-val" style="color: #ef4444;">${lossSku}</div>
+      <div class="health-chip-desc">Dijual di bawah HPP</div>
+    </div>
+    <div class="health-chip-card ${healthInvFilter === 'slow' ? 'active' : ''}" onclick="onHealthInvFilterChange('slow')">
+      <div class="health-chip-header">💤 SLOW MOVING</div>
+      <div class="health-chip-val" style="color: #94a3b8;">${slowSku}</div>
+      <div class="health-chip-desc">Ada stok, 0 terjual</div>
+    </div>
+  `;
+
+  const sortIcon = (col) => {
+    if (healthInvSortCol !== col) return '↕';
+    return healthInvSortAsc ? '↑' : '↓';
+  };
+
+  const rowsHtml = filtered.map((it, idx) => {
+    const isLoss = it.jualQty > 0 && it.labaRugiTotal < 0;
+    const isHigh = it.jualQty > 0 && it.labaRugiPerPcs >= 45000;
+    const isSlow = it.jualQty === 0 && it.stokAkhirQty > 0;
+
+    let badgeClass = 'badge-profit-normal';
+    let badgeLabel = '✓ Normal';
+    if (isLoss) {
+      badgeClass = 'badge-profit-loss';
+      badgeLabel = `🔥 Rugi ${it.labaRugiPerPcs.toLocaleString('id-ID')}/pcs`;
+    } else if (isHigh) {
+      badgeClass = 'badge-profit-star';
+      badgeLabel = `⭐ +${it.labaRugiPerPcs.toLocaleString('id-ID')}/pcs`;
+    } else if (isSlow) {
+      badgeClass = 'badge-profit-slow';
+      badgeLabel = '💤 0 Terjual';
+    } else if (it.jualQty > 0 && it.marginPct < 2) {
+      badgeClass = 'badge-profit-thin';
+      badgeLabel = `⚠️ Tipis (${it.marginPct}%)`;
+    }
+
+    return `
+      <tr class="${isLoss ? 'row-loss' : ''}">
+        <td style="text-align: center; color: var(--text-muted); font-size: 0.78rem;">${idx + 1}</td>
+        <td style="font-weight: 700; white-space: nowrap;">
+          <span>${it.nama}</span>
+        </td>
+        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
+          <div>${it.stokAwalQty.toLocaleString('id-ID')}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(it.stokAwalNilai)}</div>
+        </td>
+        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
+          <div>${it.beliQty > 0 ? it.beliQty.toLocaleString('id-ID') : '-'}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.beliQty > 0 ? 'Rp ' + it.beliCost.toLocaleString('id-ID') : '-'}</div>
+        </td>
+        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
+          <div style="font-weight: 700; color: #10b981;">${it.jualQty > 0 ? it.jualQty.toLocaleString('id-ID') : '-'}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.jualQty > 0 ? 'Rp ' + it.hargaJualPerPcs.toLocaleString('id-ID') : '-'}</div>
+        </td>
+        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
+          <div>${it.hppQty > 0 ? it.hppQty.toLocaleString('id-ID') : '-'}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.hppQty > 0 ? 'Rp ' + it.hppPerPcs.toLocaleString('id-ID') : '-'}</div>
+        </td>
+        <td style="text-align: right; font-weight: 800; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.labaRugiTotal > 0 ? '#10b981' : 'var(--text-muted)')}; white-space: nowrap;">
+          ${it.jualQty > 0 ? (it.labaRugiTotal < 0 ? '-Rp ' + Math.abs(it.labaRugiTotal).toLocaleString('id-ID') : 'Rp ' + it.labaRugiTotal.toLocaleString('id-ID')) : '-'}
+        </td>
+        <td style="text-align: right; font-weight: 800; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.labaRugiPerPcs > 0 ? '#3b82f6' : 'var(--text-muted)')}; white-space: nowrap;">
+          ${it.jualQty > 0 ? (it.labaRugiPerPcs < 0 ? '-Rp ' + Math.abs(it.labaRugiPerPcs).toLocaleString('id-ID') : 'Rp ' + it.labaRugiPerPcs.toLocaleString('id-ID')) : '-'}
+        </td>
+        <td style="text-align: right; font-weight: 700; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.marginPct >= 5 ? '#10b981' : (it.marginPct < 2 ? '#f59e0b' : 'var(--text-main)'))};">
+          ${it.jualQty > 0 ? it.marginPct.toFixed(2) + '%' : '-'}
+        </td>
+        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
+          <div style="font-weight: 700;">${it.stokAkhirQty.toLocaleString('id-ID')}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(it.stokAkhirNilai)}</div>
+        </td>
+        <td style="text-align: center; white-space: nowrap;">
+          <span class="badge-profit-pill ${badgeClass}">${badgeLabel}</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const sumAwalQty = filtered.reduce((a, b) => a + b.stokAwalQty, 0);
+  const sumAwalVal = filtered.reduce((a, b) => a + b.stokAwalNilai, 0);
+  const sumBeliQty = filtered.reduce((a, b) => a + b.beliQty, 0);
+  const sumJualQty = filtered.reduce((a, b) => a + b.jualQty, 0);
+  const sumJualVal = filtered.reduce((a, b) => a + b.jualNilai, 0);
+  const sumHppVal = filtered.reduce((a, b) => a + b.hppNilai, 0);
+  const sumLaba = filtered.reduce((a, b) => a + b.labaRugiTotal, 0);
+  const sumAkhirQty = filtered.reduce((a, b) => a + b.stokAkhirQty, 0);
+  const sumAkhirVal = filtered.reduce((a, b) => a + b.stokAkhirNilai, 0);
+  const avgLabaPerPcs = sumJualQty > 0 ? Math.round(sumLaba / sumJualQty) : 0;
+  const avgMargin = sumJualVal > 0 ? ((sumLaba / sumJualVal) * 100).toFixed(2) : 0;
+
+  tableContainer.innerHTML = `
+    <table class="table-health-inv">
+      <thead>
+        <tr>
+          <th style="width: 36px; text-align: center;">#</th>
+          <th class="sortable" onclick="sortHealthInventoryProducts('nama')">TIPE / UKURAN BAN ${sortIcon('nama')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('stokAwalQty')">STOK AWAL ${sortIcon('stokAwalQty')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('beliQty')">BELI (QTY) ${sortIcon('beliQty')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('jualQty')">JUAL (QTY) ${sortIcon('jualQty')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('hppNilai')">HPP ${sortIcon('hppNilai')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('labaRugiTotal')">LABA TOTAL ${sortIcon('labaRugiTotal')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('labaRugiPerPcs')">LABA / PCS ${sortIcon('labaRugiPerPcs')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('marginPct')">MARGIN % ${sortIcon('marginPct')}</th>
+          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('stokAkhirQty')">STOK AKHIR ${sortIcon('stokAkhirQty')}</th>
+          <th style="text-align: center;">STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+      <tfoot>
+        <tr style="font-weight: 800; background: var(--bg-surface-secondary); border-top: 2px solid var(--border-color);">
+          <td colspan="2" style="padding: 10px 8px;">TOTAL (${filtered.length} Tipe Terfilter)</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace;">
+            <div>${sumAwalQty.toLocaleString('id-ID')}</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(sumAwalVal)}</div>
+          </td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace;">${sumBeliQty.toLocaleString('id-ID')}</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: #10b981;">${sumJualQty.toLocaleString('id-ID')}</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace;">Rp ${formatShortRupiah(sumHppVal)}</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: ${sumLaba >= 0 ? '#10b981' : '#ef4444'};">Rp ${formatShortRupiah(sumLaba)}</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: #3b82f6;">Rp ${avgLabaPerPcs.toLocaleString('id-ID')}</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace;">${avgMargin}%</td>
+          <td style="text-align: right; font-family: JetBrains Mono, monospace;">
+            <div>${sumAkhirQty.toLocaleString('id-ID')}</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(sumAkhirVal)}</div>
+          </td>
+          <td style="text-align: center;">-</td>
+        </tr>
+      </tfoot>
+    </table>
+  `;
+}
+
 function renderHealthSunkDashboard() {
   const container = document.getElementById('healthSunkDashboard');
   if (!container) return;
@@ -4407,7 +5491,7 @@ function renderHealthSunkDashboard() {
   container.innerHTML = `
     <div class="chart-header">
       <div>
-        <h3 class="chart-title">⚓ 3. Dashboard Sunk Cost (Biaya Tenggelam &amp; Pengeluaran Non-Recoverable)</h3>
+        <h3 class="chart-title">⚓ 6. Dashboard Sunk Cost (Biaya Tenggelam &amp; Pengeluaran Non-Recoverable)</h3>
         <p class="chart-subtitle">Pemantauan biaya yang sudah keluar dan tidak dapat ditarik kembali terlepas dari keputusan masa depan</p>
       </div>
     </div>
@@ -4536,7 +5620,7 @@ function renderHealthExecutiveNotes() {
   container.innerHTML = `
     <div class="chart-header">
       <div>
-        <h3 class="chart-title">💡 4. Papan Catatan Audit &amp; Peringatan Anomali Keuangan</h3>
+        <h3 class="chart-title">💡 7. Papan Catatan Audit &amp; Peringatan Anomali Keuangan</h3>
         <p class="chart-subtitle">Indikasi deviasi rasio bulanan terhadap median tahunan serta temuan kunci keuangan</p>
       </div>
     </div>
@@ -4647,4 +5731,9 @@ if (typeof window !== 'undefined') {
   window.restoreOriginalData = restoreOriginalData;
   window.openHealthDashboard = openHealthDashboard;
   window.setHealthPeriod = setHealthPeriod;
+  window.setHealthChartMode = setHealthChartMode;
+  window.setHealthInventoryMovementMode = setHealthInventoryMovementMode;
+  window.onHealthInvSearchChange = onHealthInvSearchChange;
+  window.onHealthInvFilterChange = onHealthInvFilterChange;
+  window.sortHealthInventoryProducts = sortHealthInventoryProducts;
 }

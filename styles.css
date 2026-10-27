@@ -2957,6 +2957,88 @@ body.theme-soft-light .badge-cyan {
   color: var(--text-main);
 }
 
+/* Health Chart Chips Row (Omzet, Laba Kotor, Laba Bersih) */
+.health-chart-chips-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+@media (min-width: 640px) {
+  .health-chart-chips-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.health-chip-card {
+  background: var(--bg-card-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-chip-card:hover {
+  border-color: var(--color-cyan);
+  transform: translateY(-2px);
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.health-chip-card.active {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.health-chip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: calc(0.78rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.health-chip-val {
+  font-family: var(--font-mono);
+  font-size: calc(1.35rem * var(--font-scale-factor));
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.health-chip-desc {
+  font-size: calc(0.75rem * var(--font-scale-factor));
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.health-chart-focus-banner {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+}
+
 .health-sunk-dashboard {
   background: var(--bg-card);
   border: 2px solid var(--border-color);
@@ -3664,5 +3746,187 @@ body.theme-soft-dark .invoice-cicilan-card {
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.35);
   vertical-align: middle;
+}
+
+/* ==========================================================================
+   MODUL KESEHATAN PERUSAHAAN: PERSEDIAAN & LABA RUGI PER PCS
+   ========================================================================== */
+
+.health-search-input {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  min-width: 220px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.health-search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.health-filter-select {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: calc(0.85rem * var(--font-scale-factor));
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.health-filter-select:focus {
+  border-color: #3b82f6;
+}
+
+.health-inv-analysis-box {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.health-inv-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.health-inv-analysis-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-left: 4px solid #3b82f6;
+}
+
+.health-inv-analysis-card.theme-danger {
+  border-left-color: #ef4444;
+}
+
+.health-inv-analysis-card.theme-success {
+  border-left-color: #10b981;
+}
+
+.health-inv-analysis-card.theme-warning {
+  border-left-color: #f59e0b;
+}
+
+.health-inv-analysis-card.theme-purple {
+  border-left-color: #a855f7;
+}
+
+.health-inv-card-title {
+  font-size: calc(0.88rem * var(--font-scale-factor));
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.health-inv-card-text {
+  font-size: calc(0.82rem * var(--font-scale-factor));
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Product Inventory Table */
+.table-health-inv {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(0.82rem * var(--font-scale-factor));
+}
+
+.table-health-inv th {
+  background: var(--bg-surface-secondary);
+  color: var(--text-muted);
+  padding: 10px 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.table-health-inv th.sortable {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.table-health-inv th.sortable:hover {
+  color: #3b82f6;
+}
+
+.table-health-inv td {
+  padding: 8px 8px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.table-health-inv tbody tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.table-health-inv tr.row-loss {
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.table-health-inv tr.row-loss:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* Profit Badges */
+.badge-profit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: calc(0.72rem * var(--font-scale-factor));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-profit-star {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-profit-normal {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.badge-profit-thin {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.badge-profit-loss {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.badge-profit-slow {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
