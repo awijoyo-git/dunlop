@@ -500,10 +500,15 @@ function togglePasswordVisibility() {
 }
 
 // ==========================================================================
-// DATA LOADING & MULTI-PERIOD SUPPORT (9 PERIODS: JAN - SEP 2026)
+// DATA LOADING & MULTI-PERIOD SUPPORT (11 PERIODS: DES 2025 - OKT 2026)
 // ==========================================================================
 
-let activePeriodKey = getSafeStorage('local', 'dunlop_active_period') || '2026-09';
+const LATEST_PERIOD_KEY = '2026-10';
+let activePeriodKey = getSafeStorage('local', 'dunlop_active_period');
+if (!activePeriodKey || activePeriodKey === '2026-09') {
+  activePeriodKey = LATEST_PERIOD_KEY;
+  setSafeStorage('local', 'dunlop_active_period', LATEST_PERIOD_KEY);
+}
 let activeBlThreshold = Number(getSafeStorage('local', 'dunlop_bl_threshold')) || 90; // Default: > 90 hari (options: 60, 90, 120, 365)
 
 function isInvoiceMacet(inv, threshold = activeBlThreshold) {
@@ -991,6 +996,26 @@ function renderDashboard() {
   const periodTitleEl = document.getElementById('headerPeriodTitle');
   if (periodTitleEl && meta.period) periodTitleEl.textContent = `Laporan Piutang • Per ${meta.period}`;
 
+  // Grand Total Card Title Badge (e.g. TOTAL PIUTANG BULAN OKTOBER 2026)
+  const grandTotalBadgeEl = document.getElementById('dashboardGrandTotalBadge');
+  if (grandTotalBadgeEl) {
+    let periodName = 'OKTOBER 2026';
+    if (meta.period) {
+      const clean = meta.period.replace(/^Per\s+/i, '').trim();
+      const parts = clean.split(/\s+/);
+      if (parts.length >= 3) {
+        // e.g. ["31", "Oktober", "2026"] -> "OKTOBER 2026"
+        periodName = parts.slice(1).join(' ').toUpperCase();
+      } else if (parts.length === 2) {
+        // e.g. ["Oktober", "2026"]
+        periodName = clean.toUpperCase();
+      } else {
+        periodName = clean.toUpperCase();
+      }
+    }
+    grandTotalBadgeEl.textContent = `TOTAL PIUTANG BULAN ${periodName}`;
+  }
+
   // Grand Total Card
   document.getElementById('dashboardGrandTotal').textContent = formatRupiah(grandTotal);
   document.getElementById('dashboardTotalStores').textContent = meta.totalStores || (piutangData.stores?.length || 0);
@@ -1152,7 +1177,7 @@ function showCategoryView(catId, updateUrl = true) {
     catTagClass = 'tag-blue';
     catTotal = grandTotal;
     catPctStr = '100%';
-    catSubinfo = 'Daftar seluruh 82 toko piutang';
+    catSubinfo = `Daftar seluruh ${(piutangData.stores || []).length} toko piutang`;
     storesList = (piutangData.stores || []).map(s => ({
       kode: s.kode,
       namaToko: s.namaToko,
