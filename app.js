@@ -626,7 +626,8 @@ function getPeriodData(key) {
 
   // 2. Global script dataset fallbacks
   let res = null;
-  if (key === '2026-09' && window.PIUTANG_DATA) res = window.PIUTANG_DATA;
+  if (key === '2026-10' && window.PIUTANG_DATA_OKT2026) res = window.PIUTANG_DATA_OKT2026;
+  else if (key === '2026-09' && window.PIUTANG_DATA) res = window.PIUTANG_DATA;
   else if (key === '2026-08' && window.PIUTANG_DATA_AGS2026) res = window.PIUTANG_DATA_AGS2026;
   else if (key === '2026-07' && window.PIUTANG_DATA_JUL2026) res = window.PIUTANG_DATA_JUL2026;
   else if (key === '2026-06' && window.PIUTANG_DATA_JUN2026) res = window.PIUTANG_DATA_JUN2026;
@@ -635,6 +636,7 @@ function getPeriodData(key) {
   else if (key === '2026-03' && window.PIUTANG_DATA_MAR2026) res = window.PIUTANG_DATA_MAR2026;
   else if (key === '2026-02' && window.PIUTANG_DATA_FEB2026) res = window.PIUTANG_DATA_FEB2026;
   else if (key === '2026-01' && window.PIUTANG_DATA_JAN2026) res = window.PIUTANG_DATA_JAN2026;
+  else if (key === '2025-12' && window.PIUTANG_DATA_DES2025) res = window.PIUTANG_DATA_DES2025;
   else if (window.PIUTANG_DATA) res = window.PIUTANG_DATA;
 
   if (res) return normalizePeriodCategories(res);
@@ -642,6 +644,7 @@ function getPeriodData(key) {
 }
 
 function getPreviousPeriodData(key) {
+  if (key === '2026-10') return getPeriodData('2026-09');
   if (key === '2026-09') return getPeriodData('2026-08');
   if (key === '2026-08') return getPeriodData('2026-07');
   if (key === '2026-07') return getPeriodData('2026-06');
@@ -650,6 +653,7 @@ function getPreviousPeriodData(key) {
   if (key === '2026-04') return getPeriodData('2026-03');
   if (key === '2026-03') return getPeriodData('2026-02');
   if (key === '2026-02') return getPeriodData('2026-01');
+  if (key === '2026-01') return getPeriodData('2025-12');
   return null;
 }
 
@@ -663,7 +667,7 @@ function getInvoiceHistoryMaster() {
   const datasets = [];
 
   // Collect all available official and custom datasets in chronological sequence
-  const periods = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];
+  const periods = ['2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10'];
   periods.forEach(p => {
     const ds = getPeriodData(p);
     if (ds && ds.stores && ds.stores.length > 0) {
@@ -2621,8 +2625,8 @@ const INDO_MONTH_SHORT = [
 ];
 
 let ownerPeriodPreset = '6m';
-let ownerStartMonth = '2026-04';
-let ownerEndMonth = '2026-09';
+let ownerStartMonth = '2026-05';
+let ownerEndMonth = '2026-10';
 let agingValueChartMode = 'stacked';
 
 function formatShortRupiah(num) {
@@ -2669,7 +2673,7 @@ function showOwnerView(updateUrl = true) {
 
 function getMonthlyHistoricalData() {
   const storeDatasets = [];
-  ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'].forEach(k => {
+  ['2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10'].forEach(k => {
     const ds = getPeriodData(k);
     if (ds && ds.stores) storeDatasets.push(ds);
   });
@@ -2713,13 +2717,13 @@ function getMonthlyHistoricalData() {
       const y = inv.invDate.getFullYear();
       const m = String(inv.invDate.getMonth() + 1).padStart(2, '0');
       const key = `${y}-${m}`;
-      if (y >= 2026) {
+      if (y >= 2025) {
         monthMap.set(key, true);
       }
     }
   });
 
-  ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'].forEach(k => {
+  ['2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10'].forEach(k => {
     monthMap.set(k, true);
   });
 
