@@ -3693,7 +3693,275 @@ function handleSaveOwnerCustomPeriod(e) {
 // VIEW 7: MODUL KESEHATAN PERUSAHAAN (HPP, GAJI, OPERASIONAL & SUNK COST)
 // ==========================================================================
 
+const HEALTH_MONTHS = ['2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-09'];
+
 const HEALTH_FINANCIAL_DATA = {
+  '2025-12': {
+    monthKey: '2025-12',
+    monthLabel: 'Desember 2025',
+    pendapatanKotor: 4905558273,
+    potonganPenjualan: 139130929,
+    pendapatanBersih: 4766427344,
+    hpp: 4554304152,
+    labaKotor: 212123192,
+    gajiPegawai: 113513500,
+    karyawanLainnya: 7151639,
+    konsumsi: 408000,
+    totalBiayaStaff: 121073139,
+    biayaOperasional: 145079676,
+    labaOperasional: 67043516,
+    labaBersih: 55238033,
+    yearly: {
+      pendapatanBersih: 64612185094,
+      hpp: 56792094752,
+      labaKotor: 7820090342,
+      gajiPegawai: 1099857350,
+      totalBiayaStaff: 1188339826,
+      biayaOperasional: 1869207560,
+      labaOperasional: 5950882782,
+      labaBersih: 5329354078.53
+    },
+    sunkCost: {
+      penyusutan: 3315636,
+      pajakPph25: 39541420,
+      pbb: 0,
+      thr: 28256000,
+      entertainment: 0,
+      sumbanganUpacara: 1764000,
+      potonganPenjualan: 139130929,
+      servisPemeliharaan: 4235000,
+      transport: 7915000,
+      administrasiBank: 466100,
+      bungaPinjamanMihardjo: 34845848,
+      totalSunk: 259469969
+    },
+    notes: [
+      {
+        type: 'success',
+        title: 'Penutupan Tahun 2025 Laba Bersih Positif (+Rp 55,2 Jt)',
+        desc: 'Bulan Desember 2025 membukukan laba bersih Rp 55.238.033 (+1,16%) dengan omzet bersih Rp 4,77 Miliar dan laba operasional Rp 67,0 Jt.'
+      },
+      {
+        type: 'warning',
+        title: 'Beban Musiman THR Hari Raya Natal',
+        desc: 'Beban gaji naik menjadi Rp 113,5 Jt (2,38% dari omzet) akibat pencairan THR Natal karyawan sebesar Rp 28.256.000 pada tanggal 13 Desember 2025.'
+      },
+      {
+        type: 'info',
+        title: 'Audit Tahun Penuh 2025: Laba Bersih Rekor Rp 5,33 Miliar',
+        desc: 'Secara kumulatif setahun penuh 2025, PT Indobali Satya Graha mencetak laba bersih Rp 5.329.354.078,53 (margin 8,25%) dengan omzet Rp 64,61 Miliar.'
+      }
+    ]
+  },
+  '2026-01': {
+    monthKey: '2026-01',
+    monthLabel: 'Januari 2026',
+    pendapatanKotor: 4660479286,
+    potonganPenjualan: 201593816,
+    pendapatanBersih: 4458885470,
+    hpp: 4348524465,
+    labaKotor: 110361005,
+    gajiPegawai: 90994000,
+    karyawanLainnya: 7589138,
+    konsumsi: 373000,
+    totalBiayaStaff: 98956138,
+    biayaOperasional: 132356503,
+    labaOperasional: -21995498,
+    labaBersih: -417291661,
+    yearly: {
+      pendapatanBersih: 4458885470,
+      hpp: 4348524465,
+      labaKotor: 110361005,
+      gajiPegawai: 90994000,
+      totalBiayaStaff: 98956138,
+      biayaOperasional: 132356503,
+      labaOperasional: -21995498,
+      labaBersih: -417291661
+    },
+    sunkCost: {
+      penyusutan: 3315636,
+      pajakPph25: 39541420,
+      pbb: 0,
+      pph21Pegawai: 106984765,
+      pph21Honor: 288000000,
+      entertainment: 3097093,
+      sumbanganUpacara: 847000,
+      thr: 0,
+      potonganPenjualan: 201593816,
+      servisPemeliharaan: 14504000,
+      transport: 7299000,
+      administrasiBank: 195500,
+      totalSunk: 463784414
+    },
+    notes: [
+      {
+        type: 'danger',
+        title: 'Beban Pajak PPh 21 Tahunan & Honorarium Menekan Laba Bersih',
+        desc: 'Januari mencatatkan rugi bersih -Rp 417,3 Jt akibat pelunasan PPh 21 Pegawai (Rp 107,0 Jt) dan PPh 21 Honorarium (Rp 288,0 Jt).'
+      },
+      {
+        type: 'warning',
+        title: 'Margin Laba Kotor Sangat Tipis (2,48%)',
+        desc: 'HPP menyerap 97,52% pendapatan bersih. Potongan diskon penjualan mencapai Rp 201,6 Jt (4,32% dari penjualan kotor).'
+      }
+    ]
+  },
+  '2026-02': {
+    monthKey: '2026-02',
+    monthLabel: 'Februari 2026',
+    pendapatanKotor: 5896479742,
+    potonganPenjualan: -222260,
+    pendapatanBersih: 5896702002,
+    hpp: 5627046291,
+    labaKotor: 269655711,
+    gajiPegawai: 91140000,
+    karyawanLainnya: 7589138,
+    konsumsi: 290000,
+    totalBiayaStaff: 99019138,
+    biayaOperasional: 619613674,
+    labaOperasional: -349957963,
+    labaBersih: -381270177.63,
+    yearly: {
+      pendapatanBersih: 10355587472,
+      hpp: 9975570756,
+      labaKotor: 380016716,
+      gajiPegawai: 182134000,
+      totalBiayaStaff: 197975276,
+      biayaOperasional: 751970177,
+      labaOperasional: -371953461,
+      labaBersih: -798561838.63
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39541420,
+      pbb: 0,
+      bonusTahunan: 497318482,
+      entertainment: 0,
+      sumbanganUpacara: 4474500,
+      thr: 0,
+      potonganPenjualan: 0,
+      servisPemeliharaan: 5792500,
+      transport: 6760000,
+      administrasiBank: 28260940.63,
+      totalSunk: 585348896
+    },
+    notes: [
+      {
+        type: 'danger',
+        title: 'Lonjakan Beban Operasional: Bonus Tahunan Rp 497,3 Jt',
+        desc: 'Beban operasional membengkak ke Rp 619,6 Jt (10,51% omzet) dipicu bonus tahunan karyawan Rp 497,3 Jt, menyebabkan rugi operasional -Rp 350 Jt.'
+      },
+      {
+        type: 'info',
+        title: 'Peningkatan Penjualan & Margin Kotor (4,57%)',
+        desc: 'Penjualan bersih naik signifikan menjadi Rp 5,90 Miliar dengan laba kotor Rp 269,7 Jt (HPP 95,43%).'
+      }
+    ]
+  },
+  '2026-03': {
+    monthKey: '2026-03',
+    monthLabel: 'Maret 2026',
+    pendapatanKotor: 5865351130,
+    potonganPenjualan: 9775,
+    pendapatanBersih: 5865341355,
+    hpp: 5575979567,
+    labaKotor: 289361788,
+    gajiPegawai: 109786000,
+    karyawanLainnya: 7589138,
+    konsumsi: 510000,
+    totalBiayaStaff: 117885138,
+    biayaOperasional: 172121836,
+    labaOperasional: 117239952,
+    labaBersih: 104838696,
+    yearly: {
+      pendapatanBersih: 16220928827,
+      hpp: 15551550323,
+      labaKotor: 669378504,
+      gajiPegawai: 291920000,
+      totalBiayaStaff: 315860414,
+      biayaOperasional: 924092013,
+      labaOperasional: -254713509,
+      labaBersih: -693723142.63
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39541420,
+      pbb: 0,
+      thr: 11760000,
+      asuransi: 11894710,
+      entertainment: 4067250,
+      sumbanganUpacara: 9778160,
+      potonganPenjualan: 9775,
+      servisPemeliharaan: 9203500,
+      transport: 8018000,
+      administrasiBank: 441400,
+      totalSunk: 97915268
+    },
+    notes: [
+      {
+        type: 'success',
+        title: 'Pembalikan Menjadi Laba Positif (+Rp 104,8 Jt)',
+        desc: 'Maret membukukan titik balik profitabilitas pertama tahun ini dengan laba bersih Rp 104,8 Jt (+1,79%) dan laba operasional Rp 117,2 Jt.'
+      },
+      {
+        type: 'info',
+        title: 'Beban THR Idul Fitri',
+        desc: 'Beban gaji naik menjadi Rp 109,8 Jt akibat pembayaran THR keagamaan sebesar Rp 11,76 Jt.'
+      }
+    ]
+  },
+  '2026-04': {
+    monthKey: '2026-04',
+    monthLabel: 'April 2026',
+    pendapatanKotor: 7267999410,
+    potonganPenjualan: -82535,
+    pendapatanBersih: 7268081945,
+    hpp: 6916274813,
+    labaKotor: 351807132,
+    gajiPegawai: 90580000,
+    karyawanLainnya: 7589138,
+    konsumsi: 751500,
+    totalBiayaStaff: 98920638,
+    biayaOperasional: 124323642,
+    labaOperasional: 227483490,
+    labaBersih: 201670556,
+    yearly: {
+      pendapatanBersih: 23489010772,
+      hpp: 22467825136,
+      labaKotor: 1021185636,
+      gajiPegawai: 382500000,
+      totalBiayaStaff: 414781052,
+      biayaOperasional: 1048415655,
+      labaOperasional: -27230019,
+      labaBersih: -492052586.63
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39541420,
+      pajakPph29: 6062583,
+      pbb: 0,
+      entertainment: 0,
+      sumbanganUpacara: 2736000,
+      thr: 0,
+      potonganPenjualan: 0,
+      servisPemeliharaan: 7931525,
+      transport: 7268000,
+      administrasiBank: 451400,
+      totalSunk: 67191981
+    },
+    notes: [
+      {
+        type: 'success',
+        title: 'Rekor Penjualan & Profit Tertinggi (+Rp 201,7 Jt)',
+        desc: 'April mencatat omzet tertinggi Rp 7,27 Miliar dengan laba kotor Rp 351,8 Jt dan laba bersih rekor Rp 201,7 Jt (+2,77%).'
+      },
+      {
+        type: 'success',
+        title: 'Efisiensi Operasional Paling Optimal (1,71%)',
+        desc: 'Beban operasional hanya 1,71% dari omzet, rasio terendah sepanjang tahun.'
+      }
+    ]
+  },
   '2026-05': {
     monthKey: '2026-05',
     monthLabel: 'Mei 2026',
@@ -3726,7 +3994,7 @@ const HEALTH_FINANCIAL_DATA = {
       entertainment: 3619926,
       sumbanganUpacara: 2051250,
       thr: 0,
-      diskonNota: 9259,
+      potonganPenjualan: 9259,
       servisPemeliharaan: 2063000,
       transport: 7495640,
       administrasiBank: 140400,
@@ -3777,7 +4045,7 @@ const HEALTH_FINANCIAL_DATA = {
       entertainment: 16324138,
       sumbanganUpacara: 675000,
       thr: 41310000,
-      diskonNota: 57397271,
+      potonganPenjualan: 57397271,
       servisPemeliharaan: 8092500,
       transport: 7908616,
       administrasiBank: 408848.51,
@@ -3833,7 +4101,7 @@ const HEALTH_FINANCIAL_DATA = {
       entertainment: 0,
       sumbanganUpacara: 1700500,
       thr: 0,
-      diskonNota: 189554134,
+      potonganPenjualan: 189554134,
       servisPemeliharaan: 3492500,
       transport: 6692000,
       administrasiBank: 452412.32,
@@ -3857,10 +4125,61 @@ const HEALTH_FINANCIAL_DATA = {
         desc: 'Meskipun operasional sudah ditekan sangat efisien (2,33%), laba kotor Rp 23,9 Jt tidak mampu menutup gaji pokok Rp 91,4 Jt, menyebabkan rugi bersih terdalam -Rp 116,0 Jt.'
       }
     ]
+  },
+  '2026-09': {
+    monthKey: '2026-09',
+    monthLabel: 'September 2026',
+    pendapatanKotor: 5713872370,
+    potonganPenjualan: -201430,
+    pendapatanBersih: 5714073800,
+    hpp: 5476470439,
+    labaKotor: 237603361,
+    gajiPegawai: 91211000,
+    karyawanLainnya: 7939126,
+    konsumsi: 508000,
+    totalBiayaStaff: 99658126,
+    biayaOperasional: 141362157.43,
+    labaOperasional: 96241203.57,
+    labaBersih: 78718357.42,
+    yearly: {
+      pendapatanBersih: 52943509113,
+      hpp: 50195675246,
+      labaKotor: 2747833867,
+      gajiPegawai: 881043000,
+      totalBiayaStaff: 954706700,
+      biayaOperasional: 1748582950.43,
+      labaOperasional: 999250916.57,
+      labaBersih: 428957677.96
+    },
+    sunkCost: {
+      penyusutan: 3201053,
+      pajakPph25: 39752379,
+      pbb: 0,
+      entertainment: 8802880,
+      sumbanganUpacara: 1011500,
+      thr: 0,
+      potonganPenjualan: 0,
+      servisPemeliharaan: 2929000,
+      transport: 7593000,
+      administrasiBank: 207991.15,
+      totalSunk: 63497803.15
+    },
+    notes: [
+      {
+        type: 'success',
+        title: 'Laba Bersih Stabil Positif (+Rp 78,7 Jt)',
+        desc: 'September membukukan omzet bersih Rp 5,71 Miliar dengan laba bersih positif Rp 78,7 Jt (+1,38%) dan laba operasional Rp 96,2 Jt.'
+      },
+      {
+        type: 'info',
+        title: 'Akumulasi Kinerja Tahunan Positif (+Rp 429 Jt)',
+        desc: 'Secara kumulatif s.d. September 2026, perusahaan mencetak laba bersih Rp 428,96 Jt dengan total omzet bersih Rp 52,94 Miliar.'
+      }
+    ]
   }
 };
 
-let activeHealthPeriod = 'all'; // '2026-05', '2026-06', '2026-07', or 'all'
+let activeHealthPeriod = 'all'; // '2026-01', '2026-02', ..., 'all'
 let activeHealthChartMode = 'all'; // 'all', 'omzet', 'gross', 'net'
 let activeHealthInvMovementMode = 'qty'; // 'qty' or 'val'
 let healthInvSearchText = '';
@@ -3915,13 +4234,13 @@ function setHealthChartMode(mode) {
   if (titleEl && subEl) {
     if (mode === 'all') {
       titleEl.innerHTML = '📊 1. Grafik Tren &amp; Komparasi: Omzet, Laba Kotor &amp; Laba Bersih';
-      subEl.textContent = 'Evaluasi komparatif 3 pilar kinerja finansial secara berdampingan (Mei, Juni, Juli 2026)';
+      subEl.textContent = 'Evaluasi komparatif 3 pilar kinerja finansial secara berdampingan (Desember 2025 - September 2026)';
     } else if (mode === 'omzet') {
       titleEl.innerHTML = '💰 1. Grafik Tren Penjualan: Omzet Bersih &amp; Potongan Diskon';
       subEl.textContent = 'Perkembangan realisasi omzet bersih bulanan dan lonjakan diskon/potongan penjualan';
     } else if (mode === 'gross') {
       titleEl.innerHTML = '📦 1. Grafik Tren Laba Kotor (Gross Profit) &amp; Margin %';
-      subEl.textContent = 'Penurunan margin laba kotor akibat lonjakan HPP (Juli 99,53%) dan potongan harga';
+      subEl.textContent = 'Dinamika margin laba kotor terhadap fluktuasi HPP dan diskon harga';
     } else if (mode === 'net') {
       titleEl.innerHTML = '📈 1. Grafik Tren Laba / (Rugi) Bersih &amp; Net Margin %';
       subEl.textContent = 'Dinamika surplus dan defisit bulanan terhadap garis impas (Zero-Line)';
@@ -3933,7 +4252,7 @@ function setHealthChartMode(mode) {
 
 function renderHealthDashboard() {
   // 1. Update Period Selector Pills
-  const pills = ['2026-05', '2026-06', '2026-07', 'all'];
+  const pills = [...HEALTH_MONTHS, 'all'];
   pills.forEach(p => {
     const btn = document.getElementById(`pillHealth_${p}`);
     if (btn) {
@@ -3948,7 +4267,7 @@ function renderHealthDashboard() {
   const headerSummary = document.getElementById('healthPeriodHeaderSummary');
   if (headerSummary) {
     if (activeHealthPeriod === 'all') {
-      headerSummary.textContent = 'Mode: Komparasi 3 Bulan (Mei - Juli 2026)';
+      headerSummary.textContent = `Mode: Komparasi ${HEALTH_MONTHS.length} Bulan (Desember 2025 - September 2026)`;
     } else {
       const d = HEALTH_FINANCIAL_DATA[activeHealthPeriod];
       headerSummary.textContent = `Mode: Periode Tunggal ${d ? d.monthLabel : activeHealthPeriod}`;
@@ -3992,35 +4311,39 @@ function renderHealthTopMetrics() {
     const salaryPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
     const opexPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
 
-    // MoM comparison logic
-    let omzetMomBadge = '✅ BULAN BASIS';
-    let omzetMomText = 'Titik awal pembanding 3 bulan';
-    let grossMomText = 'Gross margin normal';
-    let netMomText = 'Mencatat surplus bersih positif';
+    // Dynamic MoM calculation
+    const idx = HEALTH_MONTHS.indexOf(d.monthKey);
+    const prevKey = idx > 0 ? HEALTH_MONTHS[idx - 1] : null;
+    const prev = prevKey ? HEALTH_FINANCIAL_DATA[prevKey] : null;
 
-    if (d.monthKey === '2026-06') {
-      omzetMomBadge = '📈 NAIK +0,35%';
-      omzetMomText = '+Rp 19,8 Jt dibanding Mei 2026';
-      grossMomText = 'Turun -Rp 97,0 Jt (-39,2%) vs Mei';
-      netMomText = 'Balik rugi -Rp 171,4 Jt vs Mei (+99M)';
-    } else if (d.monthKey === '2026-07') {
-      omzetMomBadge = '🔻 TURUN -9,49%';
-      omzetMomText = '-Rp 540,4 Jt dibanding Juni 2026';
-      grossMomText = '🚨 Erosi -84,0% (-Rp 126,2 Jt) vs Juni';
-      netMomText = '🚨 Defisit terdalam (-Rp 116,0 Jt)';
+    let omzetMomBadge = '✅ BULAN BASIS';
+    let omzetMomText = 'Titik awal pembanding periode';
+    let grossMomText = `Gross margin ${grossMarginPct.toFixed(2).replace('.', ',')}%`;
+    let netMomText = d.labaBersih >= 0 ? 'Mencatat surplus laba bersih' : 'Mencatat defisit operasional';
+
+    if (prev) {
+      const omzetDiff = d.pendapatanBersih - prev.pendapatanBersih;
+      const omzetPct = (omzetDiff / prev.pendapatanBersih) * 100;
+      const grossDiff = d.labaKotor - prev.labaKotor;
+      const netDiff = d.labaBersih - prev.labaBersih;
+
+      omzetMomBadge = omzetDiff >= 0 ? `📈 NAIK +${omzetPct.toFixed(2).replace('.', ',')}%` : `🔻 TURUN ${omzetPct.toFixed(2).replace('.', ',')}%`;
+      omzetMomText = `${omzetDiff >= 0 ? '+' : ''}${formatShortRupiah(omzetDiff)} vs ${prev.monthLabel}`;
+      grossMomText = `${grossDiff >= 0 ? '+' : ''}${formatShortRupiah(grossDiff)} vs ${prev.monthLabel}`;
+      netMomText = `${netDiff >= 0 ? '+' : ''}${formatShortRupiah(netDiff)} vs ${prev.monthLabel}`;
     }
 
     const grossStatus = grossMarginPct < 1.0 ? 'status-danger' : grossMarginPct < 3.0 ? 'status-warning' : 'status-safe';
     const grossBadgeClass = grossMarginPct < 1.0 ? 'badge-status-danger' : grossMarginPct < 3.0 ? 'badge-status-warning' : 'badge-status-safe';
-    const grossBadgeText = grossMarginPct < 1.0 ? '🚨 KRITIS (0,47%)' : grossMarginPct < 3.0 ? '⚠️ WASPADA' : '✅ NORMAL';
+    const grossBadgeText = grossMarginPct < 1.0 ? `🚨 KRITIS (${grossMarginPct.toFixed(2).replace('.', ',')}%` : grossMarginPct < 3.0 ? '⚠️ WASPADA' : '✅ NORMAL';
 
     const netStatus = d.labaBersih >= 0 ? 'status-safe' : 'status-danger';
     const netBadgeClass = d.labaBersih >= 0 ? 'badge-status-safe' : 'badge-status-danger';
-    const netBadgeText = d.labaBersih >= 0 ? '✅ SURPLUS' : d.monthKey === '2026-07' ? '🚨 DEFISIT TERDALAM' : '🚨 DEFISIT';
+    const netBadgeText = d.labaBersih >= 0 ? '✅ SURPLUS' : '🚨 DEFISIT';
 
     const ratioStatus = hppPct > 98 ? 'status-danger' : (salaryPct > 2.0 || hppPct > 96.5) ? 'status-warning' : 'status-safe';
     const ratioBadgeClass = hppPct > 98 ? 'badge-status-danger' : (salaryPct > 2.0 || hppPct > 96.5) ? 'badge-status-warning' : 'badge-status-safe';
-    const ratioBadgeText = hppPct > 98 ? '🚨 HPP 99,5%' : salaryPct > 2.0 ? '⚠️ THR JUNI' : '✅ EFISIEN';
+    const ratioBadgeText = hppPct > 98 ? `🚨 HPP ${hppPct.toFixed(1).replace('.', ',')}%` : salaryPct > 2.0 ? '⚠️ GAJI TINGGI' : '✅ EFISIEN';
 
     container.innerHTML = `
       <!-- Card 1: Omzet Penjualan -->
@@ -4081,106 +4404,125 @@ function renderHealthTopMetrics() {
           </strong>
         </div>
         <div class="health-metric-subrow">
-          <span>Hasil Akhir:</span>
+          <span>Performa Periode:</span>
           <span style="font-weight: 600;">${netMomText}</span>
         </div>
       </div>
 
-      <!-- Card 4: Rasio Biaya Kunci -->
+      <!-- Card 4: Rasio Biaya Utama -->
       <div class="health-metric-card ${ratioStatus}">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">🩺 4. Rasio Biaya Utama</span>
+          <span class="health-metric-title">🩺 4. Rasio Struktur Biaya</span>
           <span class="health-metric-badge ${ratioBadgeClass}">${ratioBadgeText}</span>
         </div>
-        <div class="health-metric-main-value ${hppPct > 98 ? 'text-danger' : hppPct > 96.5 ? 'text-warning' : 'text-success'}">
-          HPP ${hppPct.toFixed(1).replace('.', ',')}%
+        <div class="health-metric-main-value" style="color: ${hppPct > 98 ? '#ef4444' : '#0284c7'};">
+          HPP: ${hppPct.toFixed(2).replace('.', ',')}%
         </div>
         <div class="health-metric-subrow">
-          <span>Gaji Pegawai (Akun 5201):</span>
-          <span class="health-metric-nominal">${salaryPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.gajiPegawai)})</span>
+          <span>Gaji Pegawai:</span>
+          <strong class="health-metric-nominal" style="color: ${salaryPct > 2.0 ? '#f59e0b' : 'var(--text-main)'};">
+            ${salaryPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.gajiPegawai)})
+          </strong>
         </div>
         <div class="health-metric-subrow">
           <span>Biaya Operasional:</span>
-          <span class="health-metric-nominal">${opexPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.biayaOperasional)})</span>
+          <strong class="health-metric-nominal" style="color: #10b981;">
+            ${opexPct.toFixed(2).replace('.', ',')}% (${formatRupiah(d.biayaOperasional)})
+          </strong>
         </div>
       </div>
     `;
   } else {
-    // Mode Komparasi 3 Bulan (All)
+    // Mode 'all': Multi-Month Cumulative Totals & Weighted Ratios
+    const totalOmzet = HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].pendapatanBersih, 0);
+    const totalKotor = HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].pendapatanKotor, 0);
+    const totalDiskon = HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].potonganPenjualan, 0);
+    const totalGross = HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].labaKotor, 0);
+    const totalNet = HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].labaBersih, 0);
+    const avgGrossMargin = (totalGross / totalOmzet) * 100;
+    const avgNetMargin = (totalNet / totalOmzet) * 100;
+    const avgHppPct = (HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].hpp, 0) / totalOmzet) * 100;
+    const avgSalaryPct = (HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].gajiPegawai, 0) / totalOmzet) * 100;
+    const avgOpexPct = (HEALTH_MONTHS.reduce((sum, k) => sum + HEALTH_FINANCIAL_DATA[k].biayaOperasional, 0) / totalOmzet) * 100;
+
     container.innerHTML = `
-      <!-- Card 1: Total Omzet 3 Bulan -->
+      <!-- Card 1: Total Omzet Multi-Bulan -->
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">💰 1. Omzet Penjualan 3 Bulan</span>
-          <span class="health-metric-badge badge-status-safe">📊 3 BULAN</span>
+          <span class="health-metric-title">💰 1. Total Omzet Bersih</span>
+          <span class="health-metric-badge badge-status-safe">${HEALTH_MONTHS.length} Bulan Aktif</span>
         </div>
         <div class="health-metric-main-value" style="color: #0284c7;">
-          Rp 16,519 M
+          ${formatRupiah(totalOmzet)}
         </div>
         <div class="health-metric-subrow">
           <span>Rata-rata Bulanan:</span>
-          <span class="health-metric-nominal">Rp 5.506.495.753 / bln</span>
+          <span class="health-metric-nominal">${formatShortRupiah(totalOmzet / HEALTH_MONTHS.length)} / bln</span>
         </div>
         <div class="health-metric-subrow">
-          <span>Tren Omzet:</span>
-          <span class="health-metric-nominal">Mei 5,67M ➔ Jun 5,69M ➔ Jul 5,15M</span>
+          <span>Total Diskon/Potongan:</span>
+          <strong style="color: #ef4444;">${formatRupiah(totalDiskon)}</strong>
         </div>
       </div>
 
-      <!-- Card 2: Akumulasi Laba Kotor -->
+      <!-- Card 2: Total Laba Kotor Multi-Bulan -->
       <div class="health-metric-card status-warning">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">📦 2. Akumulasi Laba Kotor</span>
-          <span class="health-metric-badge badge-status-danger">🚨 EROSI PARAH</span>
+          <span class="health-metric-title">📦 2. Total Laba Kotor</span>
+          <span class="health-metric-badge badge-status-warning">Margin: ${avgGrossMargin.toFixed(2).replace('.', ',')}%</span>
         </div>
         <div class="health-metric-main-value text-warning">
-          Rp 421,29 Jt
+          ${formatRupiah(totalGross)}
         </div>
         <div class="health-metric-subrow">
-          <span>Margin Rata-rata:</span>
-          <span class="health-metric-nominal text-warning">2,55% (Normal &gt; 4%)</span>
+          <span>Rata-rata Bulanan:</span>
+          <span class="health-metric-nominal">${formatShortRupiah(totalGross / HEALTH_MONTHS.length)} / bln</span>
         </div>
         <div class="health-metric-subrow">
-          <span>Tren Margin:</span>
-          <strong style="color: #ef4444;">Mei 4,36% ➔ Jun 2,64% ➔ Jul 0,47%</strong>
+          <span>Bulan Tertinggi:</span>
+          <span style="font-weight: 700; color: #10b981;">April (Rp 351,8 Jt)</span>
         </div>
       </div>
 
-      <!-- Card 3: Akumulasi Laba/Rugi Bersih -->
-      <div class="health-metric-card status-danger">
+      <!-- Card 3: Akumulasi Laba / Rugi Bersih -->
+      <div class="health-metric-card ${totalNet >= 0 ? 'status-safe' : 'status-danger'}">
         <div class="health-metric-card-header">
           <span class="health-metric-title">📈 3. Akumulasi Laba / Rugi</span>
-          <span class="health-metric-badge badge-status-danger">🚨 TOTAL DEFISIT</span>
+          <span class="health-metric-badge ${totalNet >= 0 ? 'badge-status-safe' : 'badge-status-danger'}">
+            ${totalNet >= 0 ? '✅ SURPLUS KUMULATIF' : '🚨 DEFISIT KUMULATIF'}
+          </span>
         </div>
-        <div class="health-metric-main-value text-danger">
-          -Rp 89,42 Jt
-        </div>
-        <div class="health-metric-subrow">
-          <span>Performa Mei:</span>
-          <strong class="text-success">+ Rp 99.025.287 (Surplus)</strong>
+        <div class="health-metric-main-value ${totalNet >= 0 ? 'text-success' : 'text-danger'}">
+          ${formatRupiah(totalNet)}
         </div>
         <div class="health-metric-subrow">
-          <span>Defisit Juni &amp; Juli:</span>
-          <strong class="text-danger">- Rp 188.445.831 (Rugi Bersih)</strong>
+          <span>Net Profit Margin:</span>
+          <strong style="color: ${totalNet >= 0 ? '#10b981' : '#ef4444'};">
+            ${totalNet >= 0 ? '+' : ''}${avgNetMargin.toFixed(2).replace('.', ',')}%
+          </strong>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Bulan Profit vs Rugi:</span>
+          <span style="font-weight: 700;">4 Bulan Surplus | 4 Bulan Defisit</span>
         </div>
       </div>
 
-      <!-- Card 4: Rasio Biaya Utama 3 Bulan -->
-      <div class="health-metric-card status-danger">
+      <!-- Card 4: Rasio Biaya Utama Multi-Bulan -->
+      <div class="health-metric-card status-warning">
         <div class="health-metric-card-header">
-          <span class="health-metric-title">🩺 4. Rasio Biaya 3 Bulan</span>
-          <span class="health-metric-badge badge-status-danger">🚨 ANOMALI JULI</span>
+          <span class="health-metric-title">🩺 4. Rata-rata Rasio Biaya</span>
+          <span class="health-metric-badge badge-status-warning">Tolok Ukur ${HEALTH_MONTHS.length} Bulan</span>
         </div>
-        <div class="health-metric-main-value text-danger">
-          HPP 95,6% ➔ 99,5%
-        </div>
-        <div class="health-metric-subrow">
-          <span>Beban Gaji Staf:</span>
-          <span class="health-metric-nominal">1,6% ➔ 2,3% (THR) ➔ 1,8%</span>
+        <div class="health-metric-main-value" style="color: #0284c7;">
+          HPP: ${avgHppPct.toFixed(1).replace('.', ',')}%
         </div>
         <div class="health-metric-subrow">
-          <span>Biaya Operasional:</span>
-          <span class="health-metric-nominal text-success">2,2% - 3,4% (Efisien)</span>
+          <span>Beban Gaji Rata-rata:</span>
+          <span class="health-metric-nominal">${avgSalaryPct.toFixed(2).replace('.', ',')}% dari Omzet</span>
+        </div>
+        <div class="health-metric-subrow">
+          <span>Beban Opex Rata-rata:</span>
+          <span class="health-metric-nominal text-success">${avgOpexPct.toFixed(2).replace('.', ',')}% (Terkendali)</span>
         </div>
       </div>
     `;
@@ -4192,25 +4534,25 @@ function renderSvgHealthFinancials() {
   const chipsContainer = document.getElementById('healthChartChipsRow');
   if (!container) return;
 
-  const months = ['2026-05', '2026-06', '2026-07'];
+  const months = HEALTH_MONTHS;
   const data = months.map(k => HEALTH_FINANCIAL_DATA[k]);
   const curr = (activeHealthPeriod !== 'all' && HEALTH_FINANCIAL_DATA[activeHealthPeriod]) ? HEALTH_FINANCIAL_DATA[activeHealthPeriod] : null;
 
   // Render 3 Interactive Quick Chips
   if (chipsContainer) {
-    const totalOmzet3M = data.reduce((sum, d) => sum + d.pendapatanBersih, 0);
-    const totalGross3M = data.reduce((sum, d) => sum + d.labaKotor, 0);
-    const totalNet3M = data.reduce((sum, d) => sum + d.labaBersih, 0);
+    const totalOmzetAll = data.reduce((sum, d) => sum + d.pendapatanBersih, 0);
+    const totalGrossAll = data.reduce((sum, d) => sum + d.labaKotor, 0);
+    const totalNetAll = data.reduce((sum, d) => sum + d.labaBersih, 0);
 
-    const omzetChipVal = curr ? formatRupiah(curr.pendapatanBersih) : formatRupiah(totalOmzet3M);
-    const omzetChipDesc = curr ? `Penjualan bersih (${curr.monthLabel})` : 'Total 3 bulan • Rata-rata Rp 5,506 M/bln';
+    const omzetChipVal = curr ? formatRupiah(curr.pendapatanBersih) : formatRupiah(totalOmzetAll);
+    const omzetChipDesc = curr ? `Penjualan bersih (${curr.monthLabel})` : `Total ${data.length} bulan • Rata-rata ${formatShortRupiah(totalOmzetAll / data.length)}/bln`;
 
-    const grossChipVal = curr ? formatRupiah(curr.labaKotor) : formatRupiah(totalGross3M);
-    const grossMargin = curr ? ((curr.labaKotor / curr.pendapatanBersih) * 100).toFixed(2).replace('.', ',') + '%' : '2,55% (Rata-rata)';
-    const grossChipDesc = curr ? `Gross Margin: ${grossMargin}` : 'Margin: 4,4% ➔ 2,6% ➔ 0,5% (Erosi -84%)';
+    const grossChipVal = curr ? formatRupiah(curr.labaKotor) : formatRupiah(totalGrossAll);
+    const grossMargin = curr ? ((curr.labaKotor / curr.pendapatanBersih) * 100).toFixed(2).replace('.', ',') + '%' : ((totalGrossAll / totalOmzetAll) * 100).toFixed(2).replace('.', ',') + '% (Rata-rata)';
+    const grossChipDesc = curr ? `Gross Margin: ${grossMargin}` : `Margin Rata-rata ${grossMargin} • Puncak April Rp 351M`;
 
-    const netChipVal = curr ? formatRupiah(curr.labaBersih) : formatRupiah(totalNet3M);
-    const netChipDesc = curr ? (curr.labaBersih >= 0 ? 'Surplus laba bersih periode' : 'Defisit operasional periode') : 'Mei +Rp 99M | Jun-Jul -Rp 188M Defisit';
+    const netChipVal = curr ? formatRupiah(curr.labaBersih) : formatRupiah(totalNetAll);
+    const netChipDesc = curr ? (curr.labaBersih >= 0 ? 'Surplus laba bersih periode' : 'Defisit operasional periode') : `Akumulasi ${data.length} bulan: ${totalNetAll >= 0 ? '+' : ''}${formatShortRupiah(totalNetAll)}`;
 
     chipsContainer.innerHTML = `
       <div class="health-chip-card ${activeHealthChartMode === 'omzet' ? 'active' : ''}" onclick="setHealthChartMode('omzet')" title="Ketuk untuk melihat grafik tren omzet penjualan">
@@ -4221,9 +4563,7 @@ function renderSvgHealthFinancials() {
         <div class="health-chip-val" style="color:#0284c7;">${omzetChipVal}</div>
         <div class="health-chip-desc">
           <span>${omzetChipDesc}</span>
-          <span style="font-weight:800; color:${curr && curr.monthKey === '2026-07' ? '#ef4444' : '#10b981'};">
-            ${curr ? (curr.monthKey === '2026-07' ? '🔻 -9,5% MoM' : curr.monthKey === '2026-06' ? '📈 +0,35%' : 'Basis') : '3 Bulan'}
-          </span>
+          <span style="font-weight:800; color:#10b981;">${curr ? curr.monthLabel : `${data.length} Bulan`}</span>
         </div>
       </div>
 
@@ -4235,20 +4575,20 @@ function renderSvgHealthFinancials() {
         <div class="health-chip-val" style="color:#f59e0b;">${grossChipVal}</div>
         <div class="health-chip-desc">
           <span>${grossChipDesc}</span>
-          <span style="font-weight:800; color:#ef4444;">Erosi Juli 0,47%</span>
+          <span style="font-weight:800; color:#f59e0b;">Margin: ${grossMargin}</span>
         </div>
       </div>
 
       <div class="health-chip-card ${activeHealthChartMode === 'net' ? 'active' : ''}" onclick="setHealthChartMode('net')" title="Ketuk untuk melihat grafik tren laba bersih & surplus/defisit">
         <div class="health-chip-header">
           <span>📈 LABA / (RUGI) BERSIH</span>
-          <span style="color:#ef4444;">➔ Lihat Tren</span>
+          <span style="color:${(curr ? curr.labaBersih : totalNetAll) >= 0 ? '#10b981' : '#ef4444'};">➔ Lihat Tren</span>
         </div>
-        <div class="health-chip-val" style="color:${(curr ? curr.labaBersih : totalNet3M) >= 0 ? '#10b981' : '#ef4444'};">${netChipVal}</div>
+        <div class="health-chip-val" style="color:${(curr ? curr.labaBersih : totalNetAll) >= 0 ? '#10b981' : '#ef4444'};">${netChipVal}</div>
         <div class="health-chip-desc">
           <span>${netChipDesc}</span>
-          <span style="font-weight:800; color:${(curr ? curr.labaBersih : totalNet3M) >= 0 ? '#10b981' : '#ef4444'};">
-            ${(curr ? curr.labaBersih : totalNet3M) >= 0 ? 'Surplus' : 'Defisit'}
+          <span style="font-weight:800; color:${(curr ? curr.labaBersih : totalNetAll) >= 0 ? '#10b981' : '#ef4444'};">
+            ${(curr ? curr.labaBersih : totalNetAll) >= 0 ? 'Surplus' : 'Defisit'}
           </span>
         </div>
       </div>
@@ -4256,10 +4596,10 @@ function renderSvgHealthFinancials() {
   }
 
   // Render SVG Chart based on activeHealthChartMode
-  const w = 880;
-  const h = 350;
+  const w = 960;
+  const h = 360;
   const padLeft = 70;
-  const padRight = 40;
+  const padRight = 30;
   const padTop = 45;
   const padBottom = 55;
   const plotW = w - padLeft - padRight;
@@ -4269,8 +4609,8 @@ function renderSvgHealthFinancials() {
 
   if (activeHealthChartMode === 'all') {
     // Mode all: 3 Grouped Bars per month (Omzet, Laba Kotor, Laba Bersih)
-    const slotW = plotW / 3;
-    const barW = 26;
+    const slotW = plotW / data.length;
+    const barW = Math.max(14, Math.min(22, slotW * 0.22));
 
     let gridLines = '';
     for (let s = 0; s <= 4; s++) {
@@ -4280,26 +4620,30 @@ function renderSvgHealthFinancials() {
       `;
     }
 
-    // Zero-axis for Net Profit (at 72% height)
-    const zeroY = padTop + plotH * 0.72;
+    // Zero-axis for Net Profit
+    const zeroY = padTop + plotH * 0.75;
     gridLines += `
       <line x1="${padLeft}" y1="${zeroY}" x2="${w - padRight}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.25" stroke-width="1.2" />
       <text x="${padLeft - 8}" y="${zeroY + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="var(--text-muted)" text-anchor="end">Rp 0</text>
     `;
+
+    const maxOmzet = Math.max(...data.map(d => d.pendapatanBersih)) * 1.1;
+    const maxGross = Math.max(...data.map(d => d.labaKotor)) * 1.15;
+    const maxNet = Math.max(...data.map(d => Math.abs(d.labaBersih))) * 1.15;
 
     let groupsSvg = '';
     data.forEach((d, i) => {
       const groupCenter = padLeft + (i + 0.5) * slotW;
       const isSelected = (activeHealthPeriod === d.monthKey);
 
-      // 1. Omzet Bar (scale against 6.5M)
-      const omzetH = Math.max(10, (d.pendapatanBersih / 6500000000) * (plotH * 0.92));
+      // 1. Omzet Bar
+      const omzetH = Math.max(10, (d.pendapatanBersih / maxOmzet) * (plotH * 0.90));
       const omzetY = padTop + plotH - omzetH;
       const omzetX = groupCenter - barW * 1.55;
 
-      // 2. Laba Kotor Bar (scale against 300M)
+      // 2. Laba Kotor Bar
       const grossMarginPct = (d.labaKotor / d.pendapatanBersih) * 100;
-      const grossH = Math.max(10, (d.labaKotor / 300000000) * (plotH * 0.75));
+      const grossH = Math.max(8, (d.labaKotor / maxGross) * (plotH * 0.70));
       const grossY = padTop + plotH - grossH;
       const grossX = groupCenter - barW * 0.5;
       const grossColor = grossMarginPct < 1.0 ? '#ef4444' : grossMarginPct < 3.0 ? '#f59e0b' : '#10b981';
@@ -4310,13 +4654,13 @@ function renderSvgHealthFinancials() {
       let netH = 0;
       let netColor = '#10b981';
       if (d.labaBersih >= 0) {
-        netH = Math.max(12, (d.labaBersih / 150000000) * (plotH * 0.42));
+        netH = Math.max(10, (d.labaBersih / maxNet) * (plotH * 0.38));
         netY = zeroY - netH;
         netColor = '#10b981';
       } else {
-        netH = Math.max(12, (Math.abs(d.labaBersih) / 150000000) * (plotH * 0.25));
+        netH = Math.max(10, (Math.abs(d.labaBersih) / maxNet) * (plotH * 0.22));
         netY = zeroY;
-        netColor = d.monthKey === '2026-07' ? '#dc2626' : '#ef4444';
+        netColor = '#ef4444';
       }
       const netX = groupCenter + barW * 0.55;
 
@@ -4324,9 +4668,11 @@ function renderSvgHealthFinancials() {
       if (isSelected) {
         auraBg = `
           <rect x="${groupCenter - slotW * 0.46}" y="${padTop - 8}" width="${slotW * 0.92}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />
-          <text x="${groupCenter}" y="${padTop + 4}" font-family="var(--font-sans)" font-size="9" font-weight="800" fill="#38bdf8" text-anchor="middle">★ BULAN TERPILIH</text>
+          <text x="${groupCenter}" y="${padTop + 4}" font-family="var(--font-sans)" font-size="8.5" font-weight="800" fill="#38bdf8" text-anchor="middle">★ AKTIF</text>
         `;
       }
+
+      const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
 
       groupsSvg += `
         ${auraBg}
@@ -4334,7 +4680,7 @@ function renderSvgHealthFinancials() {
         <rect x="${omzetX}" y="${omzetY}" width="${barW}" height="${omzetH}" fill="url(#finBlueGrad)" rx="3">
           <title>${d.monthLabel} Omzet Bersih: ${formatRupiah(d.pendapatanBersih)}</title>
         </rect>
-        <text x="${omzetX + barW / 2}" y="${omzetY - 5}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#0284c7" text-anchor="middle">
+        <text x="${omzetX + barW / 2}" y="${omzetY - 4}" font-family="var(--font-mono)" font-size="8.5" font-weight="800" fill="#0284c7" text-anchor="middle">
           ${formatShortRupiah(d.pendapatanBersih)}
         </text>
 
@@ -4342,7 +4688,7 @@ function renderSvgHealthFinancials() {
         <rect x="${grossX}" y="${grossY}" width="${barW}" height="${grossH}" fill="${grossColor}" rx="3">
           <title>${d.monthLabel} Laba Kotor: ${formatRupiah(d.labaKotor)} (${grossMarginPct.toFixed(2)}%)</title>
         </rect>
-        <text x="${grossX + barW / 2}" y="${grossY - 5}" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="${grossColor}" text-anchor="middle">
+        <text x="${grossX + barW / 2}" y="${grossY - 4}" font-family="var(--font-mono)" font-size="8" font-weight="800" fill="${grossColor}" text-anchor="middle">
           ${formatShortRupiah(d.labaKotor)}
         </text>
 
@@ -4350,30 +4696,16 @@ function renderSvgHealthFinancials() {
         <rect x="${netX}" y="${netY}" width="${barW}" height="${netH}" fill="${netColor}" rx="3">
           <title>${d.monthLabel} Laba Bersih: ${formatRupiah(d.labaBersih)} (${netMarginPct.toFixed(2)}%)</title>
         </rect>
-        <text x="${netX + barW / 2}" y="${d.labaBersih >= 0 ? netY - 5 : netY + netH + 12}" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="${netColor}" text-anchor="middle">
+        <text x="${netX + barW / 2}" y="${d.labaBersih >= 0 ? netY - 4 : netY + netH + 10}" font-family="var(--font-mono)" font-size="8" font-weight="800" fill="${netColor}" text-anchor="middle">
           ${formatShortRupiah(d.labaBersih)}
         </text>
 
         <!-- Month Label -->
-        <text x="${groupCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
-          ${d.monthLabel}
+        <text x="${groupCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="11.5" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${shortLabel}
         </text>
       `;
     });
-
-    // Delta badges between months
-    const xMid1 = padLeft + slotW;
-    const xMid2 = padLeft + slotW * 2;
-    const deltaBadges = `
-      <g transform="translate(${xMid1}, ${padTop + 25})">
-        <rect x="-48" y="-12" width="96" height="24" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1" />
-        <text x="0" y="4" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="#10b981" text-anchor="middle">Omzet +0,35%</text>
-      </g>
-      <g transform="translate(${xMid2}, ${padTop + 25})">
-        <rect x="-48" y="-12" width="96" height="24" rx="12" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1" />
-        <text x="0" y="4" font-family="var(--font-mono)" font-size="9.5" font-weight="800" fill="#ef4444" text-anchor="middle">Omzet -9,49%</text>
-      </g>
-    `;
 
     // Legend
     const legend = `
@@ -4399,15 +4731,14 @@ function renderSvgHealthFinancials() {
         </defs>
         ${gridLines}
         ${groupsSvg}
-        ${deltaBadges}
         ${legend}
       </svg>
     `;
   } else if (activeHealthChartMode === 'omzet') {
     // Mode omzet: Dedicated Trendline & Comparison for Net Omzet
-    const slotW = plotW / 3;
-    const barW = 50;
-    const maxOmzet = 6200000000;
+    const slotW = plotW / data.length;
+    const barW = Math.max(20, Math.min(42, slotW * 0.45));
+    const maxOmzet = Math.max(...data.map(d => d.pendapatanBersih + Math.max(0, d.potonganPenjualan))) * 1.15;
 
     let gridLines = '';
     const steps = 4;
@@ -4416,7 +4747,7 @@ function renderSvgHealthFinancials() {
       const yPos = padTop + plotH - (s / steps) * plotH;
       gridLines += `
         <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
+        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
       `;
     }
 
@@ -4431,9 +4762,10 @@ function renderSvgHealthFinancials() {
 
       points.push({ x: xCenter, y: barY, val: d.pendapatanBersih, label: d.monthLabel });
 
-      const diskonH = Math.max(3, (d.potonganPenjualan / maxOmzet) * plotH);
+      const diskonH = Math.max(3, (Math.max(0, d.potonganPenjualan) / maxOmzet) * plotH);
       const diskonY = barY - diskonH;
       const isSelected = (activeHealthPeriod === d.monthKey);
+      const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
 
       barsSvg += `
         ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
@@ -4443,20 +4775,20 @@ function renderSvgHealthFinancials() {
           <title>${d.monthLabel} Omzet Bersih: ${formatRupiah(d.pendapatanBersih)}</title>
         </rect>
 
-        ${d.potonganPenjualan > 100000 ? `
+        ${d.potonganPenjualan > 10000000 ? `
           <!-- Diskon Segment -->
           <rect x="${barX}" y="${diskonY}" width="${barW}" height="${diskonH}" fill="#f97316" rx="2">
-            <title>Diskon/Potongan Penjualan: ${formatRupiah(d.potonganPenjualan)}</title>
+            <title>Diskon/Potongan: ${formatRupiah(d.potonganPenjualan)}</title>
           </rect>
-          <text x="${xCenter}" y="${diskonY - 6}" font-family="var(--font-sans)" font-size="9.5" font-weight="800" fill="#f97316" text-anchor="middle">Diskon: ${formatShortRupiah(d.potonganPenjualan)}</text>
+          <text x="${xCenter}" y="${diskonY - 4}" font-family="var(--font-sans)" font-size="8.5" font-weight="800" fill="#f97316" text-anchor="middle">Diskon ${formatShortRupiah(d.potonganPenjualan)}</text>
         ` : ''}
 
-        <text x="${xCenter}" y="${barY - 8}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="#0284c7" text-anchor="middle">
-          ${formatRupiah(d.pendapatanBersih)}
+        <text x="${xCenter}" y="${barY - 6}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#0284c7" text-anchor="middle">
+          ${formatShortRupiah(d.pendapatanBersih)}
         </text>
 
-        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
-          ${d.monthLabel}
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${shortLabel}
         </text>
       `;
     });
@@ -4469,21 +4801,8 @@ function renderSvgHealthFinancials() {
     const trendlineSvg = `
       <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
       ${points.map(pt => `
-        <circle cx="${pt.x}" cy="${pt.y}" r="6" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
+        <circle cx="${pt.x}" cy="${pt.y}" r="5" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
       `).join('')}
-    `;
-
-    const xMid1 = padLeft + slotW;
-    const xMid2 = padLeft + slotW * 2;
-    const deltas = `
-      <g transform="translate(${xMid1}, ${padTop + 20})">
-        <rect x="-55" y="-12" width="110" height="24" rx="12" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="1.2" />
-        <text x="0" y="4" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#10b981" text-anchor="middle">📈 +0,35% (+19,8M)</text>
-      </g>
-      <g transform="translate(${xMid2}, ${padTop + 20})">
-        <rect x="-55" y="-12" width="110" height="24" rx="12" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.2" />
-        <text x="0" y="4" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="middle">📉 -9,49% (-540M)</text>
-      </g>
     `;
 
     svgHtml = `
@@ -4497,14 +4816,13 @@ function renderSvgHealthFinancials() {
         ${gridLines}
         ${barsSvg}
         ${trendlineSvg}
-        ${deltas}
       </svg>
     `;
   } else if (activeHealthChartMode === 'gross') {
     // Mode gross: Dedicated Gross Profit & Margin % Trend
-    const slotW = plotW / 3;
-    const barW = 50;
-    const maxGross = 300000000;
+    const slotW = plotW / data.length;
+    const barW = Math.max(20, Math.min(42, slotW * 0.45));
+    const maxGross = Math.max(...data.map(d => d.labaKotor)) * 1.25;
 
     let gridLines = '';
     const steps = 4;
@@ -4513,7 +4831,7 @@ function renderSvgHealthFinancials() {
       const yPos = padTop + plotH - (s / steps) * plotH;
       gridLines += `
         <line x1="${padLeft}" y1="${yPos}" x2="${w - padRight}" y2="${yPos}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
+        <text x="${padLeft - 10}" y="${yPos + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="var(--text-muted)" text-anchor="end">${formatShortRupiah(val)}</text>
       `;
     }
 
@@ -4522,7 +4840,7 @@ function renderSvgHealthFinancials() {
 
     data.forEach((d, i) => {
       const xCenter = padLeft + (i + 0.5) * slotW;
-      const barH = Math.max(12, (d.labaKotor / maxGross) * plotH);
+      const barH = Math.max(10, (d.labaKotor / maxGross) * plotH);
       const barY = padTop + plotH - barH;
       const barX = xCenter - barW / 2;
 
@@ -4533,6 +4851,7 @@ function renderSvgHealthFinancials() {
 
       points.push({ x: xCenter, y: barY, margin: grossMarginPct });
       const isSelected = (activeHealthPeriod === d.monthKey);
+      const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
 
       barsSvg += `
         ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
@@ -4541,23 +4860,18 @@ function renderSvgHealthFinancials() {
           <title>${d.monthLabel} Laba Kotor: ${formatRupiah(d.labaKotor)} (Margin: ${grossMarginPct.toFixed(2)}%)</title>
         </rect>
 
-        <text x="${xCenter}" y="${barY - 24}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${barColor}" text-anchor="middle">
-          ${formatRupiah(d.labaKotor)}
+        <text x="${xCenter}" y="${barY - 20}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="${barColor}" text-anchor="middle">
+          ${formatShortRupiah(d.labaKotor)}
         </text>
 
         <!-- Margin Badge -->
-        <rect x="${xCenter - 42}" y="${barY - 18}" width="84" height="16" rx="4" fill="${isCritical ? '#fee2e2' : isWarning ? '#ffedd5' : '#dcfce7'}" />
-        <text x="${xCenter}" y="${barY - 6}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="${barColor}" text-anchor="middle">
-          Margin: ${grossMarginPct.toFixed(2).replace('.', ',')}%
+        <rect x="${xCenter - 34}" y="${barY - 16}" width="68" height="14" rx="3" fill="${isCritical ? '#fee2e2' : isWarning ? '#ffedd5' : '#dcfce7'}" />
+        <text x="${xCenter}" y="${barY - 5}" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="${barColor}" text-anchor="middle">
+          ${grossMarginPct.toFixed(2).replace('.', ',')}%
         </text>
 
-        ${isCritical ? `
-          <rect x="${xCenter - 65}" y="${padTop + 20}" width="130" height="22" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="1.2" />
-          <text x="${xCenter}" y="${padTop + 35}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="middle">🚨 Erosi Margin -84%</text>
-        ` : ''}
-
-        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
-          ${d.monthLabel}
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${shortLabel}
         </text>
       `;
     });
@@ -4570,7 +4884,7 @@ function renderSvgHealthFinancials() {
     const trendlineSvg = `
       <path d="${pathD}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4,4" />
       ${points.map(pt => `
-        <circle cx="${pt.x}" cy="${pt.y}" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${pt.x}" cy="${pt.y}" r="4.5" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
       `).join('')}
     `;
 
@@ -4583,73 +4897,52 @@ function renderSvgHealthFinancials() {
     `;
   } else if (activeHealthChartMode === 'net') {
     // Mode net: Dedicated Net Profit/Loss with Zero-Line
-    const slotW = plotW / 3;
-    const barW = 50;
-    const maxNet = 150000000;
-    const zeroY = padTop + plotH * 0.55;
+    const slotW = plotW / data.length;
+    const barW = Math.max(20, Math.min(42, slotW * 0.45));
+    const maxNet = Math.max(...data.map(d => Math.abs(d.labaBersih))) * 1.25;
+    const zeroY = padTop + plotH * 0.52;
 
     let gridLines = '';
-    // Positive grid
     gridLines += `
       <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-      <text x="${padLeft - 10}" y="${padTop + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#10b981" text-anchor="end">+Rp 150Jt</text>
-      
-      <line x1="${padLeft}" y1="${(padTop + zeroY) / 2}" x2="${w - padRight}" y2="${(padTop + zeroY) / 2}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-      <text x="${padLeft - 10}" y="${((padTop + zeroY) / 2) + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#10b981" text-anchor="end">+Rp 75Jt</text>
-    `;
-    // Zero line
-    gridLines += `
-      <line x1="${padLeft}" y1="${zeroY}" x2="${w - padRight}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.4" stroke-width="2" />
-      <text x="${padLeft - 10}" y="${zeroY + 4}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="var(--text-main)" text-anchor="end">Rp 0 (Titik Impas)</text>
-    `;
-    // Negative grid
-    gridLines += `
-      <line x1="${padLeft}" y1="${zeroY + (padTop + plotH - zeroY) * 0.5}" x2="${w - padRight}" y2="${zeroY + (padTop + plotH - zeroY) * 0.5}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-      <text x="${padLeft - 10}" y="${zeroY + (padTop + plotH - zeroY) * 0.5 + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#ef4444" text-anchor="end">-Rp 75Jt</text>
-      
+      <text x="${padLeft - 10}" y="${padTop + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="#10b981" text-anchor="end">+${formatShortRupiah(maxNet)}</text>
+
+      <line x1="${padLeft}" y1="${zeroY}" x2="${w - padRight}" y2="${zeroY}" stroke="currentColor" stroke-opacity="0.3" stroke-width="1.5" />
+      <text x="${padLeft - 10}" y="${zeroY + 4}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="var(--text-main)" text-anchor="end">Rp 0</text>
+
       <line x1="${padLeft}" y1="${padTop + plotH}" x2="${w - padRight}" y2="${padTop + plotH}" stroke="currentColor" stroke-opacity="0.1" stroke-dasharray="3,3" />
-      <text x="${padLeft - 10}" y="${padTop + plotH + 4}" font-family="var(--font-mono)" font-size="11" font-weight="700" fill="#ef4444" text-anchor="end">-Rp 150Jt</text>
+      <text x="${padLeft - 10}" y="${padTop + plotH + 4}" font-family="var(--font-mono)" font-size="10" font-weight="700" fill="#ef4444" text-anchor="end">-${formatShortRupiah(maxNet)}</text>
     `;
 
-    const points = [];
     let barsSvg = '';
+    const points = [];
 
     data.forEach((d, i) => {
       const xCenter = padLeft + (i + 0.5) * slotW;
       const barX = xCenter - barW / 2;
-
-      let barY = zeroY;
-      let barH = 0;
-      let barColor = '#10b981';
-
-      if (d.labaBersih >= 0) {
-        barH = Math.max(12, (d.labaBersih / maxNet) * (zeroY - padTop));
-        barY = zeroY - barH;
-        barColor = '#10b981';
-      } else {
-        barH = Math.max(12, (Math.abs(d.labaBersih) / maxNet) * (padTop + plotH - zeroY));
-        barY = zeroY;
-        barColor = d.monthKey === '2026-07' ? '#dc2626' : '#ef4444';
-      }
-
-      points.push({ x: xCenter, y: d.labaBersih >= 0 ? barY : barY + barH });
-
-      const netMarginPct = (d.labaBersih / d.pendapatanBersih) * 100;
+      const isPositive = (d.labaBersih >= 0);
       const isSelected = (activeHealthPeriod === d.monthKey);
+      const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
+
+      let barH = Math.max(8, (Math.abs(d.labaBersih) / maxNet) * (plotH * 0.44));
+      let barY = isPositive ? (zeroY - barH) : zeroY;
+      const barColor = isPositive ? '#10b981' : '#ef4444';
+
+      points.push({ x: xCenter, y: isPositive ? barY : (zeroY + barH) });
 
       barsSvg += `
         ${isSelected ? `<rect x="${xCenter - slotW * 0.44}" y="${padTop - 8}" width="${slotW * 0.88}" height="${plotH + 16}" rx="8" fill="rgba(56, 189, 248, 0.08)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" />` : ''}
 
         <rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="${barColor}" rx="4">
-          <title>${d.monthLabel} Laba Bersih: ${formatRupiah(d.labaBersih)} (Net Margin: ${netMarginPct.toFixed(2)}%)</title>
+          <title>${d.monthLabel} Laba Bersih: ${formatRupiah(d.labaBersih)}</title>
         </rect>
 
-        <text x="${xCenter}" y="${d.labaBersih >= 0 ? barY - 8 : barY + barH + 16}" font-family="var(--font-mono)" font-size="12" font-weight="800" fill="${barColor}" text-anchor="middle">
-          ${formatRupiah(d.labaBersih)}
+        <text x="${xCenter}" y="${isPositive ? (barY - 6) : (barY + barH + 12)}" font-family="var(--font-mono)" font-size="10" font-weight="800" fill="${barColor}" text-anchor="middle">
+          ${formatShortRupiah(d.labaBersih)}
         </text>
 
-        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
-          ${d.monthLabel} (${netMarginPct >= 0 ? '+' : ''}${netMarginPct.toFixed(2).replace('.', ',')}%)
+        <text x="${xCenter}" y="${h - 15}" font-family="var(--font-sans)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+          ${shortLabel}
         </text>
       `;
     });
@@ -4659,18 +4952,15 @@ function renderSvgHealthFinancials() {
       pathD += ` L ${points[p].x} ${points[p].y}`;
     }
 
-    const trendlineSvg = `
-      <path d="${pathD}" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-      ${points.map(pt => `
-        <circle cx="${pt.x}" cy="${pt.y}" r="5.5" fill="#dc2626" stroke="#ffffff" stroke-width="2" />
-      `).join('')}
+    const lineSvg = `
+      <path d="${pathD}" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6" />
     `;
 
     svgHtml = `
       <svg viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet">
         ${gridLines}
         ${barsSvg}
-        ${trendlineSvg}
+        ${lineSvg}
       </svg>
     `;
   }
@@ -4682,8 +4972,8 @@ function renderSvgHealthRatios() {
   const container = document.getElementById('svgHealthRatioContainer');
   if (!container) return;
 
-  const w = 840;
-  const h = 330;
+  const w = 960;
+  const h = 340;
   const padLeft = 65;
   const padRight = 35;
   const padTop = 45;
@@ -4691,17 +4981,12 @@ function renderSvgHealthRatios() {
   const plotW = w - padLeft - padRight;
   const plotH = h - padTop - padBottom;
 
-  const months = ['2026-05', '2026-06', '2026-07'];
+  const months = HEALTH_MONTHS;
   const data = months.map(k => HEALTH_FINANCIAL_DATA[k]);
 
-  // Grouped Bar chart per month
-  // In each month group:
-  // 1. HPP % (scaled against 0-100% on left axis)
-  // 2. Gaji % (scaled on same or dual axis - to make small % visible, we draw dual axis or clear scaled bars)
-  // Let's draw 3 clear bars per month with clear percentage labels on top!
   const groupCount = data.length;
   const slotW = plotW / groupCount;
-  const barW = 34;
+  const barW = Math.max(14, Math.min(26, slotW * 0.26));
 
   let gridSvg = '';
   const ySteps = 5;
@@ -4714,11 +4999,11 @@ function renderSvgHealthRatios() {
     `;
   }
 
-  // Yearly Benchmark lines (Median Yearly HPP 96%, Opex 4%, Salary 1.7%)
+  // Benchmark line: HPP 96%
   const yHppBench = padTop + plotH - (96.0 / 100) * plotH;
   gridSvg += `
     <line x1="${padLeft}" y1="${yHppBench}" x2="${w - padRight}" y2="${yHppBench}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5,4" />
-    <text x="${w - padRight}" y="${yHppBench - 6}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="end">Benchmark HPP Tahunan: ~96,0%</text>
+    <text x="${w - padRight}" y="${yHppBench - 6}" font-family="var(--font-sans)" font-size="10" font-weight="800" fill="#ef4444" text-anchor="end">Benchmark HPP: ~96,0%</text>
   `;
 
   let barsSvg = '';
@@ -4732,11 +5017,9 @@ function renderSvgHealthRatios() {
     // Bar 1: HPP
     const hppH = (hppPct / 100) * plotH;
     const hppY = padTop + plotH - hppH;
-    const hppX = groupCenter - barW * 1.6;
+    const hppX = groupCenter - barW * 1.55;
 
     // Bar 2: Gaji
-    // Multiply by 10 for visual clarity on chart, or draw true scale with callout!
-    // True height:
     const salaryH = Math.max(8, (salaryPct / 100) * plotH);
     const salaryY = padTop + plotH - salaryH;
     const salaryX = groupCenter - barW * 0.5;
@@ -4744,58 +5027,44 @@ function renderSvgHealthRatios() {
     // Bar 3: Opex
     const opexH = Math.max(10, (opexPct / 100) * plotH);
     const opexY = padTop + plotH - opexH;
-    const opexX = groupCenter + barW * 0.6;
+    const opexX = groupCenter + barW * 0.55;
 
-    // Alert flag for July HPP
-    const isJulyHpp = (d.monthKey === '2026-07');
-    const isJuneSalary = (d.monthKey === '2026-06');
+    const isHighHpp = hppPct > 98;
+    const isHighSalary = salaryPct > 2.0;
+    const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
 
     barsSvg += `
-      <!-- HPP Bar (Blue) -->
-      <rect x="${hppX}" y="${hppY}" width="${barW}" height="${hppH}" fill="${isJulyHpp ? 'url(#hppDangerGrad)' : 'url(#hppGrad)'}" rx="4">
+      <!-- HPP Bar -->
+      <rect x="${hppX}" y="${hppY}" width="${barW}" height="${hppH}" fill="${isHighHpp ? 'url(#hppDangerGrad)' : 'url(#hppGrad)'}" rx="3">
         <title>${d.monthLabel} HPP: ${hppPct.toFixed(2)}% (${formatRupiah(d.hpp)})</title>
       </rect>
-      <text x="${hppX + barW / 2}" y="${hppY + 16}" font-family="var(--font-mono)" font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">
+      <text x="${hppX + barW / 2}" y="${hppY + 14}" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="#ffffff" text-anchor="middle">
         ${hppPct.toFixed(1).replace('.', ',')}%
       </text>
 
-      <!-- Gaji Bar (Orange) -->
-      <rect x="${salaryX}" y="${salaryY}" width="${barW}" height="${salaryH}" fill="${isJuneSalary ? '#f59e0b' : '#fb923c'}" rx="4">
+      <!-- Gaji Bar -->
+      <rect x="${salaryX}" y="${salaryY}" width="${barW}" height="${salaryH}" fill="${isHighSalary ? '#f59e0b' : '#fb923c'}" rx="3">
         <title>${d.monthLabel} Gaji: ${salaryPct.toFixed(2)}% (${formatRupiah(d.gajiPegawai)})</title>
       </rect>
-      <text x="${salaryX + barW / 2}" y="${salaryY - 6}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="#f59e0b" text-anchor="middle">
-        ${salaryPct.toFixed(2).replace('.', ',')}%
+      <text x="${salaryX + barW / 2}" y="${salaryY - 5}" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="#f59e0b" text-anchor="middle">
+        ${salaryPct.toFixed(1).replace('.', ',')}%
       </text>
 
-      <!-- Opex Bar (Purple) -->
-      <rect x="${opexX}" y="${opexY}" width="${barW}" height="${opexH}" fill="#10b981" rx="4">
-        <title>${d.monthLabel} Biaya Operasional: ${opexPct.toFixed(2)}% (${formatRupiah(d.biayaOperasional)})</title>
+      <!-- Opex Bar -->
+      <rect x="${opexX}" y="${opexY}" width="${barW}" height="${opexH}" fill="#10b981" rx="3">
+        <title>${d.monthLabel} Opex: ${opexPct.toFixed(2)}% (${formatRupiah(d.biayaOperasional)})</title>
       </rect>
-      <text x="${opexX + barW / 2}" y="${opexY - 6}" font-family="var(--font-mono)" font-size="11" font-weight="800" fill="#10b981" text-anchor="middle">
-        ${opexPct.toFixed(2).replace('.', ',')}%
+      <text x="${opexX + barW / 2}" y="${opexY - 5}" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="#10b981" text-anchor="middle">
+        ${opexPct.toFixed(1).replace('.', ',')}%
       </text>
 
       <!-- Month Label -->
-      <text x="${groupCenter}" y="${h - 18}" font-family="var(--font-sans)" font-size="13" font-weight="800" fill="var(--text-main)" text-anchor="middle">
-        ${d.monthLabel}
+      <text x="${groupCenter}" y="${h - 18}" font-family="var(--font-sans)" font-size="12" font-weight="800" fill="var(--text-main)" text-anchor="middle">
+        ${shortLabel}
       </text>
     `;
-
-    if (isJulyHpp) {
-      barsSvg += `
-        <rect x="${hppX - 12}" y="${hppY - 26}" width="${barW + 24}" height="18" rx="4" fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" stroke-width="1.2" />
-        <text x="${hppX + barW / 2}" y="${hppY - 13}" font-family="var(--font-sans)" font-size="9.5" font-weight="800" fill="#ef4444" text-anchor="middle">🚨 99,5%</text>
-      `;
-    }
-
-    if (isJuneSalary) {
-      barsSvg += `
-        <text x="${salaryX + barW / 2}" y="${salaryY - 18}" font-family="var(--font-sans)" font-size="9" font-weight="800" fill="#f59e0b" text-anchor="middle">THR</text>
-      `;
-    }
   });
 
-  // Chart Legend at Top
   const legendSvg = `
     <g transform="translate(${padLeft + 10}, 16)">
       <rect x="0" y="0" width="14" height="10" rx="2" fill="#0284c7" />
@@ -4832,7 +5101,7 @@ function renderTableHealthFinancials() {
   const container = document.getElementById('tableHealthFinancials');
   if (!container) return;
 
-  const months = ['2026-05', '2026-06', '2026-07'];
+  const months = HEALTH_MONTHS;
   const mData = months.map(k => HEALTH_FINANCIAL_DATA[k]);
 
   let rows = [
@@ -4855,12 +5124,7 @@ function renderTableHealthFinancials() {
   let headerHtml = `
     <tr>
       <th class="col-sticky-freeze">Komponen Keuangan</th>
-      <th style="text-align:right;">Mei 2026 (Monthly)</th>
-      <th style="text-align:right;">Mei 2026 (Yearly)</th>
-      <th style="text-align:right;">Juni 2026 (Monthly)</th>
-      <th style="text-align:right;">Juni 2026 (Yearly)</th>
-      <th style="text-align:right;">Juli 2026 (Monthly)</th>
-      <th style="text-align:right;">Juli 2026 (Yearly)</th>
+      ${mData.map(d => `<th style="text-align:right;">${d.monthLabel}</th>`).join('')}
       <th style="text-align:center;">Evaluasi &amp; Catatan Median</th>
     </tr>
   `;
@@ -4869,64 +5133,45 @@ function renderTableHealthFinancials() {
     let cellsHtml = '';
 
     mData.forEach(d => {
-      let mVal = '';
-      let yVal = '';
+      let cellVal = '';
 
       if (r.key === 'hpp_pct') {
         const mPct = (d.hpp / d.pendapatanBersih) * 100;
-        const yPct = (d.yearly.hpp / d.yearly.pendapatanBersih) * 100;
         const isSpike = mPct > 98;
-        mVal = `<span style="font-weight:800; color:${isSpike ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
-        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+        cellVal = `<span style="font-weight:800; color:${isSpike ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
       } else if (r.key === 'gross_margin_pct') {
         const mPct = (d.labaKotor / d.pendapatanBersih) * 100;
-        const yPct = (d.yearly.labaKotor / d.yearly.pendapatanBersih) * 100;
-        mVal = `<span style="font-weight:800; color:${mPct < 1.0 ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
-        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+        cellVal = `<span style="font-weight:800; color:${mPct < 1.0 ? '#ef4444' : mPct < 3.0 ? '#f59e0b' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
       } else if (r.key === 'gaji_pct') {
         const mPct = (d.gajiPegawai / d.pendapatanBersih) * 100;
-        const yPct = (d.yearly.gajiPegawai / d.yearly.pendapatanBersih) * 100;
-        const isHigh = mPct > 2.0;
-        mVal = `<span style="font-weight:800; color:${isHigh ? '#f59e0b' : 'inherit'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
-        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+        cellVal = `<span style="font-weight:800; color:${mPct > 2.0 ? '#f59e0b' : 'inherit'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
       } else if (r.key === 'opex_pct') {
         const mPct = (d.biayaOperasional / d.pendapatanBersih) * 100;
-        const yPct = (d.yearly.biayaOperasional / d.yearly.pendapatanBersih) * 100;
-        mVal = `<span style="font-weight:800; color:#10b981;">${mPct.toFixed(2).replace('.', ',')}%</span>`;
-        yVal = `<span>${yPct.toFixed(2).replace('.', ',')}%</span>`;
+        cellVal = `<span style="font-weight:800; color:${mPct > 5.0 ? '#ef4444' : '#10b981'};">${mPct.toFixed(2).replace('.', ',')}%</span>`;
       } else {
         const mRaw = d[r.key];
-        const yRaw = d.yearly ? d.yearly[r.key] : 0;
-
         if (r.format === 'rp_colored' || r.format === 'rp_colored_bold') {
           const mColor = mRaw >= 0 ? '#10b981' : '#ef4444';
-          const yColor = yRaw >= 0 ? '#10b981' : '#ef4444';
-          mVal = `<span style="color:${mColor}; font-weight:700;">${formatRupiah(mRaw)}</span>`;
-          yVal = `<span style="color:${yColor};">${formatRupiah(yRaw)}</span>`;
+          cellVal = `<span style="color:${mColor}; font-weight:700;">${formatRupiah(mRaw)}</span>`;
         } else if (r.format === 'rp_neg') {
-          mVal = `<span style="color:#ef4444;">- ${formatRupiah(mRaw)}</span>`;
-          yVal = `<span style="color:#ef4444;">- ${formatRupiah(yRaw)}</span>`;
+          cellVal = `<span style="color:${mRaw > 0 ? '#ef4444' : 'inherit'};">${mRaw > 0 ? '-' : ''} ${formatRupiah(Math.abs(mRaw))}</span>`;
         } else {
-          mVal = formatRupiah(mRaw);
-          yVal = formatRupiah(yRaw);
+          cellVal = formatRupiah(mRaw);
         }
       }
 
-      cellsHtml += `
-        <td style="text-align:right;">${mVal}</td>
-        <td style="text-align:right; color:var(--text-muted);">${yVal}</td>
-      `;
+      cellsHtml += `<td style="text-align:right;">${cellVal}</td>`;
     });
 
     let evalCol = '';
     if (r.key === 'hpp_pct') {
-      evalCol = `<span style="color:#ef4444; font-weight:800;">🚨 Juli 99,5% (+3,1% di atas tahunan)</span>`;
+      evalCol = `<span style="color:#ef4444; font-weight:800;">🚨 Juli 99,5% (Paling Kritis)</span>`;
     } else if (r.key === 'gaji_pct') {
-      evalCol = `<span style="color:#f59e0b; font-weight:800;">⚠️ Juni 2,33% (+0,6% ada THR)</span>`;
+      evalCol = `<span style="color:#f59e0b; font-weight:800;">⚠️ Juni 2,33% (Ada THR Galungan)</span>`;
     } else if (r.key === 'opex_pct') {
-      evalCol = `<span style="color:#10b981; font-weight:800;">✅ Konsisten &lt; 3,5% (Efisien)</span>`;
+      evalCol = `<span style="color:#ef4444; font-weight:800;">⚠️ Feb 10,5% (Bonus Tahunan)</span>`;
     } else if (r.key === 'labaBersih') {
-      evalCol = `<span style="color:#ef4444; font-weight:800;">🚨 Juni &amp; Juli Defisit</span>`;
+      evalCol = `<span style="color:#10b981; font-weight:800;">⭐ Rekor April (+Rp 201M)</span>`;
     } else {
       evalCol = `<span style="color:var(--text-muted);">-</span>`;
     }
@@ -5004,13 +5249,13 @@ function renderHealthInventoryMovement() {
   if (stockGrid) {
     const s = periodData.summary;
     const isAll = activeHealthPeriod === 'all';
-    const periodLabel = isAll ? 'Komparasi 3 Bulan' : (activeHealthPeriod === '2026-05' ? 'Mei 2026' : (activeHealthPeriod === '2026-06' ? 'Juni 2026' : 'Juli 2026'));
+    const periodLabel = isAll ? `Komparasi ${HEALTH_MONTHS.length} Bulan (Jan - Sep 2026)` : (HEALTH_FINANCIAL_DATA[activeHealthPeriod]?.monthLabel || activeHealthPeriod);
 
     stockGrid.innerHTML = `
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
           <span class="health-metric-title">📦 STOK AWAL</span>
-          <span class="health-metric-badge badge-safe">${isAll ? '1 Mei 2026' : periodLabel}</span>
+          <span class="health-metric-badge badge-safe">${isAll ? '1 Des 2025' : periodLabel}</span>
         </div>
         <div class="health-metric-main-value" style="color: #3b82f6;">${s.stokAwalQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
         <div class="health-metric-subrow">
@@ -5022,7 +5267,7 @@ function renderHealthInventoryMovement() {
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
           <span class="health-metric-title">🛒 PEMBELIAN (RESTOCK)</span>
-          <span class="health-metric-badge badge-info">${periodLabel}</span>
+          <span class="health-metric-badge badge-info">${isAll ? `Total ${HEALTH_MONTHS.length} Bulan` : periodLabel}</span>
         </div>
         <div class="health-metric-main-value" style="color: #06b6d4;">${s.beliQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
         <div class="health-metric-subrow">
@@ -5034,7 +5279,7 @@ function renderHealthInventoryMovement() {
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
           <span class="health-metric-title">💰 PENJUALAN (OMZET)</span>
-          <span class="health-metric-badge badge-safe">${periodLabel}</span>
+          <span class="health-metric-badge badge-safe">${isAll ? `Total ${HEALTH_MONTHS.length} Bulan` : periodLabel}</span>
         </div>
         <div class="health-metric-main-value" style="color: #10b981;">${s.jualQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
         <div class="health-metric-subrow">
@@ -5046,7 +5291,7 @@ function renderHealthInventoryMovement() {
       <div class="health-metric-card status-safe">
         <div class="health-metric-card-header">
           <span class="health-metric-title">🏁 STOK AKHIR</span>
-          <span class="health-metric-badge badge-purple">${isAll ? '31 Juli 2026' : periodLabel}</span>
+          <span class="health-metric-badge badge-purple">${isAll ? '30 Sep 2026' : periodLabel}</span>
         </div>
         <div class="health-metric-main-value" style="color: #a855f7;">${s.stokAkhirQty.toLocaleString('id-ID')} <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">pcs</span></div>
         <div class="health-metric-subrow">
@@ -5072,13 +5317,13 @@ function renderHealthInventoryMovement() {
 
 function renderSvgHealthStockMovement() {
   const isQty = activeHealthInvMovementMode === 'qty';
-  const months = ['2026-05', '2026-06', '2026-07'];
-  const monthLabels = ['Mei 2026', 'Juni 2026', 'Juli 2026'];
+  const months = HEALTH_MONTHS;
 
   const seriesData = months.map(m => {
     const s = HEALTH_INVENTORY_DATA[m].summary;
     return {
       monthKey: m,
+      monthLabel: HEALTH_FINANCIAL_DATA[m].monthLabel,
       stokAwal: isQty ? s.stokAwalQty : s.stokAwalNilai,
       beli: isQty ? s.beliQty : s.beliNilai,
       jual: isQty ? s.jualQty : s.jualNilai,
@@ -5091,8 +5336,8 @@ function renderSvgHealthStockMovement() {
     ...seriesData.flatMap(d => [d.stokAwal, d.beli, d.jual, d.stokAkhir])
   ) * 1.15;
 
-  const width = 860;
-  const height = 300;
+  const width = 960;
+  const height = 310;
   const padLeft = 85;
   const padRight = 35;
   const padTop = 30;
@@ -5114,8 +5359,8 @@ function renderSvgHealthStockMovement() {
   }
 
   const groupW = chartW / months.length;
-  const barW = Math.min(32, (groupW * 0.7) / 4);
-  const barGap = 4;
+  const barW = Math.min(22, (groupW * 0.75) / 4);
+  const barGap = 3;
   const colors = {
     stokAwal: '#3b82f6',
     beli: '#06b6d4',
@@ -5148,40 +5393,51 @@ function renderSvgHealthStockMovement() {
       }
 
       barsSvg += `
-        <rect x="${bx}" y="${by}" width="${barW}" height="${Math.max(2, bH)}" rx="4" fill="${b.color}" opacity="0.9">
-          <title>${monthLabels[gIdx]} - ${b.label}: ${valFmt}</title>
+        <rect x="${bx}" y="${by}" width="${barW}" height="${bH}" fill="${b.color}" rx="2">
+          <title>${d.monthLabel} - ${b.label}: ${valFmt}</title>
         </rect>
-        <text x="${bx + barW / 2}" y="${by - 5}" fill="${b.color}" font-size="9" font-weight="700" font-family="JetBrains Mono, monospace" text-anchor="middle">${valFmt}</text>
       `;
     });
 
+    const shortLabel = d.monthLabel.replace(' 2026', '').substring(0, 3);
     barsSvg += `
-      <text x="${groupCenter}" y="${height - padBottom + 22}" fill="var(--text-main)" font-size="12" font-weight="800" text-anchor="middle">${monthLabels[gIdx]}</text>
+      <text x="${groupCenter}" y="${padTop + chartH + 20}" fill="var(--text-main)" font-size="11" font-weight="700" text-anchor="middle">${shortLabel}</text>
     `;
   });
 
-  let trendSvg = '';
-  if (trendPoints.length >= 2) {
-    const pathD = trendPoints.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-    trendSvg = `
-      <path d="${pathD}" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="4,4" opacity="0.8" />
+  let trendlineSvg = '';
+  if (trendPoints.length > 1) {
+    let pathD = `M ${trendPoints[0].x} ${trendPoints[0].y}`;
+    for (let i = 1; i < trendPoints.length; i++) {
+      pathD += ` L ${trendPoints[i].x} ${trendPoints[i].y}`;
+    }
+    trendlineSvg = `
+      <path d="${pathD}" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="3,3" />
       ${trendPoints.map(p => `
-        <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#a855f7" stroke-width="2" />
+        <circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#a855f7" stroke="#ffffff" stroke-width="1.5" />
       `).join('')}
     `;
   }
 
+  const legendSvg = `
+    <g transform="translate(${padLeft + 10}, 12)">
+      <rect x="0" y="0" width="12" height="10" rx="2" fill="${colors.stokAwal}"/>
+      <text x="16" y="9" font-size="10.5" fill="var(--text-main)" font-weight="700">Stok Awal</text>
+      <rect x="100" y="0" width="12" height="10" rx="2" fill="${colors.beli}"/>
+      <text x="116" y="9" font-size="10.5" fill="var(--text-main)" font-weight="700">Pembelian</text>
+      <rect x="200" y="0" width="12" height="10" rx="2" fill="${colors.jual}"/>
+      <text x="216" y="9" font-size="10.5" fill="var(--text-main)" font-weight="700">Penjualan</text>
+      <rect x="300" y="0" width="12" height="10" rx="2" fill="${colors.stokAkhir}"/>
+      <text x="316" y="9" font-size="10.5" fill="var(--text-main)" font-weight="700">Stok Akhir</text>
+    </g>
+  `;
+
   return `
-    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.82rem; font-weight: 700;">
-      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.stokAwal};"></span> Stok Awal</span>
-      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.beli};"></span> Pembelian</span>
-      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.jual};"></span> Penjualan</span>
-      <span style="display: flex; align-items: center; gap: 6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${colors.stokAkhir};"></span> Stok Akhir (Trend)</span>
-    </div>
-    <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; overflow: visible;">
+    <svg viewBox="0 0 ${width} ${height}" width="100%" preserveAspectRatio="xMidYMid meet">
       ${gridSvg}
       ${barsSvg}
-      ${trendSvg}
+      ${trendlineSvg}
+      ${legendSvg}
     </svg>
   `;
 }
@@ -5194,47 +5450,47 @@ function renderHealthInvComparativeAnalysis() {
   if (isAll) {
     return `
       <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-        <span>🔍 Analisa Komparatif Mutasi Persediaan 3 Bulan (Mei, Juni, Juli 2026)</span>
+        <span>🔍 Analisa Komparatif Mutasi Persediaan ${HEALTH_MONTHS.length} Bulan (Desember 2025 - September 2026)</span>
         <span class="badge-purple" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;">Cross-Month Audit</span>
       </div>
       <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
-        Evaluasi korelasi antara siklus restock pembelian, kecepatan penjualan (turnover), serta komparasi laba kotor per pcs antar periode.
+        Evaluasi korelasi siklus restock pembelian, perputaran persediaan (turnover), serta komparasi laba kotor per pcs antar seluruh periode.
       </p>
 
       <div class="health-inv-analysis-grid">
         <!-- Card 1: Dinamika Arus & Restock Masif -->
         <div class="health-inv-analysis-card theme-warning">
           <div class="health-inv-card-title">
-            <span>📦 Restock Masif &amp; Penumpukan Stok Juli 2026</span>
+            <span>📦 Siklus Restock &amp; Penumpukan Persediaan</span>
           </div>
           <p class="health-inv-card-text">
-            Persediaan sempat melandai dari <strong>14.432 pcs (Rp 11,26 M)</strong> di awal Mei menjadi <strong>10.298 pcs (Rp 8,33 M)</strong> di akhir Juni berkat turnover yang sehat.
-            Namun pada bulan <strong>Juli 2026</strong>, terjadi pembelian/restock sangat agresif sebesar <strong>7.838 pcs (Rp 6,33 Miliar, +65% vs Juni)</strong>. Karena penjualan Juli melambat (-4,3% ke 6.480 pcs), stok akhir Juli membengkak kembali ke <strong>11.656 pcs (Rp 9,53 Miliar)</strong>, mengikat likuiditas kas sekitar Rp 1,2 Miliar.
+            Persediaan dibuka per 1 Desember 2025 sebesar <strong>14.671 pcs (Rp 10,83 M)</strong>, melandai ke <strong>12.203 pcs (Rp 9,14 M)</strong> di akhir Desember dan berlanjut ke awal tahun 2026 dan memuncak di Maret pada <strong>15.529 pcs (Rp 12,08 M)</strong>.
+            Penjualan tertinggi terjadi pada <strong>April 2026 (8.090 pcs / Rp 7,27 M)</strong>. Setelah melandai di Juni (10.298 pcs), terjadi restock agresif di Juli (+65% ke 7.838 pcs).
+            Hingga akhir September, stok stabil di <strong>13.577 pcs (Rp 11,43 Miliar)</strong>.
           </p>
         </div>
 
         <!-- Card 2: Tren Laba Rugi per Pcs -->
         <div class="health-inv-analysis-card theme-danger">
           <div class="health-inv-card-title">
-            <span>📉 Erosi Laba Rata-rata per Pcs</span>
+            <span>📉 Dinamika Laba Rata-rata per Pcs</span>
           </div>
           <p class="health-inv-card-text">
-            Laba kotor rata-rata per ban tertinggi terjadi pada <strong>Mei 2026 sebesar Rp 38.020/pcs (Margin 4,36%)</strong>.
-            Pada <strong>Juni 2026</strong> laba per pcs anjlok <strong>-19,4% menjadi Rp 30.654/pcs (Margin 3,61%)</strong> akibat diskon tajam dan penjualan 22 SKU di bawah harga perolehan (rugi total Rp 41,5 Jt).
-            Bulan Juli sedikit pulih menjadi <strong>Rp 32.950/pcs (Margin 4,00%)</strong>, namun tetap di bawah kinerja Mei.
+            Laba kotor rata-rata per ban tertinggi terjadi pada <strong>Januari (Rp 60.916/pcs)</strong> dan <strong>April (Rp 43.476/pcs)</strong>.
+            Titik terendah tercatat pada <strong>September (Rp 35.004/pcs)</strong> dan <strong>Juni (Rp 30.654/pcs)</strong> akibat diskon tajam serta erosi margin SKU premium.
           </p>
         </div>
 
         <!-- Card 3: Top Profit Contributor -->
         <div class="health-inv-analysis-card theme-success">
           <div class="health-inv-card-title">
-            <span>⭐ Top 3 Ban Penyumbang Laba Terbesar (3 Bulan)</span>
+            <span>⭐ Motor Penggerak Profit Utama</span>
           </div>
           <p class="health-inv-card-text">
-            Tiga SKU motor penggerak profit utama selama 3 bulan:
-            <br>1. <strong>185/65R15 88S EC</strong>: Total laba <strong>Rp 51.523.513</strong> (1.189 pcs, avg Rp 43.333/pcs, margin 6,2%).
-            <br>2. <strong>7.50-16 14PR DR2</strong>: Total laba <strong>Rp 45.454.490</strong> (1.916 pcs, avg Rp 23.724/pcs).
-            <br>3. <strong>205/65R16 95H EC</strong>: Total laba <strong>Rp 38.932.610</strong> (692 pcs, avg Rp 56.261/pcs, margin 6,7%).
+            SKU penyumbang profit konsisten volume tinggi:
+            <br>• <strong>185/65R15 88S EC</strong>: Kontributor konsisten margin &gt; 6% per ban.
+            <br>• <strong>7.50-16 14PR DR2</strong>: Tulang punggung volume penjualan ban niaga/truk.
+            <br>• <strong>205/65R16 95H EC</strong>: Profit konsisten &gt; Rp 50.000/pcs.
           </p>
         </div>
 
@@ -5244,11 +5500,9 @@ function renderHealthInvComparativeAnalysis() {
             <span>⚠️ Alarm Kerugian SKU Margin Minus</span>
           </div>
           <p class="health-inv-card-text">
-            Terdapat tipe ban premium yang dijual jauh di bawah HPP (margin minus):
-            <br>• <strong>235/50R18 97W SP</strong>: Rugi akumulasi <strong>Rp -31.996.555</strong> (84 pcs terjual, rata-rata <strong>rugi Rp -380.911/pcs</strong>).
-            <br>• <strong>235 55*18 AT5</strong>: Rugi <strong>Rp -7.945.253</strong> (12 pcs, rugi Rp -662.104/pcs).
-            <br>• <strong>265/60R18 110H A</strong>: Rugi <strong>Rp -7.937.505</strong> (20 pcs, rugi Rp -396.875/pcs).
-            <br>• <strong>225 50 18 SPMAX0</strong>: Rugi <strong>Rp -5.803.677</strong> (7 pcs, rugi Rp -829.097/pcs).
+            Terdeteksi tipe ban premium yang dijual di bawah harga perolehan (margin minus):
+            <br>• <strong>235/50R18 97W SP</strong>: Defisit kumulatif tertinggi &gt; Rp 31 Juta.
+            <br>• <strong>225 50 18 SPMAX0</strong> &amp; <strong>235 55*18 AT5</strong>: Dijual dengan kerugian rata-rata &gt; Rp 600.000/pcs.
           </p>
         </div>
       </div>
@@ -5257,7 +5511,7 @@ function renderHealthInvComparativeAnalysis() {
 
   // Single Month View
   const s = data.summary;
-  const periodLabel = activeHealthPeriod === '2026-05' ? 'Mei 2026' : (activeHealthPeriod === '2026-06' ? 'Juni 2026' : 'Juli 2026');
+  const periodLabel = HEALTH_FINANCIAL_DATA[activeHealthPeriod]?.monthLabel || activeHealthPeriod;
   const lossItems = data.items.filter(it => it.jualQty > 0 && it.labaRugiTotal < 0);
   const totalLoss = lossItems.reduce((a, b) => a + b.labaRugiTotal, 0);
 
@@ -5358,7 +5612,7 @@ function renderHealthInventoryProductTable() {
 
   const sortIcon = (col) => {
     if (healthInvSortCol !== col) return '↕';
-    return healthInvSortAsc ? '↑' : '↓';
+    return healthInvSortAsc ? '▲' : '▼';
   };
 
   const rowsHtml = filtered.map((it, idx) => {
@@ -5366,117 +5620,91 @@ function renderHealthInventoryProductTable() {
     const isHigh = it.jualQty > 0 && it.labaRugiPerPcs >= 45000;
     const isSlow = it.jualQty === 0 && it.stokAkhirQty > 0;
 
-    let badgeClass = 'badge-profit-normal';
-    let badgeLabel = '✓ Normal';
+    let statusBadge = '';
     if (isLoss) {
-      badgeClass = 'badge-profit-loss';
-      badgeLabel = `🔥 Rugi ${it.labaRugiPerPcs.toLocaleString('id-ID')}/pcs`;
+      statusBadge = '<span class="badge-status-danger" style="font-size: 0.72rem; padding: 2px 6px;">Margin Minus</span>';
     } else if (isHigh) {
-      badgeClass = 'badge-profit-star';
-      badgeLabel = `⭐ +${it.labaRugiPerPcs.toLocaleString('id-ID')}/pcs`;
+      statusBadge = '<span class="badge-status-safe" style="font-size: 0.72rem; padding: 2px 6px;">Profit Tinggi</span>';
     } else if (isSlow) {
-      badgeClass = 'badge-profit-slow';
-      badgeLabel = '💤 0 Terjual';
-    } else if (it.jualQty > 0 && it.marginPct < 2) {
-      badgeClass = 'badge-profit-thin';
-      badgeLabel = `⚠️ Tipis (${it.marginPct}%)`;
+      statusBadge = '<span class="badge-status-neutral" style="font-size: 0.72rem; padding: 2px 6px;">Slow Moving</span>';
+    } else if (it.jualQty > 0) {
+      statusBadge = '<span class="badge-status-safe" style="font-size: 0.72rem; padding: 2px 6px;">Normal</span>';
+    } else {
+      statusBadge = '<span class="badge-status-neutral" style="font-size: 0.72rem; padding: 2px 6px;">Nol</span>';
     }
 
+    const profitColor = it.labaRugiTotal > 0 ? '#10b981' : it.labaRugiTotal < 0 ? '#ef4444' : 'var(--text-muted)';
+    const marginColor = it.marginPct > 0 ? '#10b981' : it.marginPct < 0 ? '#ef4444' : 'var(--text-muted)';
+
     return `
-      <tr class="${isLoss ? 'row-loss' : ''}">
-        <td style="text-align: center; color: var(--text-muted); font-size: 0.78rem;">${idx + 1}</td>
-        <td style="font-weight: 700; white-space: nowrap;">
-          <span>${it.nama}</span>
+      <tr class="${isLoss ? 'row-alert-danger' : ''}">
+        <td class="col-sticky-freeze" style="font-weight: 700; color: var(--text-main);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span>${it.nama}</span>
+            ${statusBadge}
+          </div>
         </td>
-        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
-          <div>${it.stokAwalQty.toLocaleString('id-ID')}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(it.stokAwalNilai)}</div>
+        <td style="text-align: right;">${it.stokAwalQty.toLocaleString('id-ID')}</td>
+        <td style="text-align: right;">${it.beliQty.toLocaleString('id-ID')}</td>
+        <td style="text-align: right; font-weight: 700; color: #0284c7;">${it.jualQty.toLocaleString('id-ID')}</td>
+        <td style="text-align: right; font-weight: 700;">${it.stokAkhirQty.toLocaleString('id-ID')}</td>
+        <td style="text-align: right;">${it.jualQty > 0 ? formatRupiah(it.penjualan) : '-'}</td>
+        <td style="text-align: right;">${it.jualQty > 0 ? formatRupiah(it.hargaPokok) : '-'}</td>
+        <td style="text-align: right; font-weight: 800; color: ${profitColor};">
+          ${it.jualQty > 0 ? formatRupiah(it.labaRugiTotal) : '-'}
         </td>
-        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
-          <div>${it.beliQty > 0 ? it.beliQty.toLocaleString('id-ID') : '-'}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.beliQty > 0 ? 'Rp ' + it.beliCost.toLocaleString('id-ID') : '-'}</div>
+        <td style="text-align: right; font-weight: 800; color: ${profitColor};">
+          ${it.jualQty > 0 ? formatRupiah(it.labaRugiPerPcs) : '-'}
         </td>
-        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
-          <div style="font-weight: 700; color: #10b981;">${it.jualQty > 0 ? it.jualQty.toLocaleString('id-ID') : '-'}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.jualQty > 0 ? 'Rp ' + it.hargaJualPerPcs.toLocaleString('id-ID') : '-'}</div>
-        </td>
-        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
-          <div>${it.hppQty > 0 ? it.hppQty.toLocaleString('id-ID') : '-'}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">${it.hppQty > 0 ? 'Rp ' + it.hppPerPcs.toLocaleString('id-ID') : '-'}</div>
-        </td>
-        <td style="text-align: right; font-weight: 800; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.labaRugiTotal > 0 ? '#10b981' : 'var(--text-muted)')}; white-space: nowrap;">
-          ${it.jualQty > 0 ? (it.labaRugiTotal < 0 ? '-Rp ' + Math.abs(it.labaRugiTotal).toLocaleString('id-ID') : 'Rp ' + it.labaRugiTotal.toLocaleString('id-ID')) : '-'}
-        </td>
-        <td style="text-align: right; font-weight: 800; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.labaRugiPerPcs > 0 ? '#3b82f6' : 'var(--text-muted)')}; white-space: nowrap;">
-          ${it.jualQty > 0 ? (it.labaRugiPerPcs < 0 ? '-Rp ' + Math.abs(it.labaRugiPerPcs).toLocaleString('id-ID') : 'Rp ' + it.labaRugiPerPcs.toLocaleString('id-ID')) : '-'}
-        </td>
-        <td style="text-align: right; font-weight: 700; font-family: JetBrains Mono, monospace; color: ${isLoss ? '#ef4444' : (it.marginPct >= 5 ? '#10b981' : (it.marginPct < 2 ? '#f59e0b' : 'var(--text-main)'))};">
-          ${it.jualQty > 0 ? it.marginPct.toFixed(2) + '%' : '-'}
-        </td>
-        <td style="text-align: right; font-family: JetBrains Mono, monospace; white-space: nowrap;">
-          <div style="font-weight: 700;">${it.stokAkhirQty.toLocaleString('id-ID')}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(it.stokAkhirNilai)}</div>
-        </td>
-        <td style="text-align: center; white-space: nowrap;">
-          <span class="badge-profit-pill ${badgeClass}">${badgeLabel}</span>
+        <td style="text-align: right; font-weight: 700; color: ${marginColor};">
+          ${it.jualQty > 0 ? it.marginPct.toFixed(2).replace('.', ',') + '%' : '-'}
         </td>
       </tr>
     `;
   }).join('');
 
-  const sumAwalQty = filtered.reduce((a, b) => a + b.stokAwalQty, 0);
-  const sumAwalVal = filtered.reduce((a, b) => a + b.stokAwalNilai, 0);
-  const sumBeliQty = filtered.reduce((a, b) => a + b.beliQty, 0);
-  const sumJualQty = filtered.reduce((a, b) => a + b.jualQty, 0);
-  const sumJualVal = filtered.reduce((a, b) => a + b.jualNilai, 0);
-  const sumHppVal = filtered.reduce((a, b) => a + b.hppNilai, 0);
-  const sumLaba = filtered.reduce((a, b) => a + b.labaRugiTotal, 0);
-  const sumAkhirQty = filtered.reduce((a, b) => a + b.stokAkhirQty, 0);
-  const sumAkhirVal = filtered.reduce((a, b) => a + b.stokAkhirNilai, 0);
-  const avgLabaPerPcs = sumJualQty > 0 ? Math.round(sumLaba / sumJualQty) : 0;
-  const avgMargin = sumJualVal > 0 ? ((sumLaba / sumJualVal) * 100).toFixed(2) : 0;
-
   tableContainer.innerHTML = `
-    <table class="table-health-inv">
-      <thead>
-        <tr>
-          <th style="width: 36px; text-align: center;">#</th>
-          <th class="sortable" onclick="sortHealthInventoryProducts('nama')">TIPE / UKURAN BAN ${sortIcon('nama')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('stokAwalQty')">STOK AWAL ${sortIcon('stokAwalQty')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('beliQty')">BELI (QTY) ${sortIcon('beliQty')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('jualQty')">JUAL (QTY) ${sortIcon('jualQty')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('hppNilai')">HPP ${sortIcon('hppNilai')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('labaRugiTotal')">LABA TOTAL ${sortIcon('labaRugiTotal')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('labaRugiPerPcs')">LABA / PCS ${sortIcon('labaRugiPerPcs')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('marginPct')">MARGIN % ${sortIcon('marginPct')}</th>
-          <th class="sortable" style="text-align: right;" onclick="sortHealthInventoryProducts('stokAkhirQty')">STOK AKHIR ${sortIcon('stokAkhirQty')}</th>
-          <th style="text-align: center;">STATUS</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
-      <tfoot>
-        <tr style="font-weight: 800; background: var(--bg-surface-secondary); border-top: 2px solid var(--border-color);">
-          <td colspan="2" style="padding: 10px 8px;">TOTAL (${filtered.length} Tipe Terfilter)</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace;">
-            <div>${sumAwalQty.toLocaleString('id-ID')}</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(sumAwalVal)}</div>
-          </td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace;">${sumBeliQty.toLocaleString('id-ID')}</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: #10b981;">${sumJualQty.toLocaleString('id-ID')}</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace;">Rp ${formatShortRupiah(sumHppVal)}</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: ${sumLaba >= 0 ? '#10b981' : '#ef4444'};">Rp ${formatShortRupiah(sumLaba)}</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace; color: #3b82f6;">Rp ${avgLabaPerPcs.toLocaleString('id-ID')}</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace;">${avgMargin}%</td>
-          <td style="text-align: right; font-family: JetBrains Mono, monospace;">
-            <div>${sumAkhirQty.toLocaleString('id-ID')}</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Rp ${formatShortRupiah(sumAkhirVal)}</div>
-          </td>
-          <td style="text-align: center;">-</td>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+      <table class="chart-data-table">
+        <thead>
+          <tr>
+            <th class="col-sticky-freeze" onclick="sortHealthInventoryProducts('nama')" style="cursor: pointer;">
+              Tipe Barang / Nama Ban ${sortIcon('nama')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('stokAwalQty')">
+              Stok Awal ${sortIcon('stokAwalQty')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('beliQty')">
+              Pembelian ${sortIcon('beliQty')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('jualQty')">
+              Penjualan ${sortIcon('jualQty')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('stokAkhirQty')">
+              Stok Akhir ${sortIcon('stokAkhirQty')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('penjualan')">
+              Nilai Penjualan ${sortIcon('penjualan')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('hargaPokok')">
+              HPP (Beli) ${sortIcon('hargaPokok')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('labaRugiTotal')">
+              Total Laba / (Rugi) ${sortIcon('labaRugiTotal')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('labaRugiPerPcs')">
+              Laba / (Rugi) per Pcs ${sortIcon('labaRugiPerPcs')}
+            </th>
+            <th style="text-align: right; cursor: pointer;" onclick="sortHealthInventoryProducts('marginPct')">
+              Margin % ${sortIcon('marginPct')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml || '<tr><td colspan="10" style="text-align:center; padding: 24px; color: var(--text-muted);">Tidak ada barang yang cocok dengan filter.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -5484,9 +5712,8 @@ function renderHealthSunkDashboard() {
   const container = document.getElementById('healthSunkDashboard');
   if (!container) return;
 
-  const mMay = HEALTH_FINANCIAL_DATA['2026-05'];
-  const mJun = HEALTH_FINANCIAL_DATA['2026-06'];
-  const mJul = HEALTH_FINANCIAL_DATA['2026-07'];
+  const months = HEALTH_MONTHS;
+  const mData = months.map(k => HEALTH_FINANCIAL_DATA[k]);
 
   container.innerHTML = `
     <div class="chart-header">
@@ -5501,110 +5728,102 @@ function renderHealthSunkDashboard() {
       <div class="sunk-item-box">
         <span class="sunk-item-label">🏢 Akumulasi Penyusutan Aset</span>
         <div class="sunk-item-val">Rp 1.616.848.376</div>
-        <span class="sunk-item-desc">Rutin Rp 3.201.053/bulan (Bangunan &amp; Inventaris Kantor)</span>
+        <span class="sunk-item-desc">Rutin ~Rp 3.201.053/bulan (Bangunan &amp; Inventaris Kantor)</span>
       </div>
 
       <div class="sunk-item-box">
-        <span class="sunk-item-label">🏷️ Potongan Penjualan (Diskon) Juli</span>
+        <span class="sunk-item-label">🎉 Bonus Tahunan Karyawan (Februari)</span>
+        <div class="sunk-item-val">Rp 497.318.482</div>
+        <span class="sunk-item-desc">Pengeluaran bonus prestasi dibayarkan penuh di bulan Februari</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🏛️ Pajak PPh 21 Tahunan &amp; Honor (Januari)</span>
+        <div class="sunk-item-val">Rp 394.984.765</div>
+        <span class="sunk-item-desc">Pelunasan PPh 21 Pegawai (Rp 107M) &amp; Honorarium (Rp 288M)</span>
+      </div>
+
+      <div class="sunk-item-box">
+        <span class="sunk-item-label">🏷️ Puncak Potongan Penjualan (Juli)</span>
         <div class="sunk-item-val">Rp 189.554.134</div>
-        <span class="sunk-item-desc">Naik dari Rp 9,2 Rb (Mei) ➔ Rp 57,4 Jt (Juni) ➔ Rp 189,5 Jt (Juli)</span>
+        <span class="sunk-item-desc">Margin concession diskon yang menghabiskan laba kotor di Juli</span>
       </div>
 
       <div class="sunk-item-box">
-        <span class="sunk-item-label">🎉 THR Galungan &amp; Kuningan</span>
-        <div class="sunk-item-val">Rp 41.310.000</div>
-        <span class="sunk-item-desc">Beban payroll keagamaan dibayarkan 10 Juni 2026</span>
-      </div>
-
-      <div class="sunk-item-box">
-        <span class="sunk-item-label">🏛️ Pajak PBB Tahun 2026 Lunas</span>
-        <div class="sunk-item-val">Rp 12.550.720</div>
-        <span class="sunk-item-desc">Beban pajak properti dibayarkan penuh pada bulan Juni</span>
-      </div>
-
-      <div class="sunk-item-box">
-        <span class="sunk-item-label">🍽️ Puncak Entertainment Tamu</span>
-        <div class="sunk-item-val">Rp 16.324.138</div>
-        <span class="sunk-item-desc">Kunjungan tamu Mr. Sena &amp; Ko Andre di bulan Juni (Juli Rp 0)</span>
+        <span class="sunk-item-label">🎉 THR Karyawan (Maret &amp; Juni)</span>
+        <div class="sunk-item-val">Rp 53.070.000</div>
+        <span class="sunk-item-desc">THR Idul Fitri (Maret Rp 11,8M) &amp; Galungan-Kuningan (Juni Rp 41,3M)</span>
       </div>
 
       <div class="sunk-item-box">
         <span class="sunk-item-label">⚖️ Titipan Bunga Pinjaman Mihardjo</span>
         <div class="sunk-item-val">Rp 2.288.034.822</div>
-        <span class="sunk-item-desc">Beban bunga titipan akumulatif (Juni Rp 11,9 Jt, Juli Rp 20,2 Jt)</span>
+        <span class="sunk-item-desc">Beban bunga titipan modal kerja BCA Kredit 1122</span>
       </div>
     </div>
 
     <!-- Sunk Cost Monthly Comparison Table -->
     <div class="chart-table-wrap" style="margin-top: 10px;">
-      <h4 class="table-title">📊 Rincian Komponen Sunk Cost per Bulan (Mei, Juni, Juli 2026):</h4>
+      <h4 class="table-title">📊 Rincian Komponen Sunk Cost per Bulan (Desember 2025 - September 2026):</h4>
       <div class="table-responsive">
         <table class="chart-data-table">
           <thead>
             <tr>
               <th class="col-sticky-freeze">Kategori Sunk Cost</th>
-              <th style="text-align:right;">Mei 2026</th>
-              <th style="text-align:right;">Juni 2026</th>
-              <th style="text-align:right;">Juli 2026</th>
-              <th style="text-align:left;">Sifat Biaya &amp; Dampak Likuiditas</th>
+              ${mData.map(d => `<th style="text-align:right;">${d.monthLabel}</th>`).join('')}
+              <th style="text-align:left;">Sifat Biaya</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="col-label col-sticky-freeze">Penyusutan Aktiva Tetap (Depresiasi)</td>
-              <td style="text-align:right;">Rp 3.201.053</td>
-              <td style="text-align:right;">Rp 3.201.053</td>
-              <td style="text-align:right;">Rp 3.201.053</td>
-              <td>Non-cash sunk cost rutin fasilitas gedung &amp; inventaris</td>
+              ${mData.map(d => `<td style="text-align:right;">${formatRupiah(d.sunkCost.penyusutan || 0)}</td>`).join('')}
+              <td>Non-cash rutin fasilitas gedung &amp; kantor</td>
             </tr>
             <tr>
               <td class="col-label col-sticky-freeze">Pajak Penghasilan (PPh 25 Setoran Kas)</td>
-              <td style="text-align:right;">Rp 39.758.179</td>
-              <td style="text-align:right;">Rp 39.756.859</td>
-              <td style="text-align:right;">Rp 39.763.879</td>
-              <td>Kewajiban negara tidak dapat ditarik kembali (Rp ~39,7 Jt/bln)</td>
+              ${mData.map(d => `<td style="text-align:right;">${formatRupiah(d.sunkCost.pajakPph25 || 0)}</td>`).join('')}
+              <td>Kewajiban negara (~Rp 39,5 Jt/bln)</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">Bonus Tahunan Karyawan</td>
+              ${mData.map(d => `<td style="text-align:right;${(d.sunkCost.bonusTahunan || 0) > 0 ? ' font-weight:700; color:#ef4444;' : ''}">${formatRupiah(d.sunkCost.bonusTahunan || 0)}</td>`).join('')}
+              <td>Bonus prestasi tahunan (Februari)</td>
+            </tr>
+            <tr>
+              <td class="col-label col-sticky-freeze">PPh 21 Pegawai &amp; Honorarium</td>
+              ${mData.map(d => `<td style="text-align:right;${((d.sunkCost.pph21Pegawai || 0) + (d.sunkCost.pph21Honor || 0)) > 0 ? ' font-weight:700; color:#ef4444;' : ''}">${formatRupiah((d.sunkCost.pph21Pegawai || 0) + (d.sunkCost.pph21Honor || 0))}</td>`).join('')}
+              <td>Pelunasan pajak tahunan (Januari)</td>
             </tr>
             <tr>
               <td class="col-label col-sticky-freeze">Pajak Bumi &amp; Bangunan (PBB)</td>
-              <td style="text-align:right;">Rp 0</td>
-              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 12.550.720</td>
-              <td style="text-align:right;">Rp 0</td>
-              <td>Biaya tahunan dibayar lunas pada tanggal 3 Juni 2026</td>
+              ${mData.map(d => `<td style="text-align:right;${(d.sunkCost.pbb || 0) > 0 ? ' font-weight:700; color:#ef4444;' : ''}">${formatRupiah(d.sunkCost.pbb || 0)}</td>`).join('')}
+              <td>PBB lunas setahun di bulan Juni</td>
             </tr>
             <tr>
-              <td class="col-label col-sticky-freeze">THR Karyawan (Galungan &amp; Kuningan)</td>
-              <td style="text-align:right;">Rp 0</td>
-              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 41.310.000</td>
-              <td style="text-align:right;">Rp 0</td>
-              <td>Beban musiman keagamaan staf lokal Bali</td>
+              <td class="col-label col-sticky-freeze">THR Karyawan (Idul Fitri &amp; Galungan)</td>
+              ${mData.map(d => `<td style="text-align:right;${(d.sunkCost.thr || 0) > 0 ? ' font-weight:700; color:#f59e0b;' : ''}">${formatRupiah(d.sunkCost.thr || 0)}</td>`).join('')}
+              <td>Beban keagamaan Maret &amp; Juni</td>
             </tr>
             <tr>
-              <td class="col-label col-sticky-freeze">Biaya Jamuan Tamu &amp; Entertainment</td>
-              <td style="text-align:right;">Rp 3.619.926</td>
-              <td style="text-align:right; font-weight:700; color:#ef4444;">Rp 16.324.138</td>
-              <td style="text-align:right;">Rp 0</td>
-              <td>Kunjungan tamu Mr. Sena, jamuan makan, bandara &amp; cinderamata</td>
+              <td class="col-label col-sticky-freeze">Jamuan Tamu &amp; Entertainment</td>
+              ${mData.map(d => `<td style="text-align:right;">${formatRupiah(d.sunkCost.entertainment || 0)}</td>`).join('')}
+              <td>Jamuan supplier &amp; mitra kerja</td>
             </tr>
             <tr>
               <td class="col-label col-sticky-freeze">Sumbangan Upacara, Canang &amp; Daksina</td>
-              <td style="text-align:right;">Rp 2.051.250</td>
-              <td style="text-align:right;">Rp 675.000</td>
-              <td style="text-align:right;">Rp 1.700.500</td>
-              <td>Beban ritual dan seremonial bulanan</td>
+              ${mData.map(d => `<td style="text-align:right;">${formatRupiah(d.sunkCost.sumbanganUpacara || 0)}</td>`).join('')}
+              <td>Ritual keagamaan lokal bulanan</td>
             </tr>
             <tr>
-              <td class="col-label col-sticky-freeze">Potongan Penjualan (Diskon / Margin Concession)</td>
-              <td style="text-align:right;">Rp 9.259</td>
-              <td style="text-align:right;">Rp 57.397.271</td>
-              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 189.554.134</td>
-              <td>🚨 Margin kotor yang dikorbankan demi penjualan kredit</td>
+              <td class="col-label col-sticky-freeze">Potongan Penjualan (Diskon Nota)</td>
+              ${mData.map(d => `<td style="text-align:right;${(d.potonganPenjualan || 0) > 50000000 ? ' font-weight:800; color:#ef4444;' : ''}">${formatRupiah(Math.max(0, d.potonganPenjualan || 0))}</td>`).join('')}
+              <td>Margin concession pengorbanan laba</td>
             </tr>
             <tr class="row-total">
               <td class="col-label col-sticky-freeze">Total Sunk Cost Teridentifikasi</td>
-              <td style="text-align:right; font-weight:800;">Rp 48.639.667</td>
-              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 171.215.041</td>
-              <td style="text-align:right; font-weight:800; color:#ef4444;">Rp 234.219.566</td>
-              <td style="font-weight:700;">Melonjak drastis pada Juni dan Juli 2026</td>
+              ${mData.map(d => `<td style="text-align:right; font-weight:800;">${formatRupiah(d.sunkCost.totalSunk || 0)}</td>`).join('')}
+              <td style="font-weight:700;">Pengeluaran non-recoverable</td>
             </tr>
           </tbody>
         </table>
@@ -5632,41 +5851,38 @@ function renderHealthExecutiveNotes() {
           🚨 ALARM KRITIS: Rasio HPP Bulan Juli 2026 Mencapai 99,53% (Jauh di Atas Median)
         </div>
         <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
-          Pada bulan Juli 2026, persentase HPP melonjak tajam ke <strong>99,53%</strong>, berada <strong>+3,13% di atas benchmark tahunan (96,40%)</strong> dan +2,17% di atas median bulanan (97,36%).
-          Laba kotor perusahaan tersisa hanya <strong>Rp 23.963.274 (0,47%)</strong> dari total omzet bersih Rp 5,15 Miliar.
-          Penyebab utamanya adalah lonjakan <strong>potongan penjualan (diskon) sebesar Rp 189.554.134 (3,68%)</strong>. Diskon agresif ini menghabiskan marjin laba dan gagal mendongkrak penjualan (omzet bersih justru turun 9,5% dari Juni).
+          Pada bulan Juli 2026, persentase HPP melonjak tajam ke <strong>99,53%</strong>, berada di atas benchmark tahunan (96,40%).
+          Laba kotor perusahaan tersisa hanya <strong>Rp 23.963.274 (0,47%)</strong> dari total omzet bersih Rp 5,15 Miliar akibat lonjakan <strong>potongan penjualan (diskon) sebesar Rp 189.554.134 (3,68%)</strong>.
         </div>
       </div>
 
-      <!-- Alert 2: Gaji Juni Spike -->
+      <!-- Alert 2: Gaji & THR Spike -->
       <div class="health-note-callout note-warning">
         <div style="font-weight: 800; font-size: 0.95rem; color: #f59e0b;">
           ⚠️ ANOMALI GAJI: Beban Gaji Bulan Juni 2026 Naik Menjadi 2,33% (+34% di Atas Rata-rata)
         </div>
         <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
-          Beban gaji melonjak dari Rp 91,4 Jt (1,61%) di Mei menjadi <strong>Rp 132.624.000 (2,33%)</strong> di Juni, berada <strong>+0,59% di atas benchmark tahunan (1,74%)</strong>.
-          Kenaikan ini merupakan beban musiman akibat pembayaran <strong>THR Galungan &amp; Kuningan sebesar Rp 41.310.000</strong> pada tanggal 10 Juni 2026. Pada bulan Juli beban gaji telah kembali normal ke <strong>1,77% (Rp 91,37 Jt)</strong>.
+          Beban gaji melonjak menjadi <strong>Rp 132.624.000 (2,33%)</strong> di Juni dipicu pembayaran <strong>THR Galungan &amp; Kuningan sebesar Rp 41.310.000</strong>. Sebelumnya di Maret juga terdapat pembayaran THR Idul Fitri Rp 11.760.000.
         </div>
       </div>
 
-      <!-- Alert 3: Beban Operasional Juni -->
-      <div class="health-note-callout note-warning">
-        <div style="font-weight: 800; font-size: 0.95rem; color: #f59e0b;">
-          ⚠️ LONJAKAN OPEX JUNI: Akumulasi PBB Setahun Penuh &amp; Jamuan Entertainment
+      <!-- Alert 3: Bonus Tahunan Februari -->
+      <div class="health-note-callout note-danger">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #ef4444;">
+          ⚠️ LONJAKAN OPEX FEBRUARI: Bonus Tahunan Karyawan Rp 497,3 Juta
         </div>
         <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
-          Total biaya operasional bulan Juni melonjak <strong>+58,2%</strong> menjadi Rp 194.363.975 (3,41%) dibandingkan Mei yang hanya Rp 122,8 Jt (2,17%).
-          Penyebab lonjakan: pelunasan <strong>Pajak Bumi &amp; Bangunan (PBB) tahun 2026 sebesar Rp 12.550.720</strong> dan pengeluaran <strong>entertainment tamu supplier sebesar Rp 16.324.138</strong> (kunjungan Mr. Sena &amp; Ko Andre, cinderamata papan nama ukir Rp 1,25 Jt, dan jamuan makan).
+          Total biaya operasional bulan Februari melonjak ke <strong>Rp 619.613.674 (10,51% omzet)</strong> akibat pembagian bonus tahunan prestasi karyawan sebesar <strong>Rp 497.318.482</strong>, menyebabkan defisit operasional bulanan sebesar -Rp 350 Juta.
         </div>
       </div>
 
-      <!-- Alert 4: Mei Benchmark -->
+      <!-- Alert 4: Rekor April & Efisiensi Mei -->
       <div class="health-note-callout note-success">
         <div style="font-weight: 800; font-size: 0.95rem; color: #10b981;">
-          💡 TOLOK UKUR IDEAL: Bulan Mei 2026 Mencapai Laba Bersih Positif Rp 99 Juta
+          💡 TOLOK UKUR IDEAL: Rekor April (+Rp 201M) &amp; Efisiensi Mei (+Rp 99M)
         </div>
         <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
-          Bulan Mei 2026 membuktikan struktur operasional yang sangat sehat: rasio HPP terkendali di <strong>95,64%</strong>, potongan penjualan hampir nol (Rp 9.259), beban operasional ditekan efisien di <strong>2,17%</strong>, dan menghasilkan <strong>laba bersih Rp 99.025.287</strong> (+1,75%).
+          Bulan April mencatatkan rekor omzet tertinggi sepanjang tahun (<strong>Rp 7,27 Miliar</strong>) dengan laba bersih rekor <strong>Rp 201.670.556 (+2,77%)</strong>. Bulan Mei melengkapi dengan struktur operasional paling hemat di mana opex ditekan ke <strong>2,17%</strong> dan mencetak laba bersih <strong>Rp 99.025.287</strong>.
         </div>
       </div>
 
@@ -5676,8 +5892,7 @@ function renderHealthExecutiveNotes() {
           🏦 ARUS KAS &amp; PINJAMAN PEMILIK: Ketergantungan Modal Kerja pada Bpk. Mihardjo
         </div>
         <div style="font-size: 0.88rem; line-height: 1.45; color: var(--text-main);">
-          Rekening BCA Kredit 1122 menunjukkan pinjaman dan pengembalian dana Bpk. Mihardjo dalam miliaran rupiah setiap bulan untuk menjembatani pelunasan tagihan Sumi Rubber Indonesia (SRI) saat piutang toko belum cair.
-          Beban titipan bunga pinjaman Mihardjo mencapai <strong>Rp 11.955.188 di Juni</strong> dan <strong>Rp 20.215.143 di Juli</strong>, dengan akumulasi titipan mencapai <strong>Rp 2.288.034.822</strong> di neraca.
+          Rekening BCA Kredit 1122 menunjukkan perputaran pinjaman modal kerja dari Bpk. Mihardjo dalam miliaran rupiah untuk menjembatani pelunasan tagihan pabrik saat piutang toko belum cair. Akumulasi titipan bunga pinjaman Mihardjo mencapai <strong>Rp 2.288.034.822</strong> di neraca.
         </div>
       </div>
     </div>
